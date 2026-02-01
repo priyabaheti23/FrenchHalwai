@@ -341,12 +341,50 @@
             document.body.style.overflow = 'auto';
         }
 
-        document.getElementById('orderForm').onsubmit = (e) => {
-            e.preventDefault();
-            document.getElementById('checkoutModal').style.display = 'none';
-            const confirmM = document.getElementById('confirmModal');
-            confirmM.style.display = 'flex';
-        };
+        document.getElementById('orderForm').onsubmit = async (e) => {
+    e.preventDefault();
+    
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.innerText = "Processing...";
+    btn.disabled = true;
+
+    // Capture the form and cart data
+    const formData = new FormData(e.target);
+    const orderData = {
+        sender_name: formData.get('sender_name'),
+        sender_phone: formData.get('sender_phone'),
+        anonymous: document.getElementById('anonCheck').checked ? "Yes" : "No",
+        receiver_name: formData.get('receiver_name'),
+        receiver_phone: formData.get('receiver_phone'),
+        surprise: document.getElementById('surpriseCheck').checked ? "Yes" : "No",
+        method: document.getElementById('methodSelect').value,
+        slot: formData.get('slot'),
+        order_details: `Pack 4: ${cart.pack4}, Pack 6: ${cart.pack6} | Address: ${formData.get('address') || 'N/A'} | Msg: ${formData.get('message') || 'None'}`,
+        total: document.getElementById('finalT').innerText
+    };
+
+    // REPLACE THIS URL WITH YOUR GOOGLE SCRIPT URL
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyHQJQT8J6gb3Qr7OYV46jszIFh18_3rCvKxNjTVtaQx1pUEykViue1ztvxoIV721FD/exec';
+
+    try {
+        await fetch(scriptURL, {
+            method: 'POST',
+            mode: 'no-cors', // Necessary for Apps Script
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderData)
+        });
+        
+        document.getElementById('checkoutModal').style.display = 'none';
+        document.getElementById('confirmModal').style.display = 'flex';
+    } catch (error) {
+        alert("Something went wrong. Please contact us on WhatsApp.");
+        console.error(error);
+        btn.innerText = "I've Paid — Confirm Preorder";
+        btn.disabled = false;
+    }
+};
     </script>
 </body>
 </html>
+
