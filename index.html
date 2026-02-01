@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>French Halwai | Valentine & Galentine Preorders</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #c5a059;
+            --light-gold: #e5c78d;
+            --cream: #fdfbf7;
+            --white: #ffffff;
+        }
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--cream); color: #333; scroll-behavior: smooth; }
+        .font-serif { font-family: 'Cormorant Garamond', serif; }
+        
+        /* Gold Theme Overrides */
+        .text-gold { color: var(--gold); }
+        .bg-gold { background-color: var(--gold); }
+        .border-gold { border-color: var(--gold); }
+
+        .btn-luxury {
+            background: var(--gold);
+            color: white;
+            transition: all 0.3s;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+        .btn-luxury:hover { background: var(--light-gold); transform: translateY(-2px); }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .qr-section {
+            background: #fff;
+            border: 1px solid var(--gold);
+            padding: 20px;
+        }
+
+        .egg-symbol {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #ffcc00;
+            border-radius: 2px;
+            margin-right: 5px;
+        }
+
+        .fixed-cart {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 90;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        input, select, textarea {
+            border: 1px solid #ddd !important;
+            padding: 12px !important;
+            border-radius: 4px !important;
+            width: 100%;
+        }
+        
+        .copy-toast {
+            display: none;
+            font-size: 10px;
+            color: var(--gold);
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="border-b border-stone-100 bg-white sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-left">
+                <h1 class="text-2xl font-serif font-bold tracking-tighter text-gold">FRENCH HALWAI</h1>
+                <p class="text-[10px] uppercase tracking-widest text-stone-400">Artisanal Patisserie</p>
+            </div>
+            <button onclick="openCart()" class="flex items-center gap-2 border-b border-gold pb-1">
+                <span class="text-xs font-bold uppercase tracking-widest">View Bag</span>
+                <span id="headerCartCount" class="text-gold font-bold">0</span>
+            </button>
+        </div>
+    </header>
+
+    <section class="py-12 text-center bg-white">
+        <span class="text-gold text-xs uppercase tracking-[0.5em] mb-3 block">Limited Edition Preorders</span>
+        <h2 class="text-4xl md:text-5xl font-serif italic mb-2">Valentine & Galentine</h2>
+        <p class="text-stone-500 font-light italic text-sm">Preorders have now started. Delivery & Pickup on 13th-14th Feb.</p>
+    </section>
+
+    <section class="max-w-6xl mx-auto px-6 py-12 grid md:grid-cols-2 gap-12">
+        <div class="bg-white border border-stone-100 p-8 text-center group relative">
+            <div id="delete-pack4" class="absolute top-4 right-4 hidden">
+                <button onclick="clearItem('pack4')" class="text-red-400 text-xs uppercase font-bold">Remove ✕</button>
+            </div>
+            <img src="https://images.unsplash.com/photo-1588195538326-c5b1e5b80134?w=600" class="w-full h-64 object-cover mb-6">
+            <h3 class="text-2xl font-serif italic mb-1">Box of 4 Madeleines</h3>
+            <div class="flex items-center justify-center mb-4">
+                <span class="egg-symbol"></span> <span class="text-[10px] uppercase text-stone-400">Contains Egg</span>
+            </div>
+            <p class="text-xs text-stone-500 mb-6 leading-relaxed">
+                <strong>Flavors:</strong> Dark Chocolate Rose, Classic Honey, Raspberry Lace, & Pistachio Bloom.
+            </p>
+            <div class="text-left bg-stone-50 p-4 mb-6 text-[11px] rounded">
+                <p><strong>Composition:</strong> French Butter, Madagascar Vanilla, Grade-A Flour.</p>
+                <p><strong>Allergens:</strong> Dairy, Gluten, Nuts, Egg.</p>
+            </div>
+            <div class="flex justify-between items-center border-t border-stone-100 pt-6">
+                <span class="text-xl font-light text-gold">₹749</span>
+                <button onclick="addToCart('pack4')" class="btn-luxury px-8 py-3 text-[10px] uppercase">Add to Bag</button>
+            </div>
+        </div>
+
+        <div class="bg-white border border-stone-100 p-8 text-center group relative">
+            <div id="delete-pack6" class="absolute top-4 right-4 hidden">
+                <button onclick="clearItem('pack6')" class="text-red-400 text-xs uppercase font-bold">Remove ✕</button>
+            </div>
+            <img src="https://images.unsplash.com/photo-1603532648955-039310d9ed75?w=600" class="w-full h-64 object-cover mb-6">
+            <h3 class="text-2xl font-serif italic mb-1">Box of 6 Madeleines</h3>
+            <div class="flex items-center justify-center mb-4">
+                <span class="egg-symbol"></span> <span class="text-[10px] uppercase text-stone-400">Contains Egg</span>
+            </div>
+            <p class="text-xs text-stone-500 mb-6 leading-relaxed">
+                <strong>Flavors:</strong> The Box of 4 + Saffron Spice & Lavender Lemon Zest.
+            </p>
+            <div class="text-left bg-stone-50 p-4 mb-6 text-[11px] rounded">
+                <p><strong>Composition:</strong> Slow-browned Butter, Pure Honey, Natural Extracts.</p>
+                <p><strong>Allergens:</strong> Dairy, Gluten, Nuts, Egg.</p>
+            </div>
+            <div class="flex justify-between items-center border-t border-stone-100 pt-6">
+                <span class="text-xl font-light text-gold">₹999</span>
+                <button onclick="addToCart('pack6')" class="btn-luxury px-8 py-3 text-[10px] uppercase">Add to Bag</button>
+            </div>
+        </div>
+    </section>
+
+    <div id="floatingCart" class="fixed-cart">
+        <button onclick="openCart()" class="btn-luxury px-6 py-4 rounded-full flex items-center gap-3 shadow-xl">
+            <span>Checkout Now</span>
+            <span id="floatingCartCount" class="bg-white text-gold px-2 py-0.5 rounded-full text-xs">0</span>
+        </button>
+    </div>
+
+    <section class="py-20 bg-stone-900 text-white">
+        <div class="max-w-5xl mx-auto px-6 text-center">
+            <h4 class="text-3xl font-serif italic mb-8 text-gold">The Master Artisan</h4>
+            <div class="flex flex-col md:flex-row items-center justify-center gap-12">
+                <img src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=300" class="w-48 h-48 rounded-full object-cover border-2 border-gold p-2">
+                <div class="text-left max-w-md">
+                    <h5 class="text-xl font-bold mb-2">Chef Pierre Sharma</h5>
+                    <p class="text-stone-400 text-sm mb-6 leading-relaxed">Trained at Le Cordon Bleu Paris, Chef Pierre focuses on the delicate balance of French texture and Indian soul.</p>
+                    <div class="flex gap-4">
+                        <a href="https://instagram.com/frenchhalwai" target="_blank" class="hover:opacity-70 transition">
+                            <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" class="w-6 h-6 invert">
+                        </a>
+                        <a href="https://twitter.com" target="_blank" class="hover:opacity-70 transition">
+                            <img src="https://cdn-icons-png.flaticon.com/512/3256/3256013.png" class="w-6 h-6 invert">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-12 bg-white border-t border-stone-100 text-center">
+        <h1 class="text-xl font-serif font-bold text-gold">FRENCH HALWAI</h1>
+        <div class="my-6">
+            <p class="text-[10px] uppercase tracking-widest text-stone-400">Contact Us</p>
+            <a href="https://wa.me/91XXXXXXXXXX" class="text-sm font-bold text-stone-800">WhatsApp: +91 XXXXX XXXXX</a>
+        </div>
+        <p class="text-[9px] uppercase tracking-[0.4em] text-stone-300">© 2026 Bengaluru</p>
+    </footer>
+
+    <div id="checkoutModal" class="modal-overlay">
+        <div class="max-w-2xl mx-auto bg-white my-8 p-8 shadow-2xl rounded-sm">
+            <div class="flex justify-between items-center mb-8 border-b pb-4">
+                <h3 class="text-2xl font-serif italic">Preorder Confirmation</h3>
+                <button onclick="closeCart()" class="text-stone-400 text-xs">CLOSE</button>
+            </div>
+
+            <div id="modalCartItems" class="mb-8 space-y-3"></div>
+
+            <form id="orderForm" class="space-y-6">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold uppercase mb-1 block">Sender Name *</label>
+                        <input type="text" id="senderName" name="sender" required>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold uppercase mb-1 block">Sender Phone *</label>
+                        <input type="tel" name="sender_phone" required>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-stone-50 rounded border border-stone-100">
+                    <div class="flex items-center gap-2 mb-4">
+                        <input type="checkbox" id="anonCheck" class="!w-4 !h-4" onchange="toggleAnon()">
+                        <label for="anonCheck" class="text-[10px] font-bold uppercase text-gold">Send Anonymously to Recipient</label>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[10px] font-bold uppercase mb-1 block">Recipient Name *</label>
+                            <input type="text" name="recipient" required>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold uppercase mb-1 block">Recipient Phone *</label>
+                            <input type="tel" name="recipient_phone" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold uppercase mb-1 block">Fulfillment Method *</label>
+                        <select id="methodSelect" onchange="toggleDeliveryFields()" required>
+                            <option value="pickup">Pickup (Koramangala 4th Block)</option>
+                            <option value="delivery">Delivery (Bengaluru)</option>
+                        </select>
+                    </div>
+                    <div id="deliveryZoneWrapper" class="hidden">
+                        <label class="text-[10px] font-bold uppercase mb-1 block">Delivery Zone *</label>
+                        <select id="zoneSelect" onchange="updateTotal()" required>
+                            <option value="koramangala">Koramangala (Free)</option>
+                            <option value="outside">Outside Koramangala (+₹100)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="addressWrapper" class="hidden">
+                    <label class="text-[10px] font-bold uppercase mb-1 block">Recipient's Full Address *</label>
+                    <textarea name="address" rows="2" placeholder="House no, Building, Landmark, Pincode"></textarea>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold uppercase mb-1 block">Time Slot *</label>
+                        <select name="slot" required>
+                            <option value="13th Feb | 3pm-5pm">13th Feb | 3pm - 5pm</option>
+                            <option value="14th Feb | 11am-1pm">14th Feb | 11am - 1pm</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold uppercase mb-1 block">Message (Max 250 chars)</label>
+                        <textarea name="message" maxlength="250" placeholder="A note for your Valentine/Galentine"></textarea>
+                    </div>
+                </div>
+
+                <div class="border-t-2 border-gold pt-6 bg-stone-50 p-6">
+                    <div class="flex justify-between text-sm mb-2">
+                        <span>Boxes Subtotal</span>
+                        <span id="subPrice">₹0</span>
+                    </div>
+                    <div class="flex justify-between text-sm mb-4">
+                        <span>Delivery Fee</span>
+                        <span id="delPrice">₹0</span>
+                    </div>
+                    <div class="flex justify-between text-xl font-bold mb-6">
+                        <span>Total Payable</span>
+                        <span id="totalPrice" class="text-gold">₹0</span>
+                    </div>
+
+                    <div class="qr-section text-center">
+                        <p class="text-[10px] font-bold uppercase mb-4">Scan to Pay via UPI</p>
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=baheti.priya@yescred" class="mx-auto mb-4 border p-1 bg-white">
+                        <div class="flex items-center justify-center gap-2 mb-6">
+                            <span class="text-xs font-mono">baheti.priya@yescred</span>
+                            <button type="button" onclick="copyUPI()" class="text-gold">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                            </button>
+                            <span id="copyMsg" class="copy-toast">Copied ✓</span>
+                        </div>
+                        <button type="submit" id="submitBtn" class="btn-luxury w-full py-4 text-xs uppercase">Confirm Payment & Preorder</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="successModal" class="modal-overlay" style="display: none; align-items: center; justify-content: center;">
+        <div class="bg-white p-10 max-w-md text-center rounded-sm mx-4">
+            <h3 class="text-3xl font-serif text-gold mb-4">Merci Beaucoup!</h3>
+            <p id="successMsg" class="text-stone-600 text-sm mb-8 leading-relaxed"></p>
+            <button onclick="location.reload()" class="btn-luxury px-12 py-3 text-xs uppercase">Close</button>
+        </div>
+    </div>
+
+    <script>
+        let cart = { pack4: 0, pack6: 0 };
+        const prices = { pack4: 749, pack6: 999 };
+
+        function addToCart(id) {
+            cart[id]++;
+            document.getElementById(`delete-${id}`).classList.remove('hidden');
+            updateUI();
+        }
+
+        function clearItem(id) {
+            cart[id] = 0;
+            document.getElementById(`delete-${id}`).classList.add('hidden');
+            updateUI();
+        }
+
+        function updateUI() {
+            const count = cart.pack4 + cart.pack6;
+            document.getElementById('headerCartCount').innerText = count;
+            document.getElementById('floatingCartCount').innerText = count;
+            document.getElementById('floatingCart').style.display = count > 0 ? 'block' : 'none';
+        }
+
+        function toggleDeliveryFields() {
+            const method = document.getElementById('methodSelect').value;
+            document.getElementById('deliveryZoneWrapper').classList.toggle('hidden', method === 'pickup');
+            document.getElementById('addressWrapper').classList.toggle('hidden', method === 'pickup');
+            updateTotal();
+        }
+
+        function updateTotal() {
+            const sub = (cart.pack4 * prices.pack4) + (cart.pack6 * prices.pack6);
+            const method = document.getElementById('methodSelect').value;
+            const zone = document.getElementById('zoneSelect').value;
+            const delFee = (method === 'delivery' && zone === 'outside') ? 100 : 0;
+
+            document.getElementById('subPrice').innerText = '₹' + sub;
+            document.getElementById('delPrice').innerText = '₹' + delFee;
+            document.getElementById('totalPrice').innerText = '₹' + (sub + delFee);
+        }
+
+        function openCart() {
+            if ((cart.pack4 + cart.pack6) === 0) return alert("Your bag is empty!");
+            
+            let html = '';
+            if(cart.pack4 > 0) html += `<div class="flex justify-between text-sm italic"><span>Box of 4 x ${cart.pack4}</span><span>₹${cart.pack4 * prices.pack4}</span></div>`;
+            if(cart.pack6 > 0) html += `<div class="flex justify-between text-sm italic"><span>Box of 6 x ${cart.pack6}</span><span>₹${cart.pack6 * prices.pack6}</span></div>`;
+            
+            document.getElementById('modalCartItems').innerHTML = html;
+            updateTotal();
+            document.getElementById('checkoutModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCart() {
+            document.getElementById('checkoutModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function toggleAnon() {
+            const senderField = document.getElementById('senderName');
+            if(document.getElementById('anonCheck').checked) {
+                senderField.value = "Anonymous";
+                senderField.readOnly = true;
+                senderField.style.opacity = "0.5";
+            } else {
+                senderField.value = "";
+                senderField.readOnly = false;
+                senderField.style.opacity = "1";
+            }
+        }
+
+        function copyUPI() {
+            navigator.clipboard.writeText("baheti.priya@yescred");
+            const msg = document.getElementById('copyMsg');
+            msg.style.display = 'inline';
+            setTimeout(() => msg.style.display = 'none', 2000);
+        }
+
+        document.getElementById('orderForm').onsubmit = (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const method = document.getElementById('methodSelect').value;
+            btn.disabled = true;
+            btn.innerText = "CONFIRMING...";
+
+            const msg = method === 'pickup' 
+                ? "Your preorder is recorded! We will share the pickup location in Koramangala 4th Block over WhatsApp shortly."
+                : "Your preorder is recorded! We will verify payment and WhatsApp you the delivery schedule shortly.";
+
+            setTimeout(() => {
+                document.getElementById('checkoutModal').style.display = 'none';
+                document.getElementById('successMsg').innerText = msg;
+                document.getElementById('successModal').style.display = 'flex';
+            }, 1500);
+        };
+    </script>
+</body>
+</html>
