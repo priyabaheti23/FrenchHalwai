@@ -255,6 +255,15 @@ Through French Halwai, she brings an uncompromising standard of elegance and lux
     </div>
 
     <script>
+
+        // --- CAFE QR TRACKING (DO NOT TOUCH LATER) ---
+        const params = new URLSearchParams(window.location.search);
+        const refFromURL = params.get('ref');
+
+        if (refFromURL) {
+            localStorage.setItem('order_ref', refFromURL.toLowerCase());
+        }
+        
         let cart = { pack4: 0, pack6: 0 };
         const prices = { pack4: 749, pack6: 999 };
 
@@ -360,6 +369,7 @@ Through French Halwai, she brings an uncompromising standard of elegance and lux
         surprise: document.getElementById('surpriseCheck').checked ? "Yes" : "No",
         method: document.getElementById('methodSelect').value,
         slot: formData.get('slot'),
+        referral_source: localStorage.getItem('order_ref') || "Direct",
         order_details: `Pack 4: ${cart.pack4}, Pack 6: ${cart.pack6} | Address: ${formData.get('address') || 'N/A'} | Msg: ${formData.get('message') || 'None'}`,
         total: document.getElementById('finalT').innerText
     };
@@ -388,6 +398,7 @@ Through French Halwai, she brings an uncompromising standard of elegance and lux
     </script>
 </body>
 </html>
+
 
 
 
