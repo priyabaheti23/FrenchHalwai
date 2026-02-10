@@ -32,6 +32,17 @@
         .fixed-cart { position: fixed; bottom: 30px; right: 30px; z-index: 90; display: none; }
 
         .field-label { display: block; font-size: 10px; font-weight: 600; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; margin-top: 12px; }
+
+        .pill-badge {
+                        display: inline-block;
+                        background-color: #f6e7dc;   /* soft cream-peach */
+                        color: #7a4900;              /* your gold */
+                        padding: 8px 18px;
+                        border-radius: 999px;        /* makes it pill-shaped */
+                        font-size: 11px;
+                        font-weight: 500;
+                        letter-spacing: 0.05em;
+                    }
         
         /* Updated Copy UI */
         .copy-trigger { cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-size: 10px; background: #eee; padding: 4px 8px; border-radius: 3px; margin-left: 8px; vertical-align: middle; position: relative; }
@@ -61,6 +72,12 @@
     <section class="py-16 text-center bg-white">
         <h2 class="text-5xl md:text-7xl font-serif italic mb-4 gold-text">La Vie En Chocolat</h2>
         <p class="text-stone-500 font-light italic text-sm">Special edition boxes for your favorite ones. Preorders have started.</p>
+        <div class="text-center mb-4">
+            <div class="pill-badge">
+                Only in Bangalore · Till 13th Feb
+            </div>
+        </div>
+
     </section>
 
     <section class="max-w-6xl mx-auto px-6 py-12 grid md:grid-cols-2 gap-12">
@@ -401,6 +418,7 @@ Through French Halwai, she brings an uncompromising standard of elegance and lux
     </script>
 </body>
 </html>
+
 
 
 
