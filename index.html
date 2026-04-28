@@ -14,6 +14,8 @@
 
         .btn-luxury { background: var(--gold); color: white; transition: all 0.3s ease; letter-spacing: 2px; font-weight: 600; padding: 12px 24px; text-transform: uppercase; font-size: 10px; }
         .btn-luxury:hover { background: #b38f4d; }
+        .btn-outline { border: 1px solid var(--gold); color: var(--gold); transition: all 0.3s ease; letter-spacing: 2px; font-weight: 600; padding: 10px 20px; text-transform: uppercase; font-size: 10px; background: transparent; }
+        .btn-outline:hover { background: var(--gold); color: white; }
 
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100; overflow-y: auto; }
 
@@ -38,10 +40,18 @@
         .copy-tooltip { position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 4px 8px; border-radius: 4px; font-size: 9px; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
         .copy-tooltip.show { opacity: 1; }
 
-        /* Gallery */
-        .gallery-main { transition: opacity 0.25s ease; width: 100%; height: 320px; object-fit: cover; display: block; }
-        .gallery-thumb { cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s, opacity 0.2s; opacity: 0.55; }
-        .gallery-thumb.active { border-color: var(--gold); opacity: 1; }
+        /* Slideshow gallery */
+        .gallery-wrap { position: relative; height: 340px; overflow: hidden; background: #f4f1ea; }
+        .gallery-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.45s ease; }
+        .gallery-slide.active { opacity: 1; }
+        .gallery-slide img { width: 100%; height: 100%; object-fit: cover; }
+        .gallery-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.85); border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; transition: background 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        .gallery-arrow:hover { background: white; }
+        .gallery-arrow.left  { left: 12px; }
+        .gallery-arrow.right { right: 12px; }
+        .gallery-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; }
+        .gallery-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer; transition: background 0.2s; }
+        .gallery-dot.active { background: white; }
 
         /* Gift toggle */
         .toggle-pill { width: 42px; height: 24px; border-radius: 999px; background: #ddd; position: relative; transition: background 0.3s; flex-shrink: 0; cursor: pointer; }
@@ -52,12 +62,15 @@
         /* Receiver section reveal */
         #receiverSection { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.4s ease, opacity 0.35s ease; }
         #receiverSection.open { max-height: 500px; opacity: 1; }
+
+        /* Sold out state */
+        .sold-out-banner { background: #1c1917; color: #fef3c7; text-align: center; padding: 10px; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 600; }
     </style>
 </head>
 <body>
 
     <div class="bg-stone-800 text-white text-[10px] tracking-[0.4em] py-2 text-center uppercase">
-        Limited Edition Preorders · Only 10 Boxes
+        Preorders Open Now · Only 10 Boxes
     </div>
 
     <header class="border-b border-stone-200 bg-[#f4f1ea] sticky top-0 z-50">
@@ -77,40 +90,52 @@
     <section class="py-16 text-center bg-white">
         <h2 class="text-5xl md:text-7xl font-serif italic mb-3 gold-text">Il Tiramisù</h2>
         <div class="flex justify-center gap-3 mb-4 flex-wrap">
-            <div class="pill-badge">Only in Bangalore · Delivery 25th April</div>
-            <div class="stock-badge">⚑ Only 10 Boxes Available</div>
+            <div class="pill-badge">Only in Bangalore · Delivery Friday, 9–11am</div>
+            <div class="stock-badge" id="stockBadge">⚑ Only 10 Boxes Available</div>
         </div>
-        <p class="text-stone-500 font-light italic text-sm">A classic reimagined. Preorders open from 20th April.</p>
+        <p class="text-stone-500 font-light italic text-sm">Freshly made to order. Preorders open now.</p>
     </section>
 
-    <!-- Product card with gallery -->
+    <!-- Product card -->
     <section class="max-w-4xl mx-auto px-6 py-12 flex justify-center">
         <div class="bg-white border border-stone-100 shadow-sm w-full max-w-lg">
 
-            <!-- Main photo -->
-            <img id="galleryMain" src="assets/tiramisu_1.jpeg" alt="Tiramisu Classic Jar" class="gallery-main">
+            <!-- Slideshow -->
+            <div class="gallery-wrap">
+                <div class="gallery-slide active" data-index="0">
+                    <img src="assets/tiramisu_1.jpeg" alt="Tiramisu view 1">
+                </div>
+                <div class="gallery-slide" data-index="1">
+                    <img src="assets/tiramisu_2.jpeg" alt="Tiramisu view 2">
+                </div>
 
-            <!-- Thumbnails -->
-            <div class="flex gap-2 p-3 bg-stone-50 border-b border-stone-100">
-                <img src="assets/tiramisu_1.jpeg" alt="View 1"
-                     class="gallery-thumb active w-16 h-16 object-cover"
-                     onclick="switchPhoto(this, 'assets/tiramisu_1.jpeg')">
-                <img src="assets/tiramisu_2.jpeg" alt="View 2"
-                     class="gallery-thumb w-16 h-16 object-cover"
-                     onclick="switchPhoto(this, 'assets/tiramisu_2.jpeg')">
+                <button class="gallery-arrow left" onclick="slideGallery(-1)" aria-label="Previous">
+                    <svg width="16" height="16" fill="none" stroke="#7a4900" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <button class="gallery-arrow right" onclick="slideGallery(1)" aria-label="Next">
+                    <svg width="16" height="16" fill="none" stroke="#7a4900" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </button>
+
+                <div class="gallery-dots">
+                    <div class="gallery-dot active" onclick="goToSlide(0)"></div>
+                    <div class="gallery-dot" onclick="goToSlide(1)"></div>
+                </div>
             </div>
 
             <div class="p-8 text-center">
                 <h3 class="text-2xl font-serif italic mb-1">The Classic Jar</h3>
-                <p class="text-[10px] uppercase text-stone-400 font-bold mb-4 tracking-widest">300ml · Serves 1–2</p>
-                <p class="text-xs text-stone-500 mb-4 leading-relaxed">
-                    Espresso-soaked ladyfingers, layered with mascarpone cream, finished with a generous dusting of bitter cocoa. Made to order, never frozen.
+                <p class="text-[10px] uppercase text-stone-400 font-bold mb-5 tracking-widest">300ml</p>
+                <p class="text-xs text-stone-500 mb-5 leading-relaxed italic">
+                    Freshly made to order — never frozen, never compromised.
                 </p>
                 <div class="text-left bg-stone-50 p-4 mb-6 text-[11px] rounded leading-loose">
                     <p><strong>Allergens:</strong> Dairy, Gluten, Eggs, Coffee.</p>
-                    <p><strong>Contains:</strong> Alcohol (coffee liqueur).</p>
                 </div>
-                <div class="flex justify-between items-center border-t pt-6 mt-6">
+
+                <!-- Stock indicator on card -->
+                <div id="cardStockMsg" class="text-[10px] text-amber-700 font-semibold mb-4 tracking-wide"></div>
+
+                <div class="flex justify-between items-center border-t pt-6 mt-2">
                     <span class="text-xl font-light gold-text">₹449</span>
                     <div id="main-qty-tiramisu">
                         <button onclick="addToCart('tiramisu')" class="btn-luxury">Add to Bag</button>
@@ -123,16 +148,25 @@
     <!-- Chef -->
     <section class="py-20 bg-stone-900 text-white">
         <div class="max-w-4xl mx-auto px-6 flex flex-col md:flex-row items-center gap-12 text-center md:text-left">
-            <img src="assets/chef-kiran.jpg" alt="Chef Kiran Motwani" class="w-48 h-48 rounded-full object-cover border-2 border-gold p-1">
+            <img src="assets/chef-kiran.jpg" alt="Chef Kiran Motwani" class="w-48 h-48 rounded-full object-cover border-2 border-[#7a4900] p-1 flex-shrink-0">
             <div>
-                <h4 class="text-3xl font-serif italic mb-4 gold-text">Chef Kiran Motwani</h4>
-                <p class="text-stone-400 text-sm mb-6 leading-relaxed">Trained at Le Cordon Bleu Paris, Chef Kiran Motwani honed her craft in Michelin-starred kitchens and elite Parisian patisseries. Through French Halwai, she brings an uncompromising standard of elegance and flavour to every creation — made entirely by hand, in small batches.</p>
-                <div class="flex justify-center md:justify-start gap-6">
-                    <a href="https://instagram.com/frenchhalwai" target="_blank" class="hover:text-gold transition">
-                        <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                <h4 class="text-3xl font-serif italic mb-3 gold-text">Chef Kiran Motwani</h4>
+                <p class="text-stone-400 text-sm mb-5 leading-relaxed">Trained at Le Cordon Bleu Paris. Through French Halwai, she brings an uncompromising standard of elegance and flavour to every creation — made entirely by hand, in small batches.</p>
+
+                <!-- Supper Club -->
+                <div class="bg-stone-800 border border-stone-700 rounded p-4 mb-6 text-left">
+                    <p class="text-[10px] uppercase tracking-widest text-stone-500 mb-1">Also hosting</p>
+                    <p class="text-white font-semibold text-sm mb-1">The French Halwai Supper Club</p>
+                    <p class="text-stone-400 text-xs leading-relaxed mb-3">An intimate dining experience — a curated multi-course French menu served in a private setting. Limited seats, full immersion.</p>
+                    <a href="YOUR_SUPPER_CLUB_LINK_HERE" target="_blank" class="btn-outline inline-block text-[9px]">Learn More &rarr;</a>
+                </div>
+
+                <div class="flex justify-center md:justify-start gap-6 items-center">
+                    <a href="https://instagram.com/frenchhalwai" target="_blank" class="text-stone-400 hover:text-white transition">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                     </a>
-                    <a href="https://x.com/frenchhalwai" target="_blank" class="hover:text-gold transition">
-                        <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    <a href="https://x.com/frenchhalwai" target="_blank" class="text-stone-400 hover:text-white transition">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                     </a>
                 </div>
             </div>
@@ -182,7 +216,7 @@
                     </div>
                 </div>
 
-                <!-- 2. Gift toggle -->
+                <!-- 2. Gift -->
                 <div class="space-y-3">
                     <p class="text-[10px] font-bold uppercase gold-text tracking-widest border-b border-stone-100 pb-2">2. Is This a Gift?</p>
                     <div class="flex items-center gap-3 bg-stone-50 p-4 rounded cursor-pointer select-none" onclick="toggleGift()">
@@ -191,7 +225,6 @@
                         </div>
                         <span class="text-xs font-semibold gold-text">I'm ordering this for someone else</span>
                     </div>
-
                     <div id="receiverSection">
                         <div class="grid md:grid-cols-2 gap-4 pt-2">
                             <div>
@@ -209,7 +242,7 @@
                         </div>
                         <div class="mt-3">
                             <label class="field-label">Gift Message (optional)</label>
-                            <textarea name="gift_message" maxlength="200" placeholder="A little note to include with the jar... (max 200 chars)"></textarea>
+                            <textarea name="gift_message" maxlength="200" placeholder="A little note to include... (max 200 chars)"></textarea>
                         </div>
                     </div>
                 </div>
@@ -229,7 +262,7 @@
                             <label class="field-label">Time Slot *</label>
                             <select name="slot" required>
                                 <option value="">Select Time Slot *</option>
-                                <option value="25th Apr | 10am-1pm">25th Apr | 10am – 1pm</option>
+                                <option value="Friday | 9am-11am">Friday | 9am – 11am</option>
                             </select>
                         </div>
                     </div>
@@ -269,7 +302,7 @@
                 </div>
 
                 <!-- Payment -->
-                <div class="bg-stone-50 p-6 border-t-2 border-gold text-center">
+                <div class="bg-stone-50 p-6 border-t-2 border-[#7a4900] text-center">
                     <div class="flex justify-between font-bold text-xl mb-6">
                         <span>Total Payable:</span>
                         <span id="finalT" class="gold-text">₹0</span>
@@ -308,16 +341,28 @@
         const refFromURL = params.get('ref');
         if (refFromURL) localStorage.setItem('order_ref', refFromURL.toLowerCase());
 
-        // Gallery
-        function switchPhoto(thumb, src) {
-            const main = document.getElementById('galleryMain');
-            main.style.opacity = 0;
-            setTimeout(() => { main.src = src; main.style.opacity = 1; }, 220);
-            document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
-            thumb.classList.add('active');
+        // ── Stock guard (frontend) ──────────────────────────────
+        const MAX_BOXES = 10;
+
+        // ── Gallery slideshow ───────────────────────────────────
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.gallery-slide');
+        const dots   = document.querySelectorAll('.gallery-dot');
+
+        function goToSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            dots[currentSlide].classList.remove('active');
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            dots[currentSlide].classList.add('active');
         }
 
-        // Gift toggle
+        function slideGallery(dir) { goToSlide(currentSlide + dir); }
+
+        // Auto-advance every 4s
+        setInterval(() => slideGallery(1), 4000);
+
+        // ── Gift toggle ─────────────────────────────────────────
         let isGift = false;
         function toggleGift() {
             isGift = !isGift;
@@ -327,12 +372,21 @@
             document.getElementById('receiverPhone').required = isGift;
         }
 
-        // Cart
+        // ── Cart ────────────────────────────────────────────────
         let cart = { tiramisu: 0 };
         const prices = { tiramisu: 449 };
 
-        function addToCart(id)    { cart[id]++; updateUI(); }
-        function removeFromCart(id) { if (cart[id] > 0) cart[id]--; updateUI(); }
+        function addToCart(id) {
+            const totalInCart = Object.values(cart).reduce((s, v) => s + v, 0);
+            if (totalInCart >= MAX_BOXES) {
+                alert(`Sorry — only ${MAX_BOXES} boxes are available for this drop. You've already added the maximum.`);
+                return;
+            }
+            cart[id]++;
+            updateUI();
+        }
+
+        function removeFromCart(id) { if (cart[id] > 0) { cart[id]--; updateUI(); } }
 
         function copyUPI() {
             navigator.clipboard.writeText("baheti.priya@yescred");
@@ -342,6 +396,27 @@
         }
 
         function updateUI() {
+            const totalInCart = cart.tiramisu;
+            const remaining   = MAX_BOXES - totalInCart;
+
+            // Stock badge & card message
+            const badge   = document.getElementById('stockBadge');
+            const cardMsg = document.getElementById('cardStockMsg');
+
+            if (totalInCart >= MAX_BOXES) {
+                badge.textContent   = '⚑ Fully Allocated';
+                badge.style.background = '#fee2e2';
+                badge.style.color      = '#991b1b';
+                cardMsg.textContent = '⚠ You have reserved all available boxes.';
+            } else if (remaining <= 3) {
+                badge.textContent   = `⚑ Only ${remaining} left!`;
+                cardMsg.textContent = `Only ${remaining} box${remaining === 1 ? '' : 'es'} left — grab yours now.`;
+            } else {
+                badge.textContent = '⚑ Only 10 Boxes Available';
+                cardMsg.textContent = '';
+            }
+
+            // Cart button
             const container = document.getElementById('main-qty-tiramisu');
             if (cart.tiramisu > 0) {
                 container.innerHTML = `
@@ -359,10 +434,9 @@
                 container.innerHTML = `<button onclick="addToCart('tiramisu')" class="btn-luxury">Add to Bag</button>`;
             }
 
-            const total = cart.tiramisu;
-            document.getElementById('bagCount').innerText   = total;
-            document.getElementById('floatCount').innerText = total;
-            document.getElementById('floatingCart').style.display = total > 0 ? 'block' : 'none';
+            document.getElementById('bagCount').innerText   = totalInCart;
+            document.getElementById('floatCount').innerText = totalInCart;
+            document.getElementById('floatingCart').style.display = totalInCart > 0 ? 'block' : 'none';
 
             const isDel = document.getElementById('methodSelect').value === 'delivery';
             document.getElementById('deliveryFields').classList.toggle('hidden', !isDel);
@@ -406,6 +480,13 @@
 
         document.getElementById('orderForm').onsubmit = async (e) => {
             e.preventDefault();
+
+            // Final frontend stock check before submit
+            if (cart.tiramisu > MAX_BOXES) {
+                alert(`Only ${MAX_BOXES} boxes are available. Please reduce your quantity.`);
+                return;
+            }
+
             const btn = e.target.querySelector('button[type="submit"]');
             btn.innerText = "Processing...";
             btn.disabled  = true;
