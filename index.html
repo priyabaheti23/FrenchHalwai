@@ -510,7 +510,7 @@
                 total:           document.getElementById('finalT').innerText
             };
 
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbz4iaMcY-qZYTnXirY1sO-pOJRqlzBmjN6wF8v1WiHEGUx7NmmuFjjIb69l1yLKg4Tf/exec';
+            const scriptURL = 'https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnR6HFw-xRkqLhqafkpLG-TFnlXfWUwAy6IlCZuZjqoSBecYc7AmrLuinwqxgu58tbqQoDcR4LOLWDPneQPpcmcKsRSKvbPXNQZ74XVhDfpJKEJLwKJIAclO_GQeLnCw_IrhJ87yooztP1zUImhQz7DYCCTwcwBfb6YNoBHw6N21U9KzYnzPa3S9sXKFbHwRK0MBaQmyH8gwF73EVYuJSwGD-miiS4RmmNjdU1XnzlNwqtTaNCKLmCqvmAPYvQSPyb5J9FALy1s_maOesHv2Z1QK4VH5HA&lib=MSHSPvg9Ld1zjlnO1WTZa8vtuZ2tUn3tE';
 
             try {
                 await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(orderData) });
