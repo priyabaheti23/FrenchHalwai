@@ -513,7 +513,7 @@
             const scriptURL = 'https://script.google.com/macros/s/AKfycbzMmyAUwHtaFQIQ9QRz37tvuFtKj3B63Ucvi5R3kxSpuRa3w1mKMyXYwVmI-Si9SuWd/exec';
 
             try {
-                await fetch(scriptURL, { method: 'POST', cache: 'no-cache', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(orderData) });
+                await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(orderData) });
                 document.getElementById('checkoutModal').style.display = 'none';
                 document.getElementById('confirmModal').style.display  = 'flex';
             } catch (err) {
