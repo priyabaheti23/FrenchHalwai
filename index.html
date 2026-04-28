@@ -510,7 +510,7 @@
                 total:           document.getElementById('finalT').innerText
             };
 
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxaLrXtcdUO8SwJvqdKfiGaFwRwDX3kNGQEbSTYSTWSYlzdTp0bpWXWQsZ12esr_njc/exec';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbzMmyAUwHtaFQIQ9QRz37tvuFtKj3B63Ucvi5R3kxSpuRa3w1mKMyXYwVmI-Si9SuWd/exec';
 
             try {
                 await fetch(scriptURL, { method: 'POST', mode: 'no-cors', cache: 'no-cache', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(orderData) });
