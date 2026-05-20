@@ -114,7 +114,7 @@
             <!-- Matcha Misu -->
             <div class="bg-white border border-stone-100 shadow-sm p-0 overflow-hidden">
                     <div class="gallery-wrap h-64">
-                    <img src="assets/match_misu.jpeg" alt="Matcha Misu" class="w-full h-full object-cover">
+                    <img src="assets/matcha_misu.jpeg" alt="Matcha Misu" class="w-full h-full object-cover">
                 </div>
                 <div class="p-6 text-center">
                     <h3 class="text-2xl font-serif italic mb-1">Matcha Misu</h3>
@@ -125,7 +125,7 @@
                     </div>
                     <div id="cardStockMsgMatcha" class="text-[10px] text-amber-700 font-semibold mb-4 tracking-wide"></div>
                     <div class="flex justify-between items-center border-t pt-4">
-                        <span class="text-xl font-light gold-text">₹549</span>
+                        <span class="text-xl font-light gold-text">₹499</span>
                         <div id="main-qty-matcha">
                             <button onclick="addToCart('matcha')" class="btn-luxury">Add to Bag</button>
                         </div>
@@ -141,7 +141,7 @@
             <img src="assets/chef-kiran.jpg" alt="Chef Kiran Motwani" class="w-36 h-36 rounded-full object-cover border-2 border-[#7a4900] p-1 flex-shrink-0">
             <div>
                 <h4 class="text-2xl font-serif italic mb-2 gold-text">Chef Kiran Motwani</h4>
-                <p class="text-stone-400 text-sm mb-3 leading-relaxed">Trained at Le Cordon Bleu Paris. Handcrafted in small batches — elegant, artisanal patisserie.</p>
+                <p class="text-stone-400 text-sm mb-3 leading-relaxed">Trained at Le Cordon Bleu Paris. Handcrafted in small batches — elegant, seasonal patisserie.</p>
                 <div class="flex gap-3 items-center">
                     <button onclick="window.open('https://www.notjustdinner.in','_blank')" aria-label="Supper Club" class="inline-flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 px-3 py-2 text-xs font-semibold text-white">
                         <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
@@ -308,7 +308,7 @@
                 <svg class="w-8 h-8 gold-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
             </div>
             <h3 class="text-3xl font-serif italic gold-text mb-4">Merci Beaucoup!</h3>
-            <p class="text-stone-500 text-sm mb-8 leading-relaxed">Merci — your preorder is received. We'll confirm payment and message you on WhatsApp with pickup or delivery details.</p>
+            <p class="text-stone-500 text-sm mb-8 leading-relaxed">Merci — your preorder is received. We'll confirm payment and message you on WhatsApp with pickup or delivery details. If you have questions, reply to that message and we'll assist.</p>
             <button onclick="location.reload()" class="btn-luxury w-full">Close & Return</button>
         </div>
     </div>
@@ -493,6 +493,10 @@
             btn.disabled  = true;
 
             const fd = new FormData(e.target);
+            const orderedItems = [];
+            if (cart.tiramisu > 0) orderedItems.push(`Tiramisù x${cart.tiramisu}`);
+            if (cart.matcha > 0) orderedItems.push(`Matcha Misu x${cart.matcha}`);
+
             const orderData = {
                 sender_name:     fd.get('sender_name'),
                 sender_phone:    fd.get('sender_phone'),
@@ -503,6 +507,7 @@
                 gift_message:    isGift ? (fd.get('gift_message') || "") : "",
                 method:          document.getElementById('methodSelect').value,
                 slot:            fd.get('slot'),
+                items_ordered:   orderedItems.join(', '),
                 tiramisu_qty:    cart.tiramisu,
                 matcha_qty:      cart.matcha,
                 address:         fd.get('address') || "N/A",
