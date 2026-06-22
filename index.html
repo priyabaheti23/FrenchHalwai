@@ -19,29 +19,48 @@
 
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100; overflow-y: auto; }
 
+        .qty-control { display: flex; align-items: center; gap: 12px; border: 1px solid #ddd; padding: 4px 12px; background: white; }
+        .qty-btn { font-weight: bold; font-size: 18px; color: var(--gold); cursor: pointer; user-select: none; }
+
         input, select, textarea { border: 1px solid #ddd !important; padding: 12px !important; border-radius: 2px !important; width: 100%; font-size: 14px; background: white; transition: all 0.2s; }
+        input[type="checkbox"] { width: auto !important; padding: 0 !important; }
         input:focus:invalid { border-color: #ef4444 !important; outline: none; }
         input:focus:valid  { border-color: #10b981 !important; outline: none; }
 
-        .pill-badge { display: inline-block; background-color: #f6e7dc; color: #7a4900; padding: 8px 18px; border-radius: 999px; font-size: 11px; font-weight: 500; letter-spacing: 0.05em; }
+        .delete-icon { cursor: pointer; color: #ccc; transition: color 0.2s; }
+        .delete-icon:hover { color: #ef4444; }
 
+        .fixed-cart { position: fixed; bottom: 30px; right: 30px; z-index: 90; display: none; }
         .field-label { display: block; font-size: 10px; font-weight: 600; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; margin-top: 12px; }
+
+        .pill-badge { display: inline-block; background-color: #f6e7dc; color: #7a4900; padding: 8px 18px; border-radius: 999px; font-size: 11px; font-weight: 500; letter-spacing: 0.05em; }
+        .stock-badge { display: inline-block; background-color: #fef3c7; color: #92400e; padding: 6px 14px; border-radius: 999px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+
+        .copy-trigger { cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-size: 10px; background: #eee; padding: 4px 8px; border-radius: 3px; margin-left: 8px; vertical-align: middle; position: relative; }
+        .copy-tooltip { position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 4px 8px; border-radius: 4px; font-size: 9px; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+        .copy-tooltip.show { opacity: 1; }
 
         .gallery-wrap { position: relative; height: 340px; overflow: hidden; background: #f4f1ea; }
         .gallery-wrap img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Notify button pulse */
-        @keyframes gentle-pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(122,73,0,0.3); }
-            50% { box-shadow: 0 0 0 8px rgba(122,73,0,0); }
-        }
-        .btn-notify { animation: gentle-pulse 2.5s infinite; }
+        /* Gift toggle */
+        .toggle-pill { width: 42px; height: 24px; border-radius: 999px; background: #ddd; position: relative; transition: background 0.3s; flex-shrink: 0; cursor: pointer; }
+        .toggle-pill.on { background: var(--gold); }
+        .toggle-knob { width: 18px; height: 18px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: left 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+        .toggle-pill.on .toggle-knob { left: 21px; }
+
+        /* Receiver section reveal */
+        #receiverSection { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.4s ease, opacity 0.35s ease; }
+        #receiverSection.open { max-height: 500px; opacity: 1; }
+
+        /* Sold out state */
+        .sold-out-banner { background: #1c1917; color: #fef3c7; text-align: center; padding: 10px; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 600; }
     </style>
 </head>
 <body>
 
     <div class="bg-stone-800 text-white text-[10px] tracking-[0.4em] py-2 text-center uppercase">
-        Next Drop Coming Soon · Join the Waitlist to Hear First
+        Preorders Open Now · Only 10 Boxes
     </div>
 
     <header class="border-b border-stone-200 bg-[#f4f1ea] sticky top-0 z-50">
@@ -50,59 +69,73 @@
                 <h1 class="text-4xl gold-text footer-logo">French Halwai</h1>
                 <p class="text-[8px] md:text-[10px] uppercase tracking-[0.3em] text-stone-400 opacity-80">Artisanal Patisserie</p>
             </div>
-            <button onclick="openWaitlist()" class="btn-luxury btn-notify">
-                Notify Me
+            <button onclick="openCart()" class="flex items-center gap-2 border-b border-gold pb-1">
+                <span class="text-xs font-bold uppercase tracking-widest">Bag</span>
+                <span id="bagCount" class="gold-text font-bold">0</span>
             </button>
         </div>
     </header>
 
     <!-- Hero -->
     <section class="py-16 text-center bg-white">
-        <h2 class="text-5xl md:text-7xl font-serif italic mb-3 gold-text">Something Good<br>Is Coming</h2>
-        <div class="flex justify-center gap-3 mb-6 flex-wrap">
-            <div class="pill-badge">Only in Bangalore · Next Drop June 20</div>
+        <h2 class="text-5xl md:text-7xl font-serif italic mb-3 gold-text">Tiramisu</h2>
+        <div class="flex justify-center gap-3 mb-4 flex-wrap">
+            <div class="pill-badge">Only in Bangalore · Delivery Saturday, May 23</div>
+            <div class="stock-badge" id="stockBadge">⚑ Only 10 Boxes Available</div>
         </div>
-        <p class="text-stone-500 font-light italic text-sm mb-8">Small batch. Limited jars. Join the waitlist to be first in line.</p>
-        <button onclick="openWaitlist()" class="btn-luxury btn-notify text-sm px-10 py-4">
-            Join the Waitlist
-        </button>
+        <p class="text-stone-500 font-light italic text-sm">Freshly made to order. Preorders open now.</p>
     </section>
 
     <!-- Product cards -->
     <section class="max-w-6xl mx-auto px-6 py-12">
-        <p class="text-center text-[10px] uppercase tracking-[0.3em] text-stone-400 mb-8">From Our Last Drop · For a Taste of What's Possible</p>
         <div class="grid md:grid-cols-2 gap-6">
-
             <!-- Tiramisu -->
             <div class="bg-white border border-stone-100 shadow-sm p-0 overflow-hidden">
-                <div class="gallery-wrap h-64">
+                            <div class="gallery-wrap h-64">
                     <img src="assets/tiramisu_1.jpeg" alt="Tiramisù jar" class="w-full h-full object-cover">
                 </div>
                 <div class="p-6 text-center">
                     <h3 class="text-2xl font-serif italic mb-1">Tiramisù — The Classic Jar</h3>
                     <p class="text-[10px] uppercase text-stone-400 font-bold mb-3 tracking-widest">300ml</p>
-                    <p class="text-xs text-stone-500 mb-6 leading-relaxed italic">The one that started it all. Espresso, mascarpone, cocoa.</p>
-                    <button onclick="openWaitlist()" class="btn-luxury w-full">Get Notified for the Next Drop</button>
+                    <p class="text-xs text-stone-500 mb-4 leading-relaxed italic">The one that started it all. Espresso, mascarpone, cocoa.</p>
+                    <div class="text-left bg-stone-50 p-4 mb-4 text-[11px] rounded leading-loose">
+                        <p><strong>Allergens:</strong> Dairy, Gluten, Eggs, Coffee.</p>
+                    </div>
+                    <div id="cardStockMsg" class="text-[10px] text-amber-700 font-semibold mb-4 tracking-wide"></div>
+                    <div class="flex justify-between items-center border-t pt-4">
+                        <span class="text-xl font-light gold-text">₹449</span>
+                        <div id="main-qty-tiramisu">
+                            <button onclick="addToCart('tiramisu')" class="btn-luxury">Add to Bag</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Matcha Misu -->
             <div class="bg-white border border-stone-100 shadow-sm p-0 overflow-hidden">
-                <div class="gallery-wrap h-64">
+                    <div class="gallery-wrap h-64">
                     <img src="assets/matcha_misu.jpeg" alt="Matcha Misu" class="w-full h-full object-cover">
                 </div>
                 <div class="p-6 text-center">
                     <h3 class="text-2xl font-serif italic mb-1">Matcha Misu</h3>
                     <p class="text-[10px] uppercase text-stone-400 font-bold mb-3 tracking-widest">300ml</p>
-                    <p class="text-xs text-stone-500 mb-6 leading-relaxed italic">A delicate green tea twist on our classic tiramisù. Matcha powder sourced from Japan.</p>
-                    <button onclick="openWaitlist()" class="btn-luxury w-full">Get Notified for the Next Drop</button>
+                    <p class="text-xs text-stone-500 mb-4 leading-relaxed italic">A delicate green tea twist on our classic tiramisù. Matcha powder sourced from Japan.</p>
+                    <div class="text-left bg-stone-50 p-4 mb-4 text-[11px] rounded leading-loose">
+                        <p><strong>Allergens:</strong> Dairy, Gluten, Eggs.</p>
+                    </div>
+                    <div id="cardStockMsgMatcha" class="text-[10px] text-amber-700 font-semibold mb-4 tracking-wide"></div>
+                    <div class="flex justify-between items-center border-t pt-4">
+                        <span class="text-xl font-light gold-text">₹549</span>
+                        <div id="main-qty-matcha">
+                            <button onclick="addToCart('matcha')" class="btn-luxury">Add to Bag</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-
         </div>
     </section>
 
-    <!-- Chef section -->
+    <!-- Chef section (restored) -->
     <section class="py-16 bg-stone-900 text-white">
         <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-8">
             <img src="assets/chef-kiran.jpg" alt="Chef Kiran Motwani" class="w-36 h-36 rounded-full object-cover border-2 border-[#7a4900] p-1 flex-shrink-0">
@@ -128,78 +161,375 @@
         </div>
     </section>
 
-    <!-- Waitlist modal -->
-    <div id="waitlistModal" class="modal-overlay">
-        <div class="max-w-md mx-auto bg-white my-16 p-10 shadow-2xl relative rounded-sm mx-4">
-            <button onclick="closeWaitlist()" class="absolute top-6 right-6 text-stone-400 hover:text-black text-xl leading-none">✕</button>
-            <h3 class="text-3xl font-serif italic gold-text mb-2">Join the Waitlist</h3>
-            <p class="text-stone-400 text-xs mb-8 leading-relaxed">Be the first to know when the next drop goes live. We'll message you on WhatsApp — no spam, just one heads-up.</p>
+    <!-- Floating cart -->
+    <div id="floatingCart" class="fixed-cart">
+        <button onclick="openCart()" class="btn-luxury rounded-full flex items-center gap-3 shadow-2xl">
+            <span class="text-xs uppercase tracking-widest">Complete Preorder</span>
+            <span id="floatCount" class="bg-white gold-text px-2 py-0.5 rounded-full text-[10px] font-bold">0</span>
+        </button>
+    </div>
 
-            <form id="waitlistForm">
-                <label class="field-label">Your Name *</label>
-                <input type="text" id="wName" placeholder="Your name" required minlength="2">
+    <!-- Checkout modal -->
+    <div id="checkoutModal" class="modal-overlay">
+        <div class="max-w-2xl mx-auto bg-white my-8 p-8 md:p-12 shadow-2xl relative rounded-sm">
+            <button onclick="closeCart()" class="absolute top-6 right-6 text-stone-400 hover:text-black text-xl leading-none">✕</button>
+            <h3 class="text-3xl font-serif italic gold-text mb-8">Your Order Summary</h3>
 
-                <label class="field-label">WhatsApp Number *</label>
-                <input type="tel" id="wPhone" placeholder="10-digit number" required pattern="[0-9]{10}">
+            <div id="modalItems" class="mb-10 space-y-4"></div>
 
-                <button type="submit" class="btn-luxury w-full py-4 mt-8 text-sm">Notify Me for the Next Drop</button>
-                <p class="text-[10px] text-stone-400 mt-4 text-center">We'll only message you when the next drop is confirmed.</p>
+            <form id="orderForm" class="space-y-8">
+
+                <!-- 1. Your Info -->
+                <div class="space-y-2">
+                    <p class="text-[10px] font-bold uppercase gold-text tracking-widest border-b border-stone-100 pb-2">1. Your Information</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="field-label">Your Name *</label>
+                            <input type="text" name="sender_name" placeholder="Your name" required minlength="2">
+                        </div>
+                        <div>
+                            <label class="field-label">Your WhatsApp Number *</label>
+                            <input type="tel" name="sender_phone" placeholder="10 digits" required pattern="[0-9]{10}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Gift -->
+                <div class="space-y-3">
+                    <p class="text-[10px] font-bold uppercase gold-text tracking-widest border-b border-stone-100 pb-2">2. Is This a Gift?</p>
+                    <div class="flex items-center gap-3 bg-stone-50 p-4 rounded cursor-pointer select-none" onclick="toggleGift()">
+                        <div id="giftTogglePill" class="toggle-pill">
+                            <div class="toggle-knob"></div>
+                        </div>
+                        <span class="text-xs font-semibold gold-text">I'm ordering this for someone else</span>
+                    </div>
+                    <div id="receiverSection">
+                        <div class="grid md:grid-cols-2 gap-4 pt-2">
+                            <div>
+                                <label class="field-label">Receiver Name *</label>
+                                <input type="text" name="receiver_name" id="receiverName" placeholder="Their name">
+                            </div>
+                            <div>
+                                <label class="field-label">Receiver Phone *</label>
+                                <input type="tel" name="receiver_phone" id="receiverPhone" placeholder="10 digits" pattern="[0-9]{10}">
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 bg-amber-50 border border-amber-200 p-3 rounded mt-3">
+                            <input type="checkbox" id="surpriseCheck" class="mt-0.5 accent-[#7a4900]">
+                            <label for="surpriseCheck" class="text-xs gold-text font-semibold cursor-pointer leading-relaxed">🤫 This is a surprise — please don't contact the receiver directly</label>
+                        </div>
+                        <div class="mt-3">
+                            <label class="field-label">Gift Message (optional)</label>
+                            <textarea name="gift_message" maxlength="200" placeholder="A little note to include... (max 200 chars)"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Fulfillment -->
+                <div class="space-y-3">
+                    <p class="text-[10px] font-bold uppercase gold-text tracking-widest border-b border-stone-100 pb-2">3. Fulfillment Details</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="field-label">Method *</label>
+                            <select id="methodSelect" onchange="updateUI()" required>
+                                <option value="pickup">Pickup (Koramangala 4th Block)</option>
+                                <option value="delivery">Delivery (Bengaluru)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="field-label">Time Slot *</label>
+                            <select name="slot" required>
+                                <option value="">Select Time Slot *</option>
+                                <option value="Saturday | 9am-11am">Saturday | 9am – 11am (Sat, May 23)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="deliveryFields" class="hidden space-y-3">
+                        <div>
+                            <label class="field-label">Delivery Zone</label>
+                            <select id="zoneSelect" onchange="updateUI()">
+                                <option value="koramangala">Koramangala Zone (Free)</option>
+                                <option value="outside">Outside Koramangala (+₹100)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="field-label">Full Address *</label>
+                            <textarea name="address" id="addrInput" placeholder="Full address for delivery"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. How did you hear -->
+                <div class="space-y-2">
+                    <p class="text-[10px] font-bold uppercase gold-text tracking-widest border-b border-stone-100 pb-2">4. One Quick Thing</p>
+                    <label class="field-label">How Did You Hear About Us? *</label>
+                    <select name="heard_from" required>
+                        <option value="">Select an option *</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="Twitter">Twitter</option>
+                        <option value="WhatsApp">WhatsApp</option>
+                        <option value="Friend Referral">Friend Referral</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <!-- 5. Notes -->
+                <div>
+                    <label class="field-label">Notes / Special Instructions</label>
+                    <textarea name="notes" maxlength="250" placeholder="Allergies, instructions, etc. (max 250 chars)"></textarea>
+                </div>
+
+                <!-- Payment -->
+                <div class="bg-stone-50 p-6 border-t-2 border-[#7a4900] text-center">
+                    <div class="flex justify-between font-bold text-xl mb-6">
+                        <span>Total Payable:</span>
+                        <span id="finalT" class="gold-text">₹0</span>
+                    </div>
+                    <img src="assets/payment-qr.jpeg" alt="Payment QR" class="mx-auto mb-4 border p-1 bg-white w-40 h-40 object-contain">
+                    <p class="text-xs font-mono mb-6">
+                        UPI ID: 9527371656@yescred
+                        <span class="copy-trigger" onclick="copyUPI()">
+                            <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                            Copy
+                            <span id="copyTooltip" class="copy-tooltip">Copied!</span>
+                        </span>
+                    </p>
+                    <button type="submit" class="btn-luxury w-full py-4 text-sm">I've Paid — Confirm Preorder</button>
+                    <p class="text-[10px] text-stone-400 mt-4">*Pickup location shared over WhatsApp after confirmation.</p>
+                </div>
             </form>
         </div>
     </div>
 
-    <!-- Success modal -->
-    <div id="successModal" class="modal-overlay" style="display:none; align-items:center; justify-content:center;">
+    <!-- Confirm modal -->
+    <div id="confirmModal" class="modal-overlay" style="display:none; align-items:center; justify-content:center;">
         <div class="max-w-md w-full bg-white p-10 text-center shadow-2xl rounded-sm mx-4">
             <div class="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg class="w-8 h-8 gold-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
             </div>
-            <h3 class="text-3xl font-serif italic gold-text mb-4">You're on the list!</h3>
-            <p class="text-stone-500 text-sm mb-8 leading-relaxed">We'll WhatsApp you as soon as the next drop is confirmed. Watch this space.</p>
-            <button onclick="location.reload()" class="btn-luxury w-full">Back to the Site</button>
+            <h3 class="text-3xl font-serif italic gold-text mb-4">Merci Beaucoup!</h3>
+            <p class="text-stone-500 text-sm mb-8 leading-relaxed">Merci — your preorder is received. We'll confirm payment and message you on WhatsApp with pickup or delivery details. If you have questions, reply to that message and we'll assist.</p>
+            <button onclick="location.reload()" class="btn-luxury w-full">Close & Return</button>
         </div>
     </div>
 
     <script>
-        function openWaitlist() {
-            document.getElementById('waitlistModal').style.display = 'block';
-            document.body.style.overflow = 'hidden';
+        // QR tracking
+        const params = new URLSearchParams(window.location.search);
+        const refFromURL = params.get('ref');
+        if (refFromURL) localStorage.setItem('order_ref', refFromURL.toLowerCase());
+
+        // ── Stock guard (frontend) ──────────────────────────────
+        const MAX_BOXES = 10;
+
+        // ── Gift toggle ─────────────────────────────────────────
+        let isGift = false;
+        function toggleGift() {
+            isGift = !isGift;
+            document.getElementById('giftTogglePill').classList.toggle('on', isGift);
+            document.getElementById('receiverSection').classList.toggle('open', isGift);
+            document.getElementById('receiverName').required  = isGift;
+            document.getElementById('receiverPhone').required = isGift;
         }
-        function closeWaitlist() {
-            document.getElementById('waitlistModal').style.display = 'none';
+
+
+        // ── Cart ────────────────────────────────────────────────
+        let cart = { tiramisu: 0, matcha: 0 };
+        const prices = { tiramisu: 449, matcha: 499 };
+
+        function addToCart(id) {
+            const totalInCart = Object.values(cart).reduce((s, v) => s + v, 0);
+            if (totalInCart >= MAX_BOXES) {
+                alert(`Sorry — only ${MAX_BOXES} boxes are available for this drop. You've already added the maximum.`);
+                return;
+            }
+            cart[id]++;
+            updateUI();
+        }
+
+        function removeFromCart(id) { if (cart[id] > 0) { cart[id]--; updateUI(); } }
+
+        function copyUPI() {
+            navigator.clipboard.writeText("9527371656@yescred");
+            const tip = document.getElementById('copyTooltip');
+            tip.classList.add('show');
+            setTimeout(() => tip.classList.remove('show'), 2000);
+        }
+
+        function updateUI() {
+            const totalInCart = Object.values(cart).reduce((s, v) => s + v, 0);
+            const remaining   = MAX_BOXES - totalInCart;
+
+            // Stock badge & card message
+            const badge   = document.getElementById('stockBadge');
+            const cardMsg = document.getElementById('cardStockMsg');
+
+            if (totalInCart >= MAX_BOXES) {
+                badge.textContent   = '⚑ Fully Allocated';
+                badge.style.background = '#fee2e2';
+                badge.style.color      = '#991b1b';
+                cardMsg.textContent = '⚠ You have reserved all available boxes.';
+            } else if (remaining <= 3) {
+                badge.textContent   = `⚑ Only ${remaining} left!`;
+                cardMsg.textContent = `Only ${remaining} box${remaining === 1 ? '' : 'es'} left — grab yours now.`;
+            } else {
+                badge.textContent = '⚑ Only 10 Boxes Available';
+                cardMsg.textContent = '';
+            }
+
+            // Tiramisu button
+            const container = document.getElementById('main-qty-tiramisu');
+            if (cart.tiramisu > 0) {
+                container.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <svg onclick="cart['tiramisu']=0;updateUI()" class="delete-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        <div class="qty-control">
+                            <span class="qty-btn" onclick="removeFromCart('tiramisu')">−</span>
+                            <span class="font-bold">${cart.tiramisu}</span>
+                            <span class="qty-btn" onclick="addToCart('tiramisu')">+</span>
+                        </div>
+                    </div>`;
+            } else {
+                container.innerHTML = `<button onclick="addToCart('tiramisu')" class="btn-luxury">Add to Bag</button>`;
+            }
+
+            // Matcha button
+            const containerM = document.getElementById('main-qty-matcha');
+            if (containerM) {
+                if (cart.matcha > 0) {
+                    containerM.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <svg onclick="cart['matcha']=0;updateUI()" class="delete-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            <div class="qty-control">
+                                <span class="qty-btn" onclick="removeFromCart('matcha')">−</span>
+                                <span class="font-bold">${cart.matcha}</span>
+                                <span class="qty-btn" onclick="addToCart('matcha')">+</span>
+                            </div>
+                        </div>`;
+                } else {
+                    containerM.innerHTML = `<button onclick="addToCart('matcha')" class="btn-luxury">Add to Bag</button>`;
+                }
+            }
+
+            document.getElementById('bagCount').innerText   = totalInCart;
+            document.getElementById('floatCount').innerText = totalInCart;
+            document.getElementById('floatingCart').style.display = totalInCart > 0 ? 'block' : 'none';
+
+            const isDel = document.getElementById('methodSelect').value === 'delivery';
+            document.getElementById('deliveryFields').classList.toggle('hidden', !isDel);
+            document.getElementById('addrInput').required = isDel;
+
+            const sub = Object.keys(cart).reduce((s, k) => s + (prices[k] || 0) * cart[k], 0);
+            const del = (isDel && document.getElementById('zoneSelect').value === 'outside') ? 100 : 0;
+            document.getElementById('finalT').innerText = '₹' + (sub + del);
+
+            if (document.getElementById('checkoutModal').style.display === 'block') renderModalItems();
+        }
+
+        function renderModalItems() {
+            let items = '';
+            if (cart.tiramisu > 0) items += `
+                <div class="flex justify-between items-center border-b pb-4">
+                    <div class="flex items-center gap-3">
+                        <svg onclick="cart['tiramisu']=0;updateUI()" class="delete-icon w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        <span class="font-serif italic text-lg">Tiramisù — The Classic Jar · 300ml</span>
+                    </div>
+                    <div class="qty-control">
+                        <span class="qty-btn" onclick="removeFromCart('tiramisu')">−</span>
+                        <span class="font-bold text-sm">${cart.tiramisu}</span>
+                        <span class="qty-btn" onclick="addToCart('tiramisu')">+</span>
+                    </div>
+                </div>`;
+
+            if (cart.matcha > 0) items += `
+                <div class="flex justify-between items-center border-b pb-4">
+                    <div class="flex items-center gap-3">
+                        <svg onclick="cart['matcha']=0;updateUI()" class="delete-icon w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        <span class="font-serif italic text-lg">Matcha Misu · 300ml</span>
+                    </div>
+                    <div class="qty-control">
+                        <span class="qty-btn" onclick="removeFromCart('matcha')">−</span>
+                        <span class="font-bold text-sm">${cart.matcha}</span>
+                        <span class="qty-btn" onclick="addToCart('matcha')">+</span>
+                    </div>
+                </div>`;
+
+            document.getElementById('modalItems').innerHTML = items;
+        }
+
+        function openCart() {
+            const totalInCart = Object.values(cart).reduce((s, v) => s + v, 0);
+            if (totalInCart === 0) return alert("Bag is empty");
+            document.getElementById('checkoutModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            updateUI();
+        }
+
+        function closeCart() {
+            document.getElementById('checkoutModal').style.display = 'none';
             document.body.style.overflow = 'auto';
         }
 
-        document.getElementById('waitlistForm').onsubmit = async (e) => {
+        document.getElementById('orderForm').onsubmit = async (e) => {
             e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.innerText = "Adding you...";
-            btn.disabled = true;
 
-            const data = {
-                sender_name:     document.getElementById('wName').value,
-                sender_phone:    document.getElementById('wPhone').value,
-                type:            'waitlist',
-                referral_source: localStorage.getItem('order_ref') || 'Direct'
+            // Final frontend stock check before submit
+            const totalInCart = Object.values(cart).reduce((s, v) => s + v, 0);
+            if (totalInCart > MAX_BOXES) {
+                alert(`Only ${MAX_BOXES} boxes are available. Please reduce your quantity.`);
+                return;
+            }
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerText = "Processing...";
+            btn.disabled  = true;
+
+            const fd = new FormData(e.target);
+            const orderedItems = [];
+            if (cart.tiramisu > 0) orderedItems.push(`Tiramisù x${cart.tiramisu}`);
+            if (cart.matcha > 0) orderedItems.push(`Matcha Misu x${cart.matcha}`);
+
+            const orderData = {
+                sender_name:     fd.get('sender_name'),
+                sender_phone:    fd.get('sender_phone'),
+                is_gift:         isGift ? "Yes" : "No",
+                receiver_name:   isGift ? fd.get('receiver_name')  : "N/A",
+                receiver_phone:  isGift ? fd.get('receiver_phone') : "N/A",
+                surprise:        (isGift && document.getElementById('surpriseCheck').checked) ? "Yes" : "No",
+                gift_message:    isGift ? (fd.get('gift_message') || "") : "",
+                method:          document.getElementById('methodSelect').value,
+                slot:            fd.get('slot'),
+                items_ordered:   orderedItems.join(', '),
+                tiramisu_qty:    cart.tiramisu,
+                matcha_qty:      cart.matcha,
+                address:         fd.get('address') || "N/A",
+                notes:           fd.get('notes') || "",
+                heard_from:      fd.get('heard_from'),
+                referral_source: localStorage.getItem('order_ref') || "Direct",
+                total:           document.getElementById('finalT').innerText
             };
 
             const scriptURL = 'https://script.google.com/macros/s/AKfycbzukTHWTfDz4M1vjgLTVfNEF2FI3Ou-Y-J7ZUMVXLO4rT3Ck7qxyR2ymSILYzIJ1dR3/exec';
 
             try {
-                await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-                document.getElementById('waitlistModal').style.display = 'none';
-                document.getElementById('successModal').style.display = 'flex';
+                await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(orderData) });
+                document.getElementById('checkoutModal').style.display = 'none';
+                document.getElementById('confirmModal').style.display  = 'flex';
             } catch (err) {
-                alert("Something went wrong. Please reach us on WhatsApp.");
-                btn.innerText = "Notify Me for the Next Drop";
-                btn.disabled = false;
+                alert("Something went wrong. Please contact us on WhatsApp.");
+                console.error(err);
+                btn.innerText = "I've Paid — Confirm Preorder";
+                btn.disabled  = false;
             }
         };
-
-        // QR ref tracking preserved
-        const params = new URLSearchParams(window.location.search);
-        const refFromURL = params.get('ref');
-        if (refFromURL) localStorage.setItem('order_ref', refFromURL.toLowerCase());
     </script>
 </body>
 </html>
