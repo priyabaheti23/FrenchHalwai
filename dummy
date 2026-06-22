@@ -1,3 +1,38 @@
+// const DROP_TOTAL = 8;            // total Mango Fraisier this drop
+const ORDERS_SHEET = 'Orders';   // <-- your orders tab name; change if different
+
+function doGet() {
+  return ContentService
+    .createTextOutput(JSON.stringify({ mango_remaining: getMangoRemaining() }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function getMangoRemaining() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();          // bound script
+  const sheet = ss.getSheetByName(ORDERS_SHEET) || ss.getSheets()[0];
+  const values = sheet.getDataRange().getValues();
+  if (values.length < 2) return DROP_TOTAL;
+
+  const headers = values[0].map(h => String(h).trim().toLowerCase());
+  const qtyCol = headers.indexOf('mango_qty');
+  const itemsCol = headers.indexOf('items_ordered');
+
+  let sold = 0;
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+    if (qtyCol !== -1 && row[qtyCol] !== '' && !isNaN(row[qtyCol])) {
+      sold += Number(row[qtyCol]);                                       // uses mango_qty column
+    } else if (itemsCol !== -1) {
+      const m = String(row[itemsCol]).match(/mango[^x]*x\s*(\d+)/i);     // fallback: parse "Mango Fraisier x2"
+      sold += m ? Number(m[1]) : 0;
+    }
+  }
+  return Math.max(0, DROP_TOTAL - sold);
+}
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
