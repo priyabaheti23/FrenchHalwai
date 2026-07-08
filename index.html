@@ -15,28 +15,63 @@
         .btn-luxury { background: var(--gold); color: white; transition: all 0.3s ease; letter-spacing: 2px; font-weight: 600; padding: 12px 24px; text-transform: uppercase; font-size: 10px; }
         .btn-luxury:hover { background: #b38f4d; }
         .btn-luxury:disabled { background: #d6cdbd; cursor: not-allowed; }
+        .btn-outline { border: 1px solid var(--gold); color: var(--gold); transition: all 0.3s ease; letter-spacing: 2px; font-weight: 600; padding: 10px 20px; text-transform: uppercase; font-size: 10px; background: transparent; }
+        .btn-outline:hover { background: var(--gold); color: white; }
 
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100; overflow-y: auto; align-items: center; justify-content: center; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100; overflow-y: auto; }
+
+        .qty-control { display: flex; align-items: center; gap: 12px; border: 1px solid #ddd; padding: 4px 12px; background: white; }
+        .qty-btn { font-weight: bold; font-size: 18px; color: var(--gold); cursor: pointer; user-select: none; }
 
         input, select, textarea { border: 1px solid #ddd !important; padding: 12px !important; border-radius: 2px !important; width: 100%; font-size: 14px; background: white; transition: all 0.2s; }
+        input[type="checkbox"] { width: auto !important; padding: 0 !important; }
         input:focus:invalid { border-color: #ef4444 !important; outline: none; }
         input:focus:valid  { border-color: #10b981 !important; outline: none; }
 
+        .delete-icon { cursor: pointer; color: #ccc; transition: color 0.2s; }
+        .delete-icon:hover { color: #ef4444; }
+
+        .fixed-cart { position: fixed; bottom: 30px; right: 30px; z-index: 90; display: none; }
         .field-label { display: block; font-size: 10px; font-weight: 600; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; margin-top: 12px; }
 
         .pill-badge { display: inline-block; background-color: #f6e7dc; color: #7a4900; padding: 8px 18px; border-radius: 999px; font-size: 11px; font-weight: 500; letter-spacing: 0.05em; }
-        .drop-date-badge { display: inline-block; background-color: #fef3c7; color: #92400e; padding: 6px 14px; border-radius: 999px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
-        .past-badge { display: inline-block; background-color: #f1f1ef; color: #78716c; padding: 5px 12px; border-radius: 999px; font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+        .stock-badge { display: inline-block; background-color: #fef3c7; color: #92400e; padding: 6px 14px; border-radius: 999px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
 
-        .gallery-fallback-box { position: relative; height: 220px; overflow: hidden; background: #f4f1ea; display: flex; align-items: center; justify-content: center; }
-        .gallery-fallback-box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-        .gallery-fallback-box span { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 18px; color: #bbb; }
+        .copy-trigger { cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-size: 10px; background: #eee; padding: 4px 8px; border-radius: 3px; margin-left: 8px; vertical-align: middle; position: relative; }
+        .copy-tooltip { position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 4px 8px; border-radius: 4px; font-size: 9px; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+        .copy-tooltip.show { opacity: 1; }
+
+        .gallery-wrap { position: relative; height: 340px; overflow: hidden; background: #f4f1ea; }
+        .gallery-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        .gallery-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 20px; color: #bbb; }
+        .mango-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.5s ease; }
+        .mango-slide.active { opacity: 1; }
+        .g-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 999px; background: rgba(255,255,255,0.8); color: var(--gold); font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: background 0.2s; z-index: 2; }
+        .g-nav:hover { background: #fff; }
+        .g-prev { left: 10px; }
+        .g-next { right: 10px; }
+        .g-dots { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 2; }
+        .g-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.6); cursor: pointer; transition: background 0.2s; }
+        .g-dot.active { background: #fff; }
+
+        /* Gift toggle */
+        .toggle-pill { width: 42px; height: 24px; border-radius: 999px; background: #ddd; position: relative; transition: background 0.3s; flex-shrink: 0; cursor: pointer; }
+        .toggle-pill.on { background: var(--gold); }
+        .toggle-knob { width: 18px; height: 18px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: left 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+        .toggle-pill.on .toggle-knob { left: 21px; }
+
+        /* Receiver section reveal */
+        #receiverSection { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.4s ease, opacity 0.35s ease; }
+        #receiverSection.open { max-height: 500px; opacity: 1; }
+
+        /* Sold out state */
+        .sold-out-banner { background: #1c1917; color: #fef3c7; text-align: center; padding: 10px; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 600; }
     </style>
 </head>
 <body>
 
-    <div class="bg-stone-800 text-white text-[10px] tracking-[0.4em] py-2 text-center uppercase">
-        Next Drop · 11 July · Join The Waitlist
+    <div class="bg-stone-800 text-white text-[10px] tracking-[0.4em] py-2 text-center uppercase" id="topBanner">
+        Preorders Open Now · Only 8
     </div>
 
     <header class="border-b border-stone-200 bg-[#f4f1ea] sticky top-0 z-50">
@@ -45,103 +80,58 @@
                 <h1 class="text-4xl gold-text footer-logo">French Halwai</h1>
                 <p class="text-[8px] md:text-[10px] uppercase tracking-[0.3em] text-stone-400 opacity-80">Artisanal Patisserie</p>
             </div>
-            <a href="#waitlist" class="text-xs font-bold uppercase tracking-widest border-b border-gold pb-1 gold-text">Join Waitlist</a>
+            <button onclick="openCart()" class="flex items-center gap-2 border-b border-gold pb-1">
+                <span class="text-xs font-bold uppercase tracking-widest">Bag</span>
+                <span id="bagCount" class="gold-text font-bold">0</span>
+            </button>
         </div>
     </header>
 
     <!-- Hero -->
     <section class="py-16 text-center bg-white">
+        <h2 class="text-5xl md:text-7xl font-serif italic mb-3 gold-text">Forêt Noire Tart</h2>
         <div class="flex justify-center gap-3 mb-4 flex-wrap">
             <div class="pill-badge">Bangalore</div>
-            <div class="drop-date-badge">Next Drop · 11 July</div>
+            <div class="stock-badge" id="stockBadge">⚑ Loading availability…</div>
         </div>
-        <h2 class="text-5xl md:text-7xl font-serif italic mb-3 gold-text">Something's Coming</h2>
-        <p class="text-stone-500 font-light italic text-sm max-w-md mx-auto">We're between drops right now. Pop your name down below and we'll message you the moment the next one opens.</p>
+        <p class="text-stone-500 font-light italic text-sm">Freshly made to order. Preorders open now.</p>
     </section>
 
-    <!-- Waitlist card -->
-    <section id="waitlist" class="max-w-md mx-auto px-6 py-8">
-        <div class="bg-white border border-stone-100 shadow-sm p-8 rounded-sm">
-            <h3 class="text-2xl font-serif italic mb-1 text-center">Join the Waitlist</h3>
-            <p class="text-xs text-stone-500 mb-6 text-center leading-relaxed">Be first to know when the 11 July drop opens — no spam, just cake.</p>
-
-            <form id="waitlistForm" class="space-y-4">
-                <div>
-                    <label class="field-label">Your Name *</label>
-                    <input type="text" name="waitlist_name" placeholder="Your name" required minlength="2">
+    <!-- Product card -->
+    <section class="max-w-3xl mx-auto px-6 py-12">
+        <div class="grid md:grid-cols-1 gap-6">
+            <!-- Mango Fraisier (active drop) -->
+            <div class="bg-white border border-stone-100 shadow-sm p-0 overflow-hidden max-w-md mx-auto w-full">
+                <div class="gallery-wrap h-72" id="mangoGallery">
+                    <span class="gallery-fallback">Forêt Noire Tart</span>
+                    <img src="assets/Forêt_Noire_Tart.jpeg" alt="Forêt Noire Tart" class="mango-slide active" onerror="this.style.display='none'">
+                    <img src="assets/Forêt_Noire_Tart.jpeg" alt="Forêt Noire Tart" class="mango-slide" onerror="this.style.display='none'">
+                    <img src="assets/Forêt_Noire_Tart.jpeg" alt="Forêt Noire Tart" class="mango-slide" onerror="this.style.display='none'">
+                    <button type="button" class="g-nav g-prev" onclick="mangoNav(-1)" aria-label="Previous photo">‹</button>
+                    <button type="button" class="g-nav g-next" onclick="mangoNav(1)" aria-label="Next photo">›</button>
+                    <div class="g-dots">
+                        <span class="g-dot active" onclick="mangoGo(0)"></span>
+                        <span class="g-dot" onclick="mangoGo(1)"></span>
+                        <span class="g-dot" onclick="mangoGo(2)"></span>
+                    </div>
                 </div>
-                <div>
-                    <label class="field-label">Mobile Number *</label>
-                    <input type="tel" name="waitlist_phone" placeholder="10 digits" required inputmode="numeric">
+                <div class="p-6 text-center">
+                    <h3 class="text-2xl font-serif italic mb-1">Forêt Noire Tart</h3>
+                    <p class="text-[10px] uppercase text-stone-400 font-bold mb-3 tracking-widest">Limited Edition · Serves 2</p>
+                    <p class="text-xs text-stone-500 mb-4 leading-relaxed italic">A crisp chocolate tart with silky dark chocolate ganache and vibrant black cherry compote. Rich, balanced and unmistakably French.</p>
+                    <div class="text-left bg-stone-50 p-4 mb-4 text-[11px] rounded leading-loose">
+                        <p><strong>Allergens:</strong> Dairy, Gluten, Eggs.</p>
+                    </div>
+                    <div id="cardStockMsg" class="text-[10px] text-amber-700 font-semibold mb-4 tracking-wide"></div>
+                    <div class="flex justify-between items-center border-t pt-4">
+                        <span class="text-xl font-light gold-text">₹950</span>
+                        <div id="main-qty-mango">
+                            <button onclick="addToCart('mango')" class="btn-luxury">Add to Bag</button>
+                        </div>
+                    </div>
                 </div>
-                <button type="submit" class="btn-luxury w-full py-4 text-sm">Join Waitlist</button>
-            </form>
+            </div>
         </div>
-    </section>
-
-    <!-- Past drops archive -->
-    <section class="max-w-5xl mx-auto px-6 py-16">
-        <h3 class="text-3xl font-serif italic gold-text text-center mb-2">Past Drops</h3>
-        <p class="text-stone-400 text-xs text-center mb-10 uppercase tracking-widest">A look back at what's already sold out</p>
-
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-
-            <!-- Fraisier -->
-            <div class="bg-white border border-stone-100 shadow-sm overflow-hidden">
-                <div class="gallery-fallback-box">
-                    <span>Fraisier</span>
-                    <img src="assets/mango_fraisier_3.jpeg" alt="Fraisier" onerror="this.style.display='none'">
-                </div>
-                <div class="p-4 text-center">
-                    <p class="past-badge mb-2">Past Drop</p>
-                    <h4 class="font-serif italic text-lg">Mango Fraisier</h4>
-                </div>
-            </div>
-
-            <!-- Tiramisu -->
-            <div class="bg-white border border-stone-100 shadow-sm overflow-hidden">
-                <div class="gallery-fallback-box">
-                    <span>Tiramisu</span>
-                    <img src="assets/tiramisu_1.jpeg" alt="Tiramisu" onerror="this.style.display='none'">
-                </div>
-                <div class="p-4 text-center">
-                    <p class="past-badge mb-2">Past Drop</p>
-                    <h4 class="font-serif italic text-lg">Tiramisu</h4>
-                </div>
-            </div>
-
-            <!-- Matcha Misu -->
-            <div class="bg-white border border-stone-100 shadow-sm overflow-hidden">
-                <div class="gallery-fallback-box">
-                    <span>Matcha Misu</span>
-                    <img src="assets/matcha_misu.jpeg" alt="Matcha Misu" onerror="this.style.display='none'">
-                </div>
-                <div class="p-4 text-center">
-                    <p class="past-badge mb-2">Past Drop</p>
-                    <h4 class="font-serif italic text-lg">Matcha Misu</h4>
-                </div>
-            </div>
-
-            <!-- Madeleine -->
-            <div class="bg-white border border-stone-100 shadow-sm overflow-hidden">
-                <div class="gallery-fallback-box">
-                    <span>Madeleine</span>
-                    <img src="assets/madeline_box_of_4.jpeg" alt="Madeleine" onerror="this.style.display='none'">
-                </div>
-                <div class="p-4 text-center">
-                    <p class="past-badge mb-2">Past Drop</p>
-                    <h4 class="font-serif italic text-lg">Madeleine</h4>
-                </div>
-            </div>
-
-        </div>
-
-        <p class="text-center text-xs text-stone-500 italic mt-10">
-            Craving one of these before the next drop? Reach out to us on
-            <a href="https://wa.me/919527371656?text=Hi%2C%20I%27d%20like%20to%20ask%20about%20a%20custom%20order" target="_blank" rel="noopener" class="gold-text underline font-semibold not-italic">WhatsApp</a>
-            for custom orders.
-        </p> 
-
     </section>
 
     <!-- Chef section -->
@@ -170,68 +160,439 @@
         </div>
     </section>
 
+    <!-- Floating cart -->
+    <div id="floatingCart" class="fixed-cart">
+        <button onclick="openCart()" class="btn-luxury rounded-full flex items-center gap-3 shadow-2xl">
+            <span class="text-xs uppercase tracking-widest">Complete Preorder</span>
+            <span id="floatCount" class="bg-white gold-text px-2 py-0.5 rounded-full text-[10px] font-bold">0</span>
+        </button>
+    </div>
+
+    <!-- Checkout modal -->
+    <div id="checkoutModal" class="modal-overlay">
+        <div class="max-w-2xl mx-auto bg-white my-8 p-8 md:p-12 shadow-2xl relative rounded-sm">
+            <button onclick="closeCart()" class="absolute top-6 right-6 text-stone-400 hover:text-black text-xl leading-none">✕</button>
+            <h3 class="text-3xl font-serif italic gold-text mb-8">Your Order Summary</h3>
+
+            <div id="modalItems" class="mb-10 space-y-4"></div>
+
+            <form id="orderForm" class="space-y-8">
+
+                <!-- 1. Your Info -->
+                <div class="space-y-2">
+                    <p class="text-[10px] font-bold uppercase gold-text tracking-widest border-b border-stone-100 pb-2">1. Your Information</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="field-label">Your Name *</label>
+                            <input type="text" name="sender_name" placeholder="Your name" required minlength="2">
+                        </div>
+                        <div>
+                            <label class="field-label">Your WhatsApp Number *</label>
+                            <input type="tel" name="sender_phone" placeholder="10 digits" required inputmode="numeric">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Gift -->
+                <div class="space-y-3">
+                    <p class="text-[10px] font-bold uppercase gold-text tracking-widest border-b border-stone-100 pb-2">2. Is This a Gift?</p>
+                    <div class="flex items-center gap-3 bg-stone-50 p-4 rounded cursor-pointer select-none" onclick="toggleGift()">
+                        <div id="giftTogglePill" class="toggle-pill">
+                            <div class="toggle-knob"></div>
+                        </div>
+                        <span class="text-xs font-semibold gold-text">I'm ordering this for someone else</span>
+                    </div>
+                    <div id="receiverSection">
+                        <div class="grid md:grid-cols-2 gap-4 pt-2">
+                            <div>
+                                <label class="field-label">Receiver Name *</label>
+                                <input type="text" name="receiver_name" id="receiverName" placeholder="Their name">
+                            </div>
+                            <div>
+                                <label class="field-label">Receiver Phone *</label>
+                                <input type="tel" name="receiver_phone" id="receiverPhone" placeholder="10 digits" inputmode="numeric">
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 bg-amber-50 border border-amber-200 p-3 rounded mt-3">
+                            <input type="checkbox" id="surpriseCheck" class="mt-0.5 accent-[#7a4900]">
+                            <label for="surpriseCheck" class="text-xs gold-text font-semibold cursor-pointer leading-relaxed">🤫 This is a surprise — please don't contact the receiver directly</label>
+                        </div>
+                        <div class="mt-3">
+                            <label class="field-label">Gift Message (optional)</label>
+                            <textarea name="gift_message" maxlength="200" placeholder="A little note to include... (max 200 chars)"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Fulfillment -->
+                <div class="space-y-3">
+                    <p class="text-[10px] font-bold uppercase gold-text tracking-widest border-b border-stone-100 pb-2">3. Fulfillment Details</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="field-label">Method *</label>
+                            <select id="methodSelect" onchange="updateUI()" required>
+                                <option value="pickup">Pickup (Koramangala 4th Block)</option>
+                                <option value="delivery">Delivery (Bengaluru)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="field-label">Time Slot *</label>
+                            <select name="slot" required>
+                                <option value="">Select Time Slot *</option>
+                                <option value="Saturday | 9am-11am">Saturday | 9am – 11am</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="deliveryFields" class="hidden space-y-3">
+                        <div>
+                            <label class="field-label">Delivery Zone</label>
+                            <select id="zoneSelect" onchange="updateUI()">
+                                <option value="koramangala">Koramangala 4th Block — Free Zone</option>
+                                <option value="7km">Up to 7 km from Koramangala (+₹100)</option>
+                            </select>
+                            <p class="text-[10px] text-stone-400 mt-1 leading-relaxed">We deliver within 7 km of Koramangala 4th Block. Further out? <a href="https://wa.me/919527371656?text=Hi%2C%20I%27m%20outside%20your%20delivery%20zone%20%E2%80%94%20can%20you%20help%3F" target="_blank" rel="noopener" class="gold-text underline">Message us</a> and we'll work something out.</p>
+                        </div>
+                        <div>
+                            <label class="field-label">Full Address *</label>
+                            <textarea name="address" id="addrInput" placeholder="Full address for delivery"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. How did you hear -->
+                <div class="space-y-2">
+                    <p class="text-[10px] font-bold uppercase gold-text tracking-widest border-b border-stone-100 pb-2">4. One Quick Thing</p>
+                    <label class="field-label">How Did You Hear About Us? *</label>
+                    <select name="heard_from" required>
+                        <option value="">Select an option *</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="Twitter">Twitter</option>
+                        <option value="WhatsApp">WhatsApp</option>
+                        <option value="Friend Referral">Friend Referral</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <!-- 5. Notes -->
+                <div>
+                    <label class="field-label">Notes / Special Instructions</label>
+                    <textarea name="notes" maxlength="250" placeholder="Allergies, instructions, etc. (max 250 chars)"></textarea>
+                </div>
+
+                <!-- Payment -->
+                <div class="bg-stone-50 p-6 border-t-2 border-[#7a4900] text-center">
+                    <div class="flex justify-between font-bold text-xl mb-6">
+                        <span>Total Payable:</span>
+                        <span id="finalT" class="gold-text">₹0</span>
+                    </div>
+                    <img src="assets/payment-qr.jpeg" alt="Payment QR" class="mx-auto mb-4 border p-1 bg-white w-40 h-40 object-contain">
+                    <p class="text-xs font-mono mb-6">
+                        UPI ID: 9527371656@yescred
+                        <span class="copy-trigger" onclick="copyUPI()">
+                            <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                            Copy
+                            <span id="copyTooltip" class="copy-tooltip">Copied!</span>
+                        </span>
+                    </p>
+                    <button type="submit" class="btn-luxury w-full py-4 text-sm">I've Paid — Confirm Preorder</button>
+                    <p class="text-[10px] text-stone-400 mt-4">*Pickup location shared over WhatsApp after confirmation.</p>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Confirm modal -->
-    <div id="confirmModal" class="modal-overlay">
+    <div id="confirmModal" class="modal-overlay" style="display:none; align-items:center; justify-content:center;">
         <div class="max-w-md w-full bg-white p-10 text-center shadow-2xl rounded-sm mx-4">
             <div class="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg class="w-8 h-8 gold-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
             </div>
-            <h3 class="text-3xl font-serif italic gold-text mb-4">You're On The List!</h3>
-            <p class="text-stone-500 text-sm mb-8 leading-relaxed">We'll message you on WhatsApp the moment the 11 July drop opens.</p>
-            <button onclick="location.reload()" class="btn-luxury w-full">Close</button>
+            <h3 class="text-3xl font-serif italic gold-text mb-4">Merci Beaucoup!</h3>
+            <p class="text-stone-500 text-sm mb-8 leading-relaxed">Merci — your preorder is received. We'll confirm payment and message you on WhatsApp with pickup or delivery details.</p>
+            <button onclick="location.reload()" class="btn-luxury w-full">Close & Return</button>
         </div>
     </div>
 
     <script>
-        // ── Waitlist submission ────────────────────────────────
-        // Point this at your Apps Script endpoint. You can reuse your existing
-        // order-tracking script — just add a tab/handler for "waitlist" rows —
-        // or set up a fresh script bound to a new sheet just for waitlist signups.
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby-FcX9uvZeOD8TYsVTSlGRZJ3hRISMscWk3p2k_WtAuWH2a7zdAGNhQc6f_Td6j5_T/exec';
+        // QR tracking
+        const params = new URLSearchParams(window.location.search);
+        const refFromURL = params.get('ref');
+        if (refFromURL) localStorage.setItem('order_ref', refFromURL.toLowerCase());
 
-        document.getElementById('waitlistForm').onsubmit = async (e) => {
+        // ── Stock (read from your sheet) ────────────────────────
+        // Hard cap for this drop. Even if the sheet ever says more, we never sell above this.
+        const MAX_MANGO = 8;
+        let stockRemaining = MAX_MANGO;   // updated on load from STOCK_URL
+
+        // Point this at an endpoint that returns the REMAINING Mango Fraisier units.
+        // Easiest options (see notes I sent you):
+        //   1) A Google Apps Script doGet that returns JSON: {"mango_remaining": 5}
+        //   2) A Google Sheet "Publish to web" CSV link (first number found is used)
+        // Until you set this, the page falls back to MAX_MANGO (8).
+        const STOCK_URL = 'PASTE_YOUR_STOCK_ENDPOINT_HERE';
+
+        async function loadStock() {
+            if (!STOCK_URL || STOCK_URL.includes('PASTE_YOUR')) { applyStock(MAX_MANGO); return; }
+            try {
+                const res  = await fetch(STOCK_URL, { method: 'GET' });
+                const text = (await res.text()).trim();
+                let remaining;
+                try {
+                    const j = JSON.parse(text);
+                    remaining = Number(j.mango_remaining ?? j.remaining ?? j.mango ?? j.stock);
+                } catch {
+                    const m = text.match(/-?\d+/);   // plain number / CSV cell
+                    remaining = m ? Number(m[0]) : NaN;
+                }
+                if (!Number.isFinite(remaining)) remaining = MAX_MANGO;
+                applyStock(remaining);
+            } catch (err) {
+                console.warn('Stock fetch failed — falling back to default.', err);
+                applyStock(MAX_MANGO);
+            }
+        }
+
+        function applyStock(remaining) {
+            stockRemaining = Math.max(0, Math.min(MAX_MANGO, remaining));
+            // if the drop shrank below what's already in the bag, trim the bag
+            if (cart.mango > stockRemaining) cart.mango = stockRemaining;
+            updateUI();
+        }
+
+        // ── Gift toggle ─────────────────────────────────────────
+        let isGift = false;
+        function toggleGift() {
+            isGift = !isGift;
+            document.getElementById('giftTogglePill').classList.toggle('on', isGift);
+            document.getElementById('receiverSection').classList.toggle('open', isGift);
+            document.getElementById('receiverName').required  = isGift;
+            document.getElementById('receiverPhone').required = isGift;
+        }
+
+        // ── Cart ────────────────────────────────────────────────
+        let cart = { mango: 0 };
+        const prices = { mango: 950 };
+
+        function addToCart(id) {
+            const totalInCart = Object.values(cart).reduce((s, v) => s + v, 0);
+            if (stockRemaining <= 0) {
+                alert("This drop is sold out. Reach out on WhatsApp for a custom order!");
+                return;
+            }
+            if (totalInCart >= stockRemaining) {
+                alert(`Only ${stockRemaining} Forêt Noire Tart available for this drop. You've added the maximum.`);
+                return;
+            }
+            cart[id]++;
+            updateUI();
+        }
+
+        function removeFromCart(id) { if (cart[id] > 0) { cart[id]--; updateUI(); } }
+
+        function copyUPI() {
+            navigator.clipboard.writeText("9527371656@yescred");
+            const tip = document.getElementById('copyTooltip');
+            tip.classList.add('show');
+            setTimeout(() => tip.classList.remove('show'), 2000);
+        }
+
+        function updateUI() {
+            const totalInCart = Object.values(cart).reduce((s, v) => s + v, 0);
+            const left        = stockRemaining - totalInCart;
+
+            const banner  = document.getElementById('topBanner');
+            const badge   = document.getElementById('stockBadge');
+            const cardMsg = document.getElementById('cardStockMsg');
+            const qtyBox  = document.getElementById('main-qty-mango');
+
+            // ── Sold out ──
+            if (stockRemaining <= 0) {
+                banner.textContent = 'This Drop Is Sold Out · Custom Orders Welcome';
+                badge.textContent  = '⚑ Sold Out';
+                badge.style.background = '#fee2e2';
+                badge.style.color      = '#991b1b';
+                cardMsg.textContent = 'Sold out for this drop — message us on WhatsApp for a custom order.';
+                qtyBox.innerHTML = `<button class="btn-luxury" disabled>Sold Out</button>`;
+                document.getElementById('bagCount').innerText   = totalInCart;
+                document.getElementById('floatCount').innerText = totalInCart;
+                document.getElementById('floatingCart').style.display = totalInCart > 0 ? 'block' : 'none';
+                refreshFulfilmentAndTotal();
+                return;
+            }
+
+            // ── In stock ──
+            banner.textContent = `Preorders Open Now · Only ${stockRemaining} Forêt Noire Tart`;
+            if (totalInCart >= stockRemaining) {
+                badge.textContent      = '⚑ Fully Allocated';
+                badge.style.background  = '#fee2e2';
+                badge.style.color       = '#991b1b';
+                cardMsg.textContent     = '⚠ You have reserved all available units.';
+            } else if (left <= 3) {
+                badge.textContent      = `⚑ Only ${left} left!`;
+                badge.style.background  = '#fef3c7';
+                badge.style.color       = '#92400e';
+                cardMsg.textContent     = `Only ${left} left — grab yours now.`;
+            } else {
+                badge.textContent      = `⚑ Only ${stockRemaining} Available`;
+                badge.style.background  = '#fef3c7';
+                badge.style.color       = '#92400e';
+                cardMsg.textContent     = '';
+            }
+
+            // Mango button / quantity control
+            if (cart.mango > 0) {
+                qtyBox.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <svg onclick="cart['mango']=0;updateUI()" class="delete-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        <div class="qty-control">
+                            <span class="qty-btn" onclick="removeFromCart('mango')">−</span>
+                            <span class="font-bold">${cart.mango}</span>
+                            <span class="qty-btn" onclick="addToCart('mango')">+</span>
+                        </div>
+                    </div>`;
+            } else {
+                qtyBox.innerHTML = `<button onclick="addToCart('mango')" class="btn-luxury">Add to Bag</button>`;
+            }
+
+            document.getElementById('bagCount').innerText   = totalInCart;
+            document.getElementById('floatCount').innerText = totalInCart;
+            document.getElementById('floatingCart').style.display = totalInCart > 0 ? 'block' : 'none';
+
+            refreshFulfilmentAndTotal();
+
+            if (document.getElementById('checkoutModal').style.display === 'block') renderModalItems();
+        }
+
+        function refreshFulfilmentAndTotal() {
+            const isDel = document.getElementById('methodSelect').value === 'delivery';
+            document.getElementById('deliveryFields').classList.toggle('hidden', !isDel);
+            document.getElementById('addrInput').required = isDel;
+
+            const sub = Object.keys(cart).reduce((s, k) => s + (prices[k] || 0) * cart[k], 0);
+            const del = (isDel && document.getElementById('zoneSelect').value === '7km') ? 100 : 0;
+            document.getElementById('finalT').innerText = '₹' + (sub + del);
+        }
+
+        function renderModalItems() {
+            let items = '';
+            if (cart.mango > 0) items += `
+                <div class="flex justify-between items-center border-b pb-4">
+                    <div class="flex items-center gap-3">
+                        <svg onclick="cart['mango']=0;updateUI()" class="delete-icon w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        <span class="font-serif italic text-lg">Forêt Noire Tart</span>
+                    </div>
+                    <div class="qty-control">
+                        <span class="qty-btn" onclick="removeFromCart('mango')">−</span>
+                        <span class="font-bold text-sm">${cart.mango}</span>
+                        <span class="qty-btn" onclick="addToCart('mango')">+</span>
+                    </div>
+                </div>`;
+
+            document.getElementById('modalItems').innerHTML = items;
+        }
+
+        function openCart() {
+            const totalInCart = Object.values(cart).reduce((s, v) => s + v, 0);
+            if (totalInCart === 0) return alert("Bag is empty");
+            document.getElementById('checkoutModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            updateUI();
+        }
+
+        function closeCart() {
+            document.getElementById('checkoutModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        document.getElementById('orderForm').onsubmit = async (e) => {
             e.preventDefault();
+
             const form = e.target;
+
+            // Make any native validation failure visible (focuses the offending field)
             if (!form.reportValidity()) return;
 
+            // Phone sanity (digits only, must contain a 10-digit number)
             const digits = s => (s || '').replace(/\D/g, '');
-            const phone = digits(form.waitlist_phone.value);
-            if (phone.length < 10) {
-                alert("Please enter a valid 10-digit mobile number.");
-                form.waitlist_phone.focus();
+            const sPhone = digits(form.sender_phone.value);
+            if (sPhone.length < 10) { alert("Please enter a valid 10-digit WhatsApp number."); form.sender_phone.focus(); return; }
+            if (isGift) {
+                const rPhone = digits(document.getElementById('receiverPhone').value);
+                if (rPhone.length < 10) { alert("Please enter a valid 10-digit number for the receiver."); document.getElementById('receiverPhone').focus(); return; }
+            }
+
+            const totalInCart = Object.values(cart).reduce((s, v) => s + v, 0);
+            if (totalInCart === 0) { alert("Your bag is empty."); return; }
+            if (totalInCart > stockRemaining) {
+                alert(`Only ${stockRemaining} Forêt Noire Tart available. Please reduce your quantity.`);
                 return;
             }
 
             const btn = form.querySelector('button[type="submit"]');
-            btn.innerText = "Joining...";
-            btn.disabled = true;
+            btn.innerText = "Processing...";
+            btn.disabled  = true;
 
-            const data = {
-                form_type: "waitlist",
-                name: form.waitlist_name.value.trim(),
-                phone: phone,
-                next_drop_date: "2026-07-11",
-                submitted_at: new Date().toISOString()
+            const fd = new FormData(form);
+            const orderedItems = [];
+            if (cart.mango > 0) orderedItems.push(`Mango Fraisier x${cart.mango}`);
+
+            const orderData = {
+                sender_name:     fd.get('sender_name'),
+                sender_phone:    fd.get('sender_phone'),
+                is_gift:         isGift ? "Yes" : "No",
+                receiver_name:   isGift ? fd.get('receiver_name')  : "N/A",
+                receiver_phone:  isGift ? fd.get('receiver_phone') : "N/A",
+                surprise:        (isGift && document.getElementById('surpriseCheck').checked) ? "Yes" : "No",
+                gift_message:    isGift ? (fd.get('gift_message') || "") : "",
+                method:          document.getElementById('methodSelect').value,
+                slot:            fd.get('slot'),
+                items_ordered:   orderedItems.join(', '),
+                mango_qty:       cart.mango,
+                delivery_zone:   document.getElementById('methodSelect').value === 'delivery'
+                                   ? document.getElementById('zoneSelect').value : "N/A",
+                address:         fd.get('address') || "N/A",
+                notes:           fd.get('notes') || "",
+                heard_from:      fd.get('heard_from'),
+                referral_source: localStorage.getItem('order_ref') || "Direct",
+                total:           document.getElementById('finalT').innerText
             };
 
-            if (!SCRIPT_URL || SCRIPT_URL.includes('PASTE_YOUR')) {
-                // No endpoint configured yet — still show confirmation so the UI is testable,
-                // but log a warning so you know signups aren't actually being saved.
-                console.warn('Waitlist SCRIPT_URL not set — this signup was NOT saved.', data);
-                document.getElementById('confirmModal').style.display = 'flex';
-                return;
-            }
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbzukTHWTfDz4M1vjgLTVfNEF2FI3Ou-Y-J7ZUMVXLO4rT3Ck7qxyR2ymSILYzIJ1dR3/exec';
 
             try {
-                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-                document.getElementById('confirmModal').style.display = 'flex';
+                await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(orderData) });
+                document.getElementById('checkoutModal').style.display = 'none';
+                document.getElementById('confirmModal').style.display  = 'flex';
             } catch (err) {
-                alert("Couldn't reach the server: " + (err && err.message ? err.message : err) + "\nPlease check your connection or try again.");
-                console.error("Waitlist submit failed:", err);
-                btn.innerText = "Join Waitlist";
-                btn.disabled = false;
+                alert("Couldn't reach the server: " + (err && err.message ? err.message : err) + "\nPlease check your connection or contact us on WhatsApp.");
+                console.error("Order submit failed:", err);
+                btn.innerText = "I've Paid — Confirm Preorder";
+                btn.disabled  = false;
             }
         };
+
+        // ── Mango image slider ──────────────────────────────────
+        let mangoIdx = 0;
+        function mangoRender() {
+            const slides = document.querySelectorAll('#mangoGallery .mango-slide');
+            const dots   = document.querySelectorAll('#mangoGallery .g-dot');
+            slides.forEach((s, i) => s.classList.toggle('active', i === mangoIdx));
+            dots.forEach((d, i) => d.classList.toggle('active', i === mangoIdx));
+        }
+        function mangoGo(i) {
+            const n = document.querySelectorAll('#mangoGallery .mango-slide').length;
+            mangoIdx = (i + n) % n;
+            mangoRender();
+        }
+        function mangoNav(step) { mangoGo(mangoIdx + step); }
+        setInterval(() => mangoNav(1), 4500);
+
+        // Pull live stock on load
+        loadStock();
     </script>
 </body>
 </html>
