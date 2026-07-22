@@ -105,7 +105,7 @@
         <h2 class="text-5xl md:text-7xl font-serif italic mb-3 gold-text">Tiramisu</h2>
         <div class="flex justify-center gap-3 mb-4 flex-wrap">
             <div class="pill-badge">Bangalore</div>
-            <div class="stock-badge" id="stockBadge">⚑ Only 10 Tubs</div>
+            <div class="stock-badge" id="stockBadge">⚑ Loading availability…</div>
         </div>
         <p class="text-stone-500 font-light italic text-sm">Freshly made to order. Preorders open now.</p>
     </section>
@@ -117,13 +117,14 @@
             <div class="bg-white border border-stone-100 shadow-sm p-0 overflow-hidden max-w-md mx-auto w-full">
                 <div class="gallery-wrap" id="mangoGallery">
                     <span class="gallery-fallback">Tiramisu</span>
-                    <img src="assets/tiramisu_1.jpeg" alt="Tiramisu" class="mango-slide active" onerror="this.style.display='none'">
-                    <img src="assets/tiramisu_2.jpeg" alt="Tiramisu" class="mango-slide" onerror="this.style.display='none'">
+                    <img src="assets/tiramisu_1.jpeg" alt="Forêt Noire Tart" class="mango-slide active" onerror="this.style.display='none'">
+                    <img src="assets/tiramisu_2.jpeg" alt="Forêt Noire Tart" class="mango-slide" onerror="this.style.display='none'">
                     <button type="button" class="g-nav g-prev" onclick="mangoNav(-1)" aria-label="Previous photo">‹</button>
                     <button type="button" class="g-nav g-next" onclick="mangoNav(1)" aria-label="Next photo">›</button>
                     <div class="g-dots">
                         <span class="g-dot active" onclick="mangoGo(0)"></span>
                         <span class="g-dot" onclick="mangoGo(1)"></span>
+                        <span class="g-dot" onclick="mangoGo(2)"></span>
                     </div>
                 </div>
                 <div class="p-6 text-center">
