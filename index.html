@@ -15,28 +15,71 @@
         .btn-luxury { background: var(--gold); color: white; transition: all 0.3s ease; letter-spacing: 2px; font-weight: 600; padding: 12px 24px; text-transform: uppercase; font-size: 10px; }
         .btn-luxury:hover { background: #b38f4d; }
         .btn-luxury:disabled { background: #d6cdbd; cursor: not-allowed; }
+        .btn-outline { border: 1px solid var(--gold); color: var(--gold); transition: all 0.3s ease; letter-spacing: 2px; font-weight: 600; padding: 10px 20px; text-transform: uppercase; font-size: 10px; background: transparent; }
+        .btn-outline:hover { background: var(--gold); color: white; }
 
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100; overflow-y: auto; align-items: center; justify-content: center; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100; overflow-y: auto; }
+
+        .qty-control { display: flex; align-items: center; gap: 12px; border: 1px solid #ddd; padding: 4px 12px; background: white; }
+        .qty-btn { font-weight: bold; font-size: 18px; color: var(--gold); cursor: pointer; user-select: none; }
 
         input, select, textarea { border: 1px solid #ddd !important; padding: 12px !important; border-radius: 2px !important; width: 100%; font-size: 14px; background: white; transition: all 0.2s; }
+        input[type="checkbox"] { width: auto !important; padding: 0 !important; }
         input:focus:invalid { border-color: #ef4444 !important; outline: none; }
         input:focus:valid  { border-color: #10b981 !important; outline: none; }
 
+        .delete-icon { cursor: pointer; color: #ccc; transition: color 0.2s; }
+        .delete-icon:hover { color: #ef4444; }
+
+        .fixed-cart { position: fixed; bottom: 30px; right: 30px; z-index: 90; display: none; }
         .field-label { display: block; font-size: 10px; font-weight: 600; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; margin-top: 12px; }
 
         .pill-badge { display: inline-block; background-color: #f6e7dc; color: #7a4900; padding: 8px 18px; border-radius: 999px; font-size: 11px; font-weight: 500; letter-spacing: 0.05em; }
-        .drop-date-badge { display: inline-block; background-color: #fef3c7; color: #92400e; padding: 6px 14px; border-radius: 999px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
-        .past-badge { display: inline-block; background-color: #f1f1ef; color: #78716c; padding: 5px 12px; border-radius: 999px; font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+        .stock-badge { display: inline-block; background-color: #fef3c7; color: #92400e; padding: 6px 14px; border-radius: 999px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
 
-        .gallery-fallback-box { position: relative; height: 220px; overflow: hidden; background: #f4f1ea; display: flex; align-items: center; justify-content: center; }
+        .copy-trigger { cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-size: 10px; background: #eee; padding: 4px 8px; border-radius: 3px; margin-left: 8px; vertical-align: middle; position: relative; }
+        .copy-tooltip { position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 4px 8px; border-radius: 4px; font-size: 9px; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+        .copy-tooltip.show { opacity: 1; }
+
+        .gallery-wrap { position: relative; height: 340px; overflow: hidden; background: #f4f1ea; }
+        .gallery-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        .gallery-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 20px; color: #bbb; }
+        .mango-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.5s ease; }
+        .mango-slide.active { opacity: 1; }
+        .g-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 999px; background: rgba(255,255,255,0.8); color: var(--gold); font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: background 0.2s; z-index: 2; }
+        .g-nav:hover { background: #fff; }
+        .g-prev { left: 10px; }
+        .g-next { right: 10px; }
+        .g-dots { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 2; }
+        .g-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.6); cursor: pointer; transition: background 0.2s; }
+        .g-dot.active { background: #fff; }
+
+        /* Past-drop thumbnail box (used in the archive grid). */
+        .gallery-fallback-box { position: relative; height: 160px; overflow: hidden; background: #f4f1ea; display: flex; align-items: center; justify-content: center; }
         .gallery-fallback-box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-        .gallery-fallback-box span { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 18px; color: #bbb; }
+        .gallery-fallback-box span { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px; color: #bbb; padding: 0 8px; text-align: center; }
+
+        /* "Past Drop" pill, used in the archive grid. */
+        .past-badge { display: inline-block; background-color: #f4f1ea; color: #7a4900; padding: 4px 12px; border-radius: 999px; font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+
+        /* Gift toggle */
+        .toggle-pill { width: 42px; height: 24px; border-radius: 999px; background: #ddd; position: relative; transition: background 0.3s; flex-shrink: 0; cursor: pointer; }
+        .toggle-pill.on { background: var(--gold); }
+        .toggle-knob { width: 18px; height: 18px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: left 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+        .toggle-pill.on .toggle-knob { left: 21px; }
+
+        /* Receiver section reveal */
+        #receiverSection { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.4s ease, opacity 0.35s ease; }
+        #receiverSection.open { max-height: 500px; opacity: 1; }
+
+        /* Sold out state */
+        .sold-out-banner { background: #1c1917; color: #fef3c7; text-align: center; padding: 10px; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 600; }
     </style>
 </head>
 <body>
 
-    <div class="bg-stone-800 text-white text-[10px] tracking-[0.4em] py-2 text-center uppercase">
-        Next Drop ·  25 July · Join The Waitlist
+    <div class="bg-stone-800 text-white text-[10px] tracking-[0.4em] py-2 text-center uppercase" id="topBanner">
+        Preorders Open Now · Only 10 Tubs
     </div>
 
     <header class="border-b border-stone-200 bg-[#f4f1ea] sticky top-0 z-50">
@@ -45,37 +88,54 @@
                 <h1 class="text-4xl gold-text footer-logo">French Halwai</h1>
                 <p class="text-[8px] md:text-[10px] uppercase tracking-[0.3em] text-stone-400 opacity-80">Artisanal Patisserie</p>
             </div>
-            <a href="#waitlist" class="text-xs font-bold uppercase tracking-widest border-b border-gold pb-1 gold-text">Join Waitlist</a>
+            <button type="button" data-action="open-cart" class="flex items-center gap-2 border-b border-[#7a4900] pb-1">
+                <span class="text-xs font-bold uppercase tracking-widest">Bag</span>
+                <span id="bagCount" class="gold-text font-bold">0</span>
+            </button>
         </div>
     </header>
 
     <!-- Hero -->
     <section class="py-16 text-center bg-white">
+        <h2 class="text-5xl md:text-7xl font-serif italic mb-3 gold-text">Tiramisu</h2>
         <div class="flex justify-center gap-3 mb-4 flex-wrap">
             <div class="pill-badge">Bangalore</div>
-            <div class="drop-date-badge">Next Drop · 25 July</div>
+            <div class="stock-badge" id="stockBadge">⚑ Loading availability…</div>
         </div>
-        <h2 class="text-5xl md:text-7xl font-serif italic mb-3 gold-text">Something's Coming</h2>
-        <p class="text-stone-500 font-light italic text-sm max-w-md mx-auto">We're between drops right now. Pop your name down below and we'll message you the moment the next one opens.</p>
+        <p class="text-stone-500 font-light italic text-sm">Freshly made to order. Preorders open now.</p>
     </section>
 
-    <!-- Waitlist card -->
-    <section id="waitlist" class="max-w-md mx-auto px-6 py-8">
-        <div class="bg-white border border-stone-100 shadow-sm p-8 rounded-sm">
-            <h3 class="text-2xl font-serif italic mb-1 text-center">Join the Waitlist</h3>
-            <p class="text-xs text-stone-500 mb-6 text-center leading-relaxed">Be first to know when the 25 July drop opens — no spam, just cake.</p>
-
-            <form id="waitlistForm" class="space-y-4">
-                <div>
-                    <label class="field-label">Your Name *</label>
-                    <input type="text" name="waitlist_name" placeholder="Your name" required minlength="2">
+    <!-- Product card -->
+    <section class="max-w-3xl mx-auto px-6 py-12">
+        <div class="grid md:grid-cols-1 gap-6">
+            <div class="bg-white border border-stone-100 shadow-sm p-0 overflow-hidden max-w-md mx-auto w-full">
+                <div class="gallery-wrap" id="mangoGallery">
+                    <span class="gallery-fallback">Tiramisu</span>
+                    <img src="assets/tiramisu_1.jpeg" alt="Tiramisu" class="mango-slide active" onerror="this.style.display='none'">
+                    <img src="assets/tiramisu_2.jpeg" alt="Tiramisu" class="mango-slide" onerror="this.style.display='none'">
+                    <button type="button" class="g-nav g-prev" data-action="gallery-prev" aria-label="Previous photo">‹</button>
+                    <button type="button" class="g-nav g-next" data-action="gallery-next" aria-label="Next photo">›</button>
+                    <div class="g-dots">
+                        <span class="g-dot active" data-action="gallery-go" data-index="0"></span>
+                        <span class="g-dot" data-action="gallery-go" data-index="1"></span>
+                    </div>
                 </div>
-                <div>
-                    <label class="field-label">Mobile Number *</label>
-                    <input type="tel" name="waitlist_phone" placeholder="10 digits" required inputmode="numeric">
+                <div class="p-6 text-center">
+                    <h3 class="text-2xl font-serif italic mb-1">Tiramisu</h3>
+                    <p class="text-[10px] uppercase text-stone-400 font-bold mb-3 tracking-widest">Limited Edition · Serves 1</p>
+                    <p class="text-xs text-stone-500 mb-4 leading-relaxed italic">Delicate layers of espresso-soaked sponge, airy mascarpone cream, and bittersweet cocoa.</p>
+                    <div class="text-left bg-stone-50 p-4 mb-4 text-[11px] rounded leading-loose">
+                        <p><strong>Allergens:</strong> Dairy, Gluten, Eggs.</p>
+                    </div>
+                    <div id="cardStockMsg" class="text-[10px] text-amber-700 font-semibold mb-4 tracking-wide"></div>
+                    <div class="flex justify-between items-center border-t pt-4">
+                        <span class="text-xl font-light gold-text">₹550</span>
+                        <div id="main-qty-mango">
+                            <button type="button" data-action="add" class="btn-luxury">Add to Bag</button>
+                        </div>
+                    </div>
                 </div>
-                <button type="submit" class="btn-luxury w-full py-4 text-sm">Join Waitlist</button>
-            </form>
+            </div>
         </div>
     </section>
 
@@ -98,7 +158,7 @@
                 </div>
             </div>
 
-             <!-- Fore Noir Tart -->
+             <!-- Forêt Noire Tart -->
             <div class="bg-white border border-stone-100 shadow-sm overflow-hidden">
                 <div class="gallery-fallback-box">
                     <span>Forêt Noire Tart</span>
@@ -107,18 +167,6 @@
                 <div class="p-4 text-center">
                     <p class="past-badge mb-2">Past Drop</p>
                     <h4 class="font-serif italic text-lg">Forêt Noire Tart</h4>
-                </div>
-            </div>
-
-            <!-- Tiramisu -->
-            <div class="bg-white border border-stone-100 shadow-sm overflow-hidden">
-                <div class="gallery-fallback-box">
-                    <span>Tiramisu</span>
-                    <img src="assets/tiramisu_1.jpeg" alt="Tiramisu" onerror="this.style.display='none'">
-                </div>
-                <div class="p-4 text-center">
-                    <p class="past-badge mb-2">Past Drop</p>
-                    <h4 class="font-serif italic text-lg">Tiramisu</h4>
                 </div>
             </div>
 
@@ -152,8 +200,7 @@
             Craving one of these before the next drop? Reach out to us on
             <a href="https://wa.me/919527371656?text=Hi%2C%20I%27d%20like%20to%20ask%20about%20a%20custom%20order" target="_blank" rel="noopener" class="gold-text underline font-semibold not-italic">WhatsApp</a>
             for custom orders.
-        </p> 
-
+        </p>
     </section>
 
     <!-- Chef section -->
@@ -164,17 +211,17 @@
                 <h4 class="text-2xl font-serif italic mb-2 gold-text">Chef Kiran Motwani</h4>
                 <p class="text-stone-400 text-sm mb-3 leading-relaxed">Trained at Le Cordon Bleu Paris. Handcrafted in small batches — elegant, artisanal patisserie.</p>
                 <div class="flex gap-3 items-center">
-                    <button onclick="window.open('https://www.notjustdinner.in','_blank')" aria-label="Supper Club" class="inline-flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 px-3 py-2 text-xs font-semibold text-white">
+                    <button type="button" onclick="window.open('https://www.notjustdinner.in','_blank')" aria-label="Supper Club" class="inline-flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 px-3 py-2 text-xs font-semibold text-white">
                         <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
                         <span>Supper Club</span>
                     </button>
-                    <button onclick="window.open('https://wa.me/919527371656','_blank')" aria-label="WhatsApp" class="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white">
+                    <button type="button" onclick="window.open('https://wa.me/919527371656','_blank')" aria-label="WhatsApp" class="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white">
                         <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.432 5.628 1.433h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                     </button>
-                    <button onclick="window.open('https://instagram.com/frenchhalwai','_blank')" aria-label="Instagram" class="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center">
+                    <button type="button" onclick="window.open('https://instagram.com/frenchhalwai','_blank')" aria-label="Instagram" class="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center">
                         <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                     </button>
-                    <button onclick="window.open('https://x.com/frenchhalwai','_blank')" aria-label="X" class="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center">
+                    <button type="button" onclick="window.open('https://x.com/frenchhalwai','_blank')" aria-label="X" class="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center">
                         <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                     </button>
                 </div>
@@ -182,68 +229,462 @@
         </div>
     </section>
 
+    <!-- Floating cart -->
+    <div id="floatingCart" class="fixed-cart">
+        <button type="button" data-action="open-cart" class="btn-luxury rounded-full flex items-center gap-3 shadow-2xl">
+            <span class="text-xs uppercase tracking-widest">Complete Preorder</span>
+            <span id="floatCount" class="bg-white gold-text px-2 py-0.5 rounded-full text-[10px] font-bold">0</span>
+        </button>
+    </div>
+
+    <!-- Checkout modal -->
+    <div id="checkoutModal" class="modal-overlay">
+        <div class="max-w-2xl mx-auto bg-white my-8 p-8 md:p-12 shadow-2xl relative rounded-sm">
+            <button type="button" data-action="close-cart" class="absolute top-6 right-6 text-stone-400 hover:text-black text-xl leading-none">✕</button>
+            <h3 class="text-3xl font-serif italic gold-text mb-8">Your Order Summary</h3>
+
+            <div id="modalItems" class="mb-10 space-y-4"></div>
+
+            <form id="orderForm" class="space-y-8">
+
+                <!-- 1. Your Info -->
+                <div class="space-y-2">
+                    <p class="text-[10px] font-bold uppercase gold-text tracking-widest border-b border-stone-100 pb-2">1. Your Information</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="field-label">Your Name *</label>
+                            <input type="text" name="sender_name" placeholder="Your name" required minlength="2">
+                        </div>
+                        <div>
+                            <label class="field-label">Your WhatsApp Number *</label>
+                            <input type="tel" name="sender_phone" placeholder="10 digits" required inputmode="numeric">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Gift -->
+                <div class="space-y-3">
+                    <p class="text-[10px] font-bold uppercase gold-text tracking-widest border-b border-stone-100 pb-2">2. Is This a Gift?</p>
+                    <div class="flex items-center gap-3 bg-stone-50 p-4 rounded cursor-pointer select-none" data-action="toggle-gift">
+                        <div id="giftTogglePill" class="toggle-pill">
+                            <div class="toggle-knob"></div>
+                        </div>
+                        <span class="text-xs font-semibold gold-text">I'm ordering this for someone else</span>
+                    </div>
+                    <div id="receiverSection">
+                        <div class="grid md:grid-cols-2 gap-4 pt-2">
+                            <div>
+                                <label class="field-label">Receiver Name *</label>
+                                <input type="text" name="receiver_name" id="receiverName" placeholder="Their name">
+                            </div>
+                            <div>
+                                <label class="field-label">Receiver Phone *</label>
+                                <input type="tel" name="receiver_phone" id="receiverPhone" placeholder="10 digits" inputmode="numeric">
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 bg-amber-50 border border-amber-200 p-3 rounded mt-3">
+                            <input type="checkbox" id="surpriseCheck" class="mt-0.5 accent-[#7a4900]">
+                            <label for="surpriseCheck" class="text-xs gold-text font-semibold cursor-pointer leading-relaxed">🤫 This is a surprise — please don't contact the receiver directly</label>
+                        </div>
+                        <div class="mt-3">
+                            <label class="field-label">Gift Message (optional)</label>
+                            <textarea name="gift_message" maxlength="200" placeholder="A little note to include... (max 200 chars)"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Fulfillment -->
+                <div class="space-y-3">
+                    <p class="text-[10px] font-bold uppercase gold-text tracking-widest border-b border-stone-100 pb-2">3. Fulfillment Details</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="field-label">Method *</label>
+                            <select id="methodSelect" required>
+                                <option value="pickup">Pickup (Koramangala 4th Block)</option>
+                                <option value="delivery">Delivery (Bengaluru)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="field-label">Time Slot *</label>
+                            <select name="slot" required>
+                                <option value="">Select Time Slot *</option>
+                                <option value="Saturday | 9am-11am">Saturday | 9am – 11am</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="deliveryFields" class="hidden space-y-3">
+                        <div>
+                            <label class="field-label">Delivery Zone</label>
+                            <select id="zoneSelect">
+                                <option value="koramangala">Koramangala 4th Block — Free Zone</option>
+                                <option value="7km">Up to 7 km from Koramangala (+₹100)</option>
+                                <option value="10km">7 km – 10 km from Koramangala (+₹150)</option>
+                            </select>
+                            <p class="text-[10px] text-stone-400 mt-1 leading-relaxed">We deliver within 10 km of Koramangala 4th Block. Further out? <a href="https://wa.me/919527371656?text=Hi%2C%20I%27m%20outside%20your%20delivery%20zone%20%E2%80%94%20can%20you%20help%3F" target="_blank" rel="noopener" class="gold-text underline">Message us</a> and we'll work something out.</p>
+                        </div>
+                        <div>
+                            <label class="field-label">Full Address *</label>
+                            <textarea name="address" id="addrInput" placeholder="Full address for delivery"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. How did you hear -->
+                <div class="space-y-2">
+                    <p class="text-[10px] font-bold uppercase gold-text tracking-widest border-b border-stone-100 pb-2">4. One Quick Thing</p>
+                    <label class="field-label">How Did You Hear About Us? *</label>
+                    <select name="heard_from" required>
+                        <option value="">Select an option *</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="Twitter">Twitter</option>
+                        <option value="WhatsApp">WhatsApp</option>
+                        <option value="Friend Referral">Friend Referral</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <!-- 5. Notes -->
+                <div>
+                    <label class="field-label">Notes / Special Instructions</label>
+                    <textarea name="notes" maxlength="250" placeholder="Allergies, instructions, etc. (max 250 chars)"></textarea>
+                </div>
+
+                <!-- Payment -->
+                <div class="bg-stone-50 p-6 border-t-2 border-[#7a4900] text-center">
+                    <div class="flex justify-between font-bold text-xl mb-6">
+                        <span>Total Payable:</span>
+                        <span id="finalT" class="gold-text">₹0</span>
+                    </div>
+                    <img src="assets/payment-qr.jpeg" alt="Payment QR" class="mx-auto mb-4 border p-1 bg-white w-40 h-40 object-contain">
+                    <p class="text-xs font-mono mb-6">
+                        UPI ID: 9527371656@yescred
+                        <span class="copy-trigger" data-action="copy-upi">
+                            <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                            Copy
+                            <span id="copyTooltip" class="copy-tooltip">Copied!</span>
+                        </span>
+                    </p>
+                    <button type="submit" class="btn-luxury w-full py-4 text-sm">I've Paid — Confirm Preorder</button>
+                    <p class="text-[10px] text-stone-400 mt-4">*Pickup location shared over WhatsApp after confirmation.</p>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Confirm modal -->
-    <div id="confirmModal" class="modal-overlay">
+    <div id="confirmModal" class="modal-overlay" style="display:none; align-items:center; justify-content:center;">
         <div class="max-w-md w-full bg-white p-10 text-center shadow-2xl rounded-sm mx-4">
             <div class="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg class="w-8 h-8 gold-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
             </div>
-            <h3 class="text-3xl font-serif italic gold-text mb-4">You're On The List!</h3>
-            <p class="text-stone-500 text-sm mb-8 leading-relaxed">We'll message you on WhatsApp the moment the 25 July drop opens.</p>
-            <button onclick="location.reload()" class="btn-luxury w-full">Close</button>
+            <h3 class="text-3xl font-serif italic gold-text mb-4">Merci Beaucoup!</h3>
+            <p class="text-stone-500 text-sm mb-8 leading-relaxed">Merci — your preorder is received. We'll confirm payment and message you on WhatsApp with pickup or delivery details.</p>
+            <button type="button" onclick="location.reload()" class="btn-luxury w-full">Close & Return</button>
         </div>
     </div>
 
     <script>
-        // ── Waitlist submission ────────────────────────────────
-        // Point this at your Apps Script endpoint. You can reuse your existing
-        // order-tracking script — just add a tab/handler for "waitlist" rows —
-        // or set up a fresh script bound to a new sheet just for waitlist signups.
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby-FcX9uvZeOD8TYsVTSlGRZJ3hRISMscWk3p2k_WtAuWH2a7zdAGNhQc6f_Td6j5_T/exec';
+    (function () {
+        'use strict';
 
-        document.getElementById('waitlistForm').onsubmit = async (e) => {
+        var $ = function (id) { return document.getElementById(id); };
+
+        // QR tracking
+        var params = new URLSearchParams(window.location.search);
+        var refFromURL = params.get('ref');
+        if (refFromURL) { try { localStorage.setItem('order_ref', refFromURL.toLowerCase()); } catch (e) {} }
+
+        // ── Drop config ─────────────────────────────────────────
+        var MAX_TUBS = 10;                 // hard cap for this drop
+        var stockRemaining = MAX_TUBS;     // updated on load from STOCK_URL
+        var cart = { mango: 0 };           // key kept as "mango" so your Sheet columns don't break
+        var prices = { mango: 550 };
+        var DELIVERY_FEES = { koramangala: 0, '7km': 100, '10km': 150 };
+        var isGift = false;
+
+        // Endpoint returning the REMAINING units for this drop.
+        // Until you set this, the page falls back to MAX_TUBS (10).
+        var STOCK_URL = 'PASTE_YOUR_STOCK_ENDPOINT_HERE';
+
+        function loadStock() {
+            if (!STOCK_URL || STOCK_URL.indexOf('PASTE_YOUR') !== -1) { applyStock(MAX_TUBS); return; }
+            fetch(STOCK_URL, { method: 'GET' })
+                .then(function (res) { return res.text(); })
+                .then(function (text) {
+                    text = (text || '').trim();
+                    var remaining;
+                    try {
+                        var j = JSON.parse(text);
+                        remaining = Number(j.mango_remaining !== undefined ? j.mango_remaining
+                                   : j.remaining !== undefined ? j.remaining
+                                   : j.mango !== undefined ? j.mango : j.stock);
+                    } catch (e) {
+                        var m = text.match(/-?\d+/);
+                        remaining = m ? Number(m[0]) : NaN;
+                    }
+                    if (!Number.isFinite(remaining)) remaining = MAX_TUBS;
+                    applyStock(remaining);
+                })
+                .catch(function (err) {
+                    console.warn('Stock fetch failed — falling back to default.', err);
+                    applyStock(MAX_TUBS);
+                });
+        }
+
+        function applyStock(remaining) {
+            stockRemaining = Math.max(0, Math.min(MAX_TUBS, remaining));
+            if (cart.mango > stockRemaining) cart.mango = stockRemaining;
+            updateUI();
+        }
+
+        // ── Gift toggle ─────────────────────────────────────────
+        function toggleGift() {
+            isGift = !isGift;
+            $('giftTogglePill').classList.toggle('on', isGift);
+            $('receiverSection').classList.toggle('open', isGift);
+            $('receiverName').required = isGift;
+            $('receiverPhone').required = isGift;
+        }
+
+        // ── Cart ────────────────────────────────────────────────
+        function totalUnits() {
+            return Object.keys(cart).reduce(function (s, k) { return s + cart[k]; }, 0);
+        }
+
+        function addToCart(id) {
+            if (stockRemaining <= 0) {
+                alert("This drop is sold out. Reach out on WhatsApp for a custom order!");
+                return;
+            }
+            if (totalUnits() >= stockRemaining) {
+                alert("Only " + stockRemaining + " Tiramisu available for this drop. You've added the maximum.");
+                return;
+            }
+            cart[id]++;
+            updateUI();
+        }
+
+        function removeFromCart(id) { if (cart[id] > 0) { cart[id]--; updateUI(); } }
+        function clearItem(id) { cart[id] = 0; updateUI(); }
+
+        function copyUPI() {
+            var tip = $('copyTooltip');
+            var show = function () { tip.classList.add('show'); setTimeout(function () { tip.classList.remove('show'); }, 2000); };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText("9527371656@yescred").then(show).catch(show);
+            } else { show(); }
+        }
+
+        function updateUI() {
+            var inCart = totalUnits();
+            var left = stockRemaining - inCart;
+
+            var banner = $('topBanner');
+            var badge = $('stockBadge');
+            var cardMsg = $('cardStockMsg');
+            var qtyBox = $('main-qty-mango');
+
+            if (stockRemaining <= 0) {
+                banner.textContent = 'This Drop Is Sold Out · Custom Orders Welcome';
+                badge.textContent = '⚑ Sold Out';
+                badge.style.background = '#fee2e2';
+                badge.style.color = '#991b1b';
+                cardMsg.textContent = 'Sold out for this drop — message us on WhatsApp for a custom order.';
+                qtyBox.innerHTML = '<button type="button" class="btn-luxury" disabled>Sold Out</button>';
+            } else {
+                banner.textContent = 'Preorders Open Now · Only ' + stockRemaining + ' Tubs';
+
+                if (inCart >= stockRemaining) {
+                    badge.textContent = '⚑ Fully Allocated';
+                    badge.style.background = '#fee2e2';
+                    badge.style.color = '#991b1b';
+                    cardMsg.textContent = '⚠ You have reserved all available units.';
+                } else if (left <= 3) {
+                    badge.textContent = '⚑ Only ' + left + ' left!';
+                    badge.style.background = '#fef3c7';
+                    badge.style.color = '#92400e';
+                    cardMsg.textContent = 'Only ' + left + ' left — grab yours now.';
+                } else {
+                    badge.textContent = '⚑ Only ' + stockRemaining + ' Available';
+                    badge.style.background = '#fef3c7';
+                    badge.style.color = '#92400e';
+                    cardMsg.textContent = '';
+                }
+
+                if (cart.mango > 0) {
+                    qtyBox.innerHTML =
+                        '<div class="flex items-center gap-3">' +
+                            '<svg data-action="clear" class="delete-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>' +
+                            '</svg>' +
+                            '<div class="qty-control">' +
+                                '<span class="qty-btn" data-action="dec">−</span>' +
+                                '<span class="font-bold">' + cart.mango + '</span>' +
+                                '<span class="qty-btn" data-action="add">+</span>' +
+                            '</div>' +
+                        '</div>';
+                } else {
+                    qtyBox.innerHTML = '<button type="button" data-action="add" class="btn-luxury">Add to Bag</button>';
+                }
+            }
+
+            $('bagCount').innerText = inCart;
+            $('floatCount').innerText = inCart;
+            $('floatingCart').style.display = inCart > 0 ? 'block' : 'none';
+
+            refreshFulfilmentAndTotal();
+
+            if ($('checkoutModal').style.display === 'block') renderModalItems();
+        }
+
+        function refreshFulfilmentAndTotal() {
+            var isDel = $('methodSelect').value === 'delivery';
+            $('deliveryFields').classList.toggle('hidden', !isDel);
+            $('addrInput').required = isDel;
+
+            var sub = Object.keys(cart).reduce(function (s, k) { return s + (prices[k] || 0) * cart[k]; }, 0);
+            var fee = isDel ? (DELIVERY_FEES[$('zoneSelect').value] || 0) : 0;
+            $('finalT').innerText = '₹' + (sub + fee);
+        }
+
+        function renderModalItems() {
+            var items = '';
+            if (cart.mango > 0) {
+                items +=
+                    '<div class="flex justify-between items-center border-b pb-4">' +
+                        '<div class="flex items-center gap-3">' +
+                            '<svg data-action="clear" class="delete-icon w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>' +
+                            '</svg>' +
+                            '<span class="font-serif italic text-lg">Tiramisu</span>' +
+                        '</div>' +
+                        '<div class="qty-control">' +
+                            '<span class="qty-btn" data-action="dec">−</span>' +
+                            '<span class="font-bold text-sm">' + cart.mango + '</span>' +
+                            '<span class="qty-btn" data-action="add">+</span>' +
+                        '</div>' +
+                    '</div>';
+            }
+            $('modalItems').innerHTML = items;
+        }
+
+        function openCart() {
+            if (totalUnits() === 0) { alert("Bag is empty"); return; }
+            $('checkoutModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            updateUI();
+        }
+
+        function closeCart() {
+            $('checkoutModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // ── Gallery ─────────────────────────────────────────────
+        var mangoIdx = 0;
+        function mangoRender() {
+            var slides = document.querySelectorAll('#mangoGallery .mango-slide');
+            var dots = document.querySelectorAll('#mangoGallery .g-dot');
+            slides.forEach(function (s, i) { s.classList.toggle('active', i === mangoIdx); });
+            dots.forEach(function (d, i) { d.classList.toggle('active', i === mangoIdx); });
+        }
+        function mangoGo(i) {
+            var n = document.querySelectorAll('#mangoGallery .mango-slide').length;
+            if (!n) return;
+            mangoIdx = ((i % n) + n) % n;
+            mangoRender();
+        }
+        function mangoNav(step) { mangoGo(mangoIdx + step); }
+
+        // ── One delegated click handler for every control ───────
+        document.addEventListener('click', function (e) {
+            var el = e.target.closest ? e.target.closest('[data-action]') : null;
+            if (!el) return;
+            var action = el.getAttribute('data-action');
+
+            if (action === 'add')            { addToCart('mango'); }
+            else if (action === 'dec')       { removeFromCart('mango'); }
+            else if (action === 'clear')     { clearItem('mango'); }
+            else if (action === 'open-cart') { openCart(); }
+            else if (action === 'close-cart'){ closeCart(); }
+            else if (action === 'toggle-gift'){ toggleGift(); }
+            else if (action === 'copy-upi')  { copyUPI(); }
+            else if (action === 'gallery-prev') { mangoNav(-1); }
+            else if (action === 'gallery-next') { mangoNav(1); }
+            else if (action === 'gallery-go')   { mangoGo(Number(el.getAttribute('data-index')) || 0); }
+        });
+
+        $('methodSelect').addEventListener('change', refreshFulfilmentAndTotal);
+        $('zoneSelect').addEventListener('change', refreshFulfilmentAndTotal);
+
+        // ── Order submit ────────────────────────────────────────
+        $('orderForm').addEventListener('submit', function (e) {
             e.preventDefault();
-            const form = e.target;
+            var form = e.target;
+
             if (!form.reportValidity()) return;
 
-            const digits = s => (s || '').replace(/\D/g, '');
-            const phone = digits(form.waitlist_phone.value);
-            if (phone.length < 10) {
-                alert("Please enter a valid 10-digit mobile number.");
-                form.waitlist_phone.focus();
-                return;
+            var digits = function (s) { return (s || '').replace(/\D/g, ''); };
+            var sPhone = digits(form.sender_phone.value);
+            if (sPhone.length < 10) { alert("Please enter a valid 10-digit WhatsApp number."); form.sender_phone.focus(); return; }
+            if (isGift) {
+                var rPhone = digits($('receiverPhone').value);
+                if (rPhone.length < 10) { alert("Please enter a valid 10-digit number for the receiver."); $('receiverPhone').focus(); return; }
             }
 
-            const btn = form.querySelector('button[type="submit"]');
-            btn.innerText = "Joining...";
+            var inCart = totalUnits();
+            if (inCart === 0) { alert("Your bag is empty."); return; }
+            if (inCart > stockRemaining) { alert("Only " + stockRemaining + " Tiramisu available. Please reduce your quantity."); return; }
+
+            var btn = form.querySelector('button[type="submit"]');
+            btn.innerText = "Processing...";
             btn.disabled = true;
 
-            const data = {
-                form_type: "waitlist",
-                name: form.waitlist_name.value.trim(),
-                phone: phone,
-                next_drop_date: "2026-07-11",
-                submitted_at: new Date().toISOString()
+            var fd = new FormData(form);
+            var orderedItems = [];
+            if (cart.mango > 0) orderedItems.push('Tiramisu x' + cart.mango);
+
+            var isDel = $('methodSelect').value === 'delivery';
+
+            var orderData = {
+                sender_name:     fd.get('sender_name'),
+                sender_phone:    fd.get('sender_phone'),
+                is_gift:         isGift ? "Yes" : "No",
+                receiver_name:   isGift ? fd.get('receiver_name')  : "N/A",
+                receiver_phone:  isGift ? fd.get('receiver_phone') : "N/A",
+                surprise:        (isGift && $('surpriseCheck').checked) ? "Yes" : "No",
+                gift_message:    isGift ? (fd.get('gift_message') || "") : "",
+                method:          $('methodSelect').value,
+                slot:            fd.get('slot'),
+                items_ordered:   orderedItems.join(', '),
+                mango_qty:       cart.mango,
+                delivery_zone:   isDel ? $('zoneSelect').value : "N/A",
+                delivery_fee:    isDel ? (DELIVERY_FEES[$('zoneSelect').value] || 0) : 0,
+                address:         fd.get('address') || "N/A",
+                notes:           fd.get('notes') || "",
+                heard_from:      fd.get('heard_from'),
+                referral_source: (function () { try { return localStorage.getItem('order_ref') || "Direct"; } catch (err) { return "Direct"; } })(),
+                total:           $('finalT').innerText
             };
 
-            if (!SCRIPT_URL || SCRIPT_URL.includes('PASTE_YOUR')) {
-                // No endpoint configured yet — still show confirmation so the UI is testable,
-                // but log a warning so you know signups aren't actually being saved.
-                console.warn('Waitlist SCRIPT_URL not set — this signup was NOT saved.', data);
-                document.getElementById('confirmModal').style.display = 'flex';
-                return;
-            }
+            var scriptURL = 'https://script.google.com/macros/s/AKfycbzukTHWTfDz4M1vjgLTVfNEF2FI3Ou-Y-J7ZUMVXLO4rT3Ck7qxyR2ymSILYzIJ1dR3/exec';
 
-            try {
-                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-                document.getElementById('confirmModal').style.display = 'flex';
-            } catch (err) {
-                alert("Couldn't reach the server: " + (err && err.message ? err.message : err) + "\nPlease check your connection or try again.");
-                console.error("Waitlist submit failed:", err);
-                btn.innerText = "Join Waitlist";
-                btn.disabled = false;
-            }
-        };
+            fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(orderData) })
+                .then(function () {
+                    $('checkoutModal').style.display = 'none';
+                    $('confirmModal').style.display = 'flex';
+                })
+                .catch(function (err) {
+                    alert("Couldn't reach the server: " + (err && err.message ? err.message : err) + "\nPlease check your connection or contact us on WhatsApp.");
+                    console.error("Order submit failed:", err);
+                    btn.innerText = "I've Paid — Confirm Preorder";
+                    btn.disabled = false;
+                });
+        });
+
+        setInterval(function () { mangoNav(1); }, 4500);
+        loadStock();
+    })();
     </script>
 </body>
 </html>
