@@ -550,6 +550,7 @@
 
             const sub = Object.keys(cart).reduce((s, k) => s + (prices[k] || 0) * cart[k], 0);
             const del = (isDel && document.getElementById('zoneSelect').value === '7km') ? 100 : 0;
+            const del = (isDel && document.getElementById('zoneSelect').value === '10km') ? 150 : 0;
             document.getElementById('finalT').innerText = '₹' + (sub + del);
         }
 
