@@ -84,7 +84,7 @@
 <body>
 
     <div class="bg-stone-800 text-white text-[10px] tracking-[0.4em] py-2 text-center uppercase" id="topBanner">
-        Preorders Open Now · Only 6
+        Preorders Open Now · Only 10 Tubs
     </div>
 
     <header class="border-b border-stone-200 bg-[#f4f1ea] sticky top-0 z-50">
@@ -457,7 +457,7 @@
                 return;
             }
             if (totalInCart >= stockRemaining) {
-                alert(`Only ${stockRemaining} Forêt Noire Tart available for this drop. You've added the maximum.`);
+                alert(`Only ${stockRemaining} Tiramisu available for this drop. You've added the maximum.`);
                 return;
             }
             cart[id]++;
@@ -498,7 +498,7 @@
             }
 
             // ── In stock ──
-            banner.textContent = `Preorders Open Now · Only ${stockRemaining} Forêt Noire Tart`;
+            banner.textContent = `Preorders Open Now · Only ${stockRemaining} Tiramisu`;
             if (totalInCart >= stockRemaining) {
                 badge.textContent      = '⚑ Fully Allocated';
                 badge.style.background  = '#fee2e2';
@@ -560,7 +560,7 @@
                         <svg onclick="cart['mango']=0;updateUI()" class="delete-icon w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                         </svg>
-                        <span class="font-serif italic text-lg">Forêt Noire Tart</span>
+                        <span class="font-serif italic text-lg">Tiramisu</span>
                     </div>
                     <div class="qty-control">
                         <span class="qty-btn" onclick="removeFromCart('mango')">−</span>
@@ -605,7 +605,7 @@
             const totalInCart = Object.values(cart).reduce((s, v) => s + v, 0);
             if (totalInCart === 0) { alert("Your bag is empty."); return; }
             if (totalInCart > stockRemaining) {
-                alert(`Only ${stockRemaining} Forêt Noire Tart available. Please reduce your quantity.`);
+                alert(`Only ${stockRemaining} Tiramisu available. Please reduce your quantity.`);
                 return;
             }
 
