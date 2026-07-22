@@ -326,8 +326,9 @@
                             <select id="zoneSelect" onchange="updateUI()">
                                 <option value="koramangala">Koramangala 4th Block — Free Zone</option>
                                 <option value="7km">Up to 7 km from Koramangala (+₹100)</option>
+                                <option value="10km">Between 7 -12 km from Koramangala (+₹100)</option>
                             </select>
-                            <p class="text-[10px] text-stone-400 mt-1 leading-relaxed">We deliver within 7 km of Koramangala 4th Block. Further out? <a href="https://wa.me/919527371656?text=Hi%2C%20I%27m%20outside%20your%20delivery%20zone%20%E2%80%94%20can%20you%20help%3F" target="_blank" rel="noopener" class="gold-text underline">Message us</a> and we'll work something out.</p>
+                            <p class="text-[10px] text-stone-400 mt-1 leading-relaxed">We deliver within 12 km of Koramangala 4th Block. Further out? <a href="https://wa.me/919527371656?text=Hi%2C%20I%27m%20outside%20your%20delivery%20zone%20%E2%80%94%20can%20you%20help%3F" target="_blank" rel="noopener" class="gold-text underline">Message us</a> and we'll work something out.</p>
                         </div>
                         <div>
                             <label class="field-label">Full Address *</label>
@@ -398,7 +399,7 @@
 
         // ── Stock (read from your sheet) ────────────────────────
         // Hard cap for this drop. Even if the sheet ever says more, we never sell above this.
-        const MAX_MANGO = 6;
+        const MAX_MANGO = 10;
         let stockRemaining = MAX_MANGO;   // updated on load from STOCK_URL
 
         // Point this at an endpoint that returns the REMAINING Mango Fraisier units.
@@ -448,7 +449,7 @@
 
         // ── Cart ────────────────────────────────────────────────
         let cart = { mango: 0 };
-        const prices = { mango: 950 };
+        const prices = { mango: 550 };
 
         function addToCart(id) {
             const totalInCart = Object.values(cart).reduce((s, v) => s + v, 0);
