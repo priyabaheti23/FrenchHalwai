@@ -54,17 +54,12 @@
         .g-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.6); cursor: pointer; transition: background 0.2s; }
         .g-dot.active { background: #fff; }
 
-        /* Past-drop thumbnail box (used in the archive grid).
-           Was previously referenced in HTML as "gallery-fallback-box" with no
-           matching CSS rule, so the past-drop cards rendered as unstyled,
-           unbounded stacked text + image. Mirrors .gallery-wrap/.gallery-fallback
-           at a smaller scale so it fits the 4-column archive grid. */
+        /* Past-drop thumbnail box (used in the archive grid). */
         .gallery-fallback-box { position: relative; height: 160px; overflow: hidden; background: #f4f1ea; display: flex; align-items: center; justify-content: center; }
         .gallery-fallback-box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
         .gallery-fallback-box span { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px; color: #bbb; padding: 0 8px; text-align: center; }
 
-        /* "Past Drop" pill, used in the archive grid — also referenced in HTML
-           but previously undefined. Styled as a smaller sibling of .pill-badge. */
+        /* "Past Drop" pill, used in the archive grid. */
         .past-badge { display: inline-block; background-color: #f4f1ea; color: #7a4900; padding: 4px 12px; border-radius: 999px; font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
 
         /* Gift toggle */
@@ -93,7 +88,7 @@
                 <h1 class="text-4xl gold-text footer-logo">French Halwai</h1>
                 <p class="text-[8px] md:text-[10px] uppercase tracking-[0.3em] text-stone-400 opacity-80">Artisanal Patisserie</p>
             </div>
-            <button onclick="openCart()" class="flex items-center gap-2 border-b border-gold pb-1">
+            <button type="button" data-action="open-cart" class="flex items-center gap-2 border-b border-[#7a4900] pb-1">
                 <span class="text-xs font-bold uppercase tracking-widest">Bag</span>
                 <span id="bagCount" class="gold-text font-bold">0</span>
             </button>
@@ -113,18 +108,16 @@
     <!-- Product card -->
     <section class="max-w-3xl mx-auto px-6 py-12">
         <div class="grid md:grid-cols-1 gap-6">
-            <!-- Mango Fraisier (active drop) -->
             <div class="bg-white border border-stone-100 shadow-sm p-0 overflow-hidden max-w-md mx-auto w-full">
                 <div class="gallery-wrap" id="mangoGallery">
                     <span class="gallery-fallback">Tiramisu</span>
-                    <img src="assets/tiramisu_1.jpeg" alt="Forêt Noire Tart" class="mango-slide active" onerror="this.style.display='none'">
-                    <img src="assets/tiramisu_2.jpeg" alt="Forêt Noire Tart" class="mango-slide" onerror="this.style.display='none'">
-                    <button type="button" class="g-nav g-prev" onclick="mangoNav(-1)" aria-label="Previous photo">‹</button>
-                    <button type="button" class="g-nav g-next" onclick="mangoNav(1)" aria-label="Next photo">›</button>
+                    <img src="assets/tiramisu_1.jpeg" alt="Tiramisu" class="mango-slide active" onerror="this.style.display='none'">
+                    <img src="assets/tiramisu_2.jpeg" alt="Tiramisu" class="mango-slide" onerror="this.style.display='none'">
+                    <button type="button" class="g-nav g-prev" data-action="gallery-prev" aria-label="Previous photo">‹</button>
+                    <button type="button" class="g-nav g-next" data-action="gallery-next" aria-label="Next photo">›</button>
                     <div class="g-dots">
-                        <span class="g-dot active" onclick="mangoGo(0)"></span>
-                        <span class="g-dot" onclick="mangoGo(1)"></span>
-                        <span class="g-dot" onclick="mangoGo(2)"></span>
+                        <span class="g-dot active" data-action="gallery-go" data-index="0"></span>
+                        <span class="g-dot" data-action="gallery-go" data-index="1"></span>
                     </div>
                 </div>
                 <div class="p-6 text-center">
@@ -138,7 +131,7 @@
                     <div class="flex justify-between items-center border-t pt-4">
                         <span class="text-xl font-light gold-text">₹550</span>
                         <div id="main-qty-mango">
-                            <button onclick="addToCart('mango')" class="btn-luxury">Add to Bag</button>
+                            <button type="button" data-action="add" class="btn-luxury">Add to Bag</button>
                         </div>
                     </div>
                 </div>
@@ -146,8 +139,7 @@
         </div>
     </section>
 
-
-        <!-- Past drops archive -->
+    <!-- Past drops archive -->
     <section class="max-w-5xl mx-auto px-6 py-16">
         <h3 class="text-3xl font-serif italic gold-text text-center mb-2">Past Drops</h3>
         <p class="text-stone-400 text-xs text-center mb-10 uppercase tracking-widest">A look back at what's already sold out</p>
@@ -166,7 +158,7 @@
                 </div>
             </div>
 
-             <!-- Fore Noir Tart -->
+             <!-- Forêt Noire Tart -->
             <div class="bg-white border border-stone-100 shadow-sm overflow-hidden">
                 <div class="gallery-fallback-box">
                     <span>Forêt Noire Tart</span>
@@ -177,7 +169,6 @@
                     <h4 class="font-serif italic text-lg">Forêt Noire Tart</h4>
                 </div>
             </div>
-
 
             <!-- Matcha Misu -->
             <div class="bg-white border border-stone-100 shadow-sm overflow-hidden">
@@ -209,8 +200,9 @@
             Craving one of these before the next drop? Reach out to us on
             <a href="https://wa.me/919527371656?text=Hi%2C%20I%27d%20like%20to%20ask%20about%20a%20custom%20order" target="_blank" rel="noopener" class="gold-text underline font-semibold not-italic">WhatsApp</a>
             for custom orders.
-        </p> 
-        
+        </p>
+    </section>
+
     <!-- Chef section -->
     <section class="py-16 bg-stone-900 text-white">
         <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-8">
@@ -219,17 +211,17 @@
                 <h4 class="text-2xl font-serif italic mb-2 gold-text">Chef Kiran Motwani</h4>
                 <p class="text-stone-400 text-sm mb-3 leading-relaxed">Trained at Le Cordon Bleu Paris. Handcrafted in small batches — elegant, artisanal patisserie.</p>
                 <div class="flex gap-3 items-center">
-                    <button onclick="window.open('https://www.notjustdinner.in','_blank')" aria-label="Supper Club" class="inline-flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 px-3 py-2 text-xs font-semibold text-white">
+                    <button type="button" onclick="window.open('https://www.notjustdinner.in','_blank')" aria-label="Supper Club" class="inline-flex items-center gap-2 rounded-full bg-white/5 hover:bg-white/10 px-3 py-2 text-xs font-semibold text-white">
                         <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
                         <span>Supper Club</span>
                     </button>
-                    <button onclick="window.open('https://wa.me/919527371656','_blank')" aria-label="WhatsApp" class="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white">
+                    <button type="button" onclick="window.open('https://wa.me/919527371656','_blank')" aria-label="WhatsApp" class="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white">
                         <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.432 5.628 1.433h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                     </button>
-                    <button onclick="window.open('https://instagram.com/frenchhalwai','_blank')" aria-label="Instagram" class="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center">
+                    <button type="button" onclick="window.open('https://instagram.com/frenchhalwai','_blank')" aria-label="Instagram" class="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center">
                         <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                     </button>
-                    <button onclick="window.open('https://x.com/frenchhalwai','_blank')" aria-label="X" class="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center">
+                    <button type="button" onclick="window.open('https://x.com/frenchhalwai','_blank')" aria-label="X" class="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center">
                         <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                     </button>
                 </div>
@@ -239,7 +231,7 @@
 
     <!-- Floating cart -->
     <div id="floatingCart" class="fixed-cart">
-        <button onclick="openCart()" class="btn-luxury rounded-full flex items-center gap-3 shadow-2xl">
+        <button type="button" data-action="open-cart" class="btn-luxury rounded-full flex items-center gap-3 shadow-2xl">
             <span class="text-xs uppercase tracking-widest">Complete Preorder</span>
             <span id="floatCount" class="bg-white gold-text px-2 py-0.5 rounded-full text-[10px] font-bold">0</span>
         </button>
@@ -248,7 +240,7 @@
     <!-- Checkout modal -->
     <div id="checkoutModal" class="modal-overlay">
         <div class="max-w-2xl mx-auto bg-white my-8 p-8 md:p-12 shadow-2xl relative rounded-sm">
-            <button onclick="closeCart()" class="absolute top-6 right-6 text-stone-400 hover:text-black text-xl leading-none">✕</button>
+            <button type="button" data-action="close-cart" class="absolute top-6 right-6 text-stone-400 hover:text-black text-xl leading-none">✕</button>
             <h3 class="text-3xl font-serif italic gold-text mb-8">Your Order Summary</h3>
 
             <div id="modalItems" class="mb-10 space-y-4"></div>
@@ -273,7 +265,7 @@
                 <!-- 2. Gift -->
                 <div class="space-y-3">
                     <p class="text-[10px] font-bold uppercase gold-text tracking-widest border-b border-stone-100 pb-2">2. Is This a Gift?</p>
-                    <div class="flex items-center gap-3 bg-stone-50 p-4 rounded cursor-pointer select-none" onclick="toggleGift()">
+                    <div class="flex items-center gap-3 bg-stone-50 p-4 rounded cursor-pointer select-none" data-action="toggle-gift">
                         <div id="giftTogglePill" class="toggle-pill">
                             <div class="toggle-knob"></div>
                         </div>
@@ -307,7 +299,7 @@
                     <div class="grid md:grid-cols-2 gap-4">
                         <div>
                             <label class="field-label">Method *</label>
-                            <select id="methodSelect" onchange="updateUI()" required>
+                            <select id="methodSelect" required>
                                 <option value="pickup">Pickup (Koramangala 4th Block)</option>
                                 <option value="delivery">Delivery (Bengaluru)</option>
                             </select>
@@ -323,11 +315,12 @@
                     <div id="deliveryFields" class="hidden space-y-3">
                         <div>
                             <label class="field-label">Delivery Zone</label>
-                            <select id="zoneSelect" onchange="updateUI()">
+                            <select id="zoneSelect">
                                 <option value="koramangala">Koramangala 4th Block — Free Zone</option>
                                 <option value="7km">Up to 7 km from Koramangala (+₹100)</option>
+                                <option value="10km">7 km – 10 km from Koramangala (+₹150)</option>
                             </select>
-                            <p class="text-[10px] text-stone-400 mt-1 leading-relaxed">We deliver within 7 km of Koramangala 4th Block. Further out? <a href="https://wa.me/919527371656?text=Hi%2C%20I%27m%20outside%20your%20delivery%20zone%20%E2%80%94%20can%20you%20help%3F" target="_blank" rel="noopener" class="gold-text underline">Message us</a> and we'll work something out.</p>
+                            <p class="text-[10px] text-stone-400 mt-1 leading-relaxed">We deliver within 10 km of Koramangala 4th Block. Further out? <a href="https://wa.me/919527371656?text=Hi%2C%20I%27m%20outside%20your%20delivery%20zone%20%E2%80%94%20can%20you%20help%3F" target="_blank" rel="noopener" class="gold-text underline">Message us</a> and we'll work something out.</p>
                         </div>
                         <div>
                             <label class="field-label">Full Address *</label>
@@ -365,7 +358,7 @@
                     <img src="assets/payment-qr.jpeg" alt="Payment QR" class="mx-auto mb-4 border p-1 bg-white w-40 h-40 object-contain">
                     <p class="text-xs font-mono mb-6">
                         UPI ID: 9527371656@yescred
-                        <span class="copy-trigger" onclick="copyUPI()">
+                        <span class="copy-trigger" data-action="copy-upi">
                             <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
                             Copy
                             <span id="copyTooltip" class="copy-tooltip">Copied!</span>
@@ -386,78 +379,85 @@
             </div>
             <h3 class="text-3xl font-serif italic gold-text mb-4">Merci Beaucoup!</h3>
             <p class="text-stone-500 text-sm mb-8 leading-relaxed">Merci — your preorder is received. We'll confirm payment and message you on WhatsApp with pickup or delivery details.</p>
-            <button onclick="location.reload()" class="btn-luxury w-full">Close & Return</button>
+            <button type="button" onclick="location.reload()" class="btn-luxury w-full">Close & Return</button>
         </div>
     </div>
 
     <script>
+    (function () {
+        'use strict';
+
+        var $ = function (id) { return document.getElementById(id); };
+
         // QR tracking
-        const params = new URLSearchParams(window.location.search);
-        const refFromURL = params.get('ref');
-        if (refFromURL) localStorage.setItem('order_ref', refFromURL.toLowerCase());
+        var params = new URLSearchParams(window.location.search);
+        var refFromURL = params.get('ref');
+        if (refFromURL) { try { localStorage.setItem('order_ref', refFromURL.toLowerCase()); } catch (e) {} }
 
-        // ── Stock (read from your sheet) ────────────────────────
-        // Hard cap for this drop. Even if the sheet ever says more, we never sell above this.
-        const MAX_MANGO = 6;
-        let stockRemaining = MAX_MANGO;   // updated on load from STOCK_URL
+        // ── Drop config ─────────────────────────────────────────
+        var MAX_TUBS = 10;                 // hard cap for this drop
+        var stockRemaining = MAX_TUBS;     // updated on load from STOCK_URL
+        var cart = { mango: 0 };           // key kept as "mango" so your Sheet columns don't break
+        var prices = { mango: 550 };
+        var DELIVERY_FEES = { koramangala: 0, '7km': 100, '10km': 150 };
+        var isGift = false;
 
-        // Point this at an endpoint that returns the REMAINING Mango Fraisier units.
-        // Easiest options (see notes I sent you):
-        //   1) A Google Apps Script doGet that returns JSON: {"mango_remaining": 5}
-        //   2) A Google Sheet "Publish to web" CSV link (first number found is used)
-        // Until you set this, the page falls back to MAX_MANGO (8).
-        const STOCK_URL = 'PASTE_YOUR_STOCK_ENDPOINT_HERE';
+        // Endpoint returning the REMAINING units for this drop.
+        // Until you set this, the page falls back to MAX_TUBS (10).
+        var STOCK_URL = 'PASTE_YOUR_STOCK_ENDPOINT_HERE';
 
-        async function loadStock() {
-            if (!STOCK_URL || STOCK_URL.includes('PASTE_YOUR')) { applyStock(MAX_MANGO); return; }
-            try {
-                const res  = await fetch(STOCK_URL, { method: 'GET' });
-                const text = (await res.text()).trim();
-                let remaining;
-                try {
-                    const j = JSON.parse(text);
-                    remaining = Number(j.mango_remaining ?? j.remaining ?? j.mango ?? j.stock);
-                } catch {
-                    const m = text.match(/-?\d+/);   // plain number / CSV cell
-                    remaining = m ? Number(m[0]) : NaN;
-                }
-                if (!Number.isFinite(remaining)) remaining = MAX_MANGO;
-                applyStock(remaining);
-            } catch (err) {
-                console.warn('Stock fetch failed — falling back to default.', err);
-                applyStock(MAX_MANGO);
-            }
+        function loadStock() {
+            if (!STOCK_URL || STOCK_URL.indexOf('PASTE_YOUR') !== -1) { applyStock(MAX_TUBS); return; }
+            fetch(STOCK_URL, { method: 'GET' })
+                .then(function (res) { return res.text(); })
+                .then(function (text) {
+                    text = (text || '').trim();
+                    var remaining;
+                    try {
+                        var j = JSON.parse(text);
+                        remaining = Number(j.mango_remaining !== undefined ? j.mango_remaining
+                                   : j.remaining !== undefined ? j.remaining
+                                   : j.mango !== undefined ? j.mango : j.stock);
+                    } catch (e) {
+                        var m = text.match(/-?\d+/);
+                        remaining = m ? Number(m[0]) : NaN;
+                    }
+                    if (!Number.isFinite(remaining)) remaining = MAX_TUBS;
+                    applyStock(remaining);
+                })
+                .catch(function (err) {
+                    console.warn('Stock fetch failed — falling back to default.', err);
+                    applyStock(MAX_TUBS);
+                });
         }
 
         function applyStock(remaining) {
-            stockRemaining = Math.max(0, Math.min(MAX_MANGO, remaining));
-            // if the drop shrank below what's already in the bag, trim the bag
+            stockRemaining = Math.max(0, Math.min(MAX_TUBS, remaining));
             if (cart.mango > stockRemaining) cart.mango = stockRemaining;
             updateUI();
         }
 
         // ── Gift toggle ─────────────────────────────────────────
-        let isGift = false;
         function toggleGift() {
             isGift = !isGift;
-            document.getElementById('giftTogglePill').classList.toggle('on', isGift);
-            document.getElementById('receiverSection').classList.toggle('open', isGift);
-            document.getElementById('receiverName').required  = isGift;
-            document.getElementById('receiverPhone').required = isGift;
+            $('giftTogglePill').classList.toggle('on', isGift);
+            $('receiverSection').classList.toggle('open', isGift);
+            $('receiverName').required = isGift;
+            $('receiverPhone').required = isGift;
         }
 
         // ── Cart ────────────────────────────────────────────────
-        let cart = { mango: 0 };
-        const prices = { mango: 950 };
+        function totalUnits() {
+            return Object.keys(cart).reduce(function (s, k) { return s + cart[k]; }, 0);
+        }
 
         function addToCart(id) {
-            const totalInCart = Object.values(cart).reduce((s, v) => s + v, 0);
             if (stockRemaining <= 0) {
                 alert("This drop is sold out. Reach out on WhatsApp for a custom order!");
                 return;
             }
-            if (totalInCart >= stockRemaining) {
-                alert(`Only ${stockRemaining} Tiramisu available for this drop. You've added the maximum.`);
+            if (totalUnits() >= stockRemaining) {
+                alert("Only " + stockRemaining + " Tiramisu available for this drop. You've added the maximum.");
                 return;
             }
             cart[id]++;
@@ -465,211 +465,226 @@
         }
 
         function removeFromCart(id) { if (cart[id] > 0) { cart[id]--; updateUI(); } }
+        function clearItem(id) { cart[id] = 0; updateUI(); }
 
         function copyUPI() {
-            navigator.clipboard.writeText("9527371656@yescred");
-            const tip = document.getElementById('copyTooltip');
-            tip.classList.add('show');
-            setTimeout(() => tip.classList.remove('show'), 2000);
+            var tip = $('copyTooltip');
+            var show = function () { tip.classList.add('show'); setTimeout(function () { tip.classList.remove('show'); }, 2000); };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText("9527371656@yescred").then(show).catch(show);
+            } else { show(); }
         }
 
         function updateUI() {
-            const totalInCart = Object.values(cart).reduce((s, v) => s + v, 0);
-            const left        = stockRemaining - totalInCart;
+            var inCart = totalUnits();
+            var left = stockRemaining - inCart;
 
-            const banner  = document.getElementById('topBanner');
-            const badge   = document.getElementById('stockBadge');
-            const cardMsg = document.getElementById('cardStockMsg');
-            const qtyBox  = document.getElementById('main-qty-mango');
+            var banner = $('topBanner');
+            var badge = $('stockBadge');
+            var cardMsg = $('cardStockMsg');
+            var qtyBox = $('main-qty-mango');
 
-            // ── Sold out ──
             if (stockRemaining <= 0) {
                 banner.textContent = 'This Drop Is Sold Out · Custom Orders Welcome';
-                badge.textContent  = '⚑ Sold Out';
+                badge.textContent = '⚑ Sold Out';
                 badge.style.background = '#fee2e2';
-                badge.style.color      = '#991b1b';
+                badge.style.color = '#991b1b';
                 cardMsg.textContent = 'Sold out for this drop — message us on WhatsApp for a custom order.';
-                qtyBox.innerHTML = `<button class="btn-luxury" disabled>Sold Out</button>`;
-                document.getElementById('bagCount').innerText   = totalInCart;
-                document.getElementById('floatCount').innerText = totalInCart;
-                document.getElementById('floatingCart').style.display = totalInCart > 0 ? 'block' : 'none';
-                refreshFulfilmentAndTotal();
-                return;
-            }
-
-            // ── In stock ──
-            banner.textContent = `Preorders Open Now · Only ${stockRemaining} Tiramisu`;
-            if (totalInCart >= stockRemaining) {
-                badge.textContent      = '⚑ Fully Allocated';
-                badge.style.background  = '#fee2e2';
-                badge.style.color       = '#991b1b';
-                cardMsg.textContent     = '⚠ You have reserved all available units.';
-            } else if (left <= 3) {
-                badge.textContent      = `⚑ Only ${left} left!`;
-                badge.style.background  = '#fef3c7';
-                badge.style.color       = '#92400e';
-                cardMsg.textContent     = `Only ${left} left — grab yours now.`;
+                qtyBox.innerHTML = '<button type="button" class="btn-luxury" disabled>Sold Out</button>';
             } else {
-                badge.textContent      = `⚑ Only ${stockRemaining} Available`;
-                badge.style.background  = '#fef3c7';
-                badge.style.color       = '#92400e';
-                cardMsg.textContent     = '';
+                banner.textContent = 'Preorders Open Now · Only ' + stockRemaining + ' Tubs';
+
+                if (inCart >= stockRemaining) {
+                    badge.textContent = '⚑ Fully Allocated';
+                    badge.style.background = '#fee2e2';
+                    badge.style.color = '#991b1b';
+                    cardMsg.textContent = '⚠ You have reserved all available units.';
+                } else if (left <= 3) {
+                    badge.textContent = '⚑ Only ' + left + ' left!';
+                    badge.style.background = '#fef3c7';
+                    badge.style.color = '#92400e';
+                    cardMsg.textContent = 'Only ' + left + ' left — grab yours now.';
+                } else {
+                    badge.textContent = '⚑ Only ' + stockRemaining + ' Available';
+                    badge.style.background = '#fef3c7';
+                    badge.style.color = '#92400e';
+                    cardMsg.textContent = '';
+                }
+
+                if (cart.mango > 0) {
+                    qtyBox.innerHTML =
+                        '<div class="flex items-center gap-3">' +
+                            '<svg data-action="clear" class="delete-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>' +
+                            '</svg>' +
+                            '<div class="qty-control">' +
+                                '<span class="qty-btn" data-action="dec">−</span>' +
+                                '<span class="font-bold">' + cart.mango + '</span>' +
+                                '<span class="qty-btn" data-action="add">+</span>' +
+                            '</div>' +
+                        '</div>';
+                } else {
+                    qtyBox.innerHTML = '<button type="button" data-action="add" class="btn-luxury">Add to Bag</button>';
+                }
             }
 
-            // Mango button / quantity control
-            if (cart.mango > 0) {
-                qtyBox.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <svg onclick="cart['mango']=0;updateUI()" class="delete-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                        </svg>
-                        <div class="qty-control">
-                            <span class="qty-btn" onclick="removeFromCart('mango')">−</span>
-                            <span class="font-bold">${cart.mango}</span>
-                            <span class="qty-btn" onclick="addToCart('mango')">+</span>
-                        </div>
-                    </div>`;
-            } else {
-                qtyBox.innerHTML = `<button onclick="addToCart('mango')" class="btn-luxury">Add to Bag</button>`;
-            }
-
-            document.getElementById('bagCount').innerText   = totalInCart;
-            document.getElementById('floatCount').innerText = totalInCart;
-            document.getElementById('floatingCart').style.display = totalInCart > 0 ? 'block' : 'none';
+            $('bagCount').innerText = inCart;
+            $('floatCount').innerText = inCart;
+            $('floatingCart').style.display = inCart > 0 ? 'block' : 'none';
 
             refreshFulfilmentAndTotal();
 
-            if (document.getElementById('checkoutModal').style.display === 'block') renderModalItems();
+            if ($('checkoutModal').style.display === 'block') renderModalItems();
         }
 
         function refreshFulfilmentAndTotal() {
-            const isDel = document.getElementById('methodSelect').value === 'delivery';
-            document.getElementById('deliveryFields').classList.toggle('hidden', !isDel);
-            document.getElementById('addrInput').required = isDel;
+            var isDel = $('methodSelect').value === 'delivery';
+            $('deliveryFields').classList.toggle('hidden', !isDel);
+            $('addrInput').required = isDel;
 
-            const sub = Object.keys(cart).reduce((s, k) => s + (prices[k] || 0) * cart[k], 0);
-            const del = (isDel && document.getElementById('zoneSelect').value === '7km') ? 100 : 0;
-            document.getElementById('finalT').innerText = '₹' + (sub + del);
+            var sub = Object.keys(cart).reduce(function (s, k) { return s + (prices[k] || 0) * cart[k]; }, 0);
+            var fee = isDel ? (DELIVERY_FEES[$('zoneSelect').value] || 0) : 0;
+            $('finalT').innerText = '₹' + (sub + fee);
         }
 
         function renderModalItems() {
-            let items = '';
-            if (cart.mango > 0) items += `
-                <div class="flex justify-between items-center border-b pb-4">
-                    <div class="flex items-center gap-3">
-                        <svg onclick="cart['mango']=0;updateUI()" class="delete-icon w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                        </svg>
-                        <span class="font-serif italic text-lg">Tiramisu</span>
-                    </div>
-                    <div class="qty-control">
-                        <span class="qty-btn" onclick="removeFromCart('mango')">−</span>
-                        <span class="font-bold text-sm">${cart.mango}</span>
-                        <span class="qty-btn" onclick="addToCart('mango')">+</span>
-                    </div>
-                </div>`;
-
-            document.getElementById('modalItems').innerHTML = items;
+            var items = '';
+            if (cart.mango > 0) {
+                items +=
+                    '<div class="flex justify-between items-center border-b pb-4">' +
+                        '<div class="flex items-center gap-3">' +
+                            '<svg data-action="clear" class="delete-icon w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>' +
+                            '</svg>' +
+                            '<span class="font-serif italic text-lg">Tiramisu</span>' +
+                        '</div>' +
+                        '<div class="qty-control">' +
+                            '<span class="qty-btn" data-action="dec">−</span>' +
+                            '<span class="font-bold text-sm">' + cart.mango + '</span>' +
+                            '<span class="qty-btn" data-action="add">+</span>' +
+                        '</div>' +
+                    '</div>';
+            }
+            $('modalItems').innerHTML = items;
         }
 
         function openCart() {
-            const totalInCart = Object.values(cart).reduce((s, v) => s + v, 0);
-            if (totalInCart === 0) return alert("Bag is empty");
-            document.getElementById('checkoutModal').style.display = 'block';
+            if (totalUnits() === 0) { alert("Bag is empty"); return; }
+            $('checkoutModal').style.display = 'block';
             document.body.style.overflow = 'hidden';
             updateUI();
         }
 
         function closeCart() {
-            document.getElementById('checkoutModal').style.display = 'none';
+            $('checkoutModal').style.display = 'none';
             document.body.style.overflow = 'auto';
         }
 
-        document.getElementById('orderForm').onsubmit = async (e) => {
+        // ── Gallery ─────────────────────────────────────────────
+        var mangoIdx = 0;
+        function mangoRender() {
+            var slides = document.querySelectorAll('#mangoGallery .mango-slide');
+            var dots = document.querySelectorAll('#mangoGallery .g-dot');
+            slides.forEach(function (s, i) { s.classList.toggle('active', i === mangoIdx); });
+            dots.forEach(function (d, i) { d.classList.toggle('active', i === mangoIdx); });
+        }
+        function mangoGo(i) {
+            var n = document.querySelectorAll('#mangoGallery .mango-slide').length;
+            if (!n) return;
+            mangoIdx = ((i % n) + n) % n;
+            mangoRender();
+        }
+        function mangoNav(step) { mangoGo(mangoIdx + step); }
+
+        // ── One delegated click handler for every control ───────
+        document.addEventListener('click', function (e) {
+            var el = e.target.closest ? e.target.closest('[data-action]') : null;
+            if (!el) return;
+            var action = el.getAttribute('data-action');
+
+            if (action === 'add')            { addToCart('mango'); }
+            else if (action === 'dec')       { removeFromCart('mango'); }
+            else if (action === 'clear')     { clearItem('mango'); }
+            else if (action === 'open-cart') { openCart(); }
+            else if (action === 'close-cart'){ closeCart(); }
+            else if (action === 'toggle-gift'){ toggleGift(); }
+            else if (action === 'copy-upi')  { copyUPI(); }
+            else if (action === 'gallery-prev') { mangoNav(-1); }
+            else if (action === 'gallery-next') { mangoNav(1); }
+            else if (action === 'gallery-go')   { mangoGo(Number(el.getAttribute('data-index')) || 0); }
+        });
+
+        $('methodSelect').addEventListener('change', refreshFulfilmentAndTotal);
+        $('zoneSelect').addEventListener('change', refreshFulfilmentAndTotal);
+
+        // ── Order submit ────────────────────────────────────────
+        $('orderForm').addEventListener('submit', function (e) {
             e.preventDefault();
+            var form = e.target;
 
-            const form = e.target;
-
-            // Make any native validation failure visible (focuses the offending field)
             if (!form.reportValidity()) return;
 
-            // Phone sanity (digits only, must contain a 10-digit number)
-            const digits = s => (s || '').replace(/\D/g, '');
-            const sPhone = digits(form.sender_phone.value);
+            var digits = function (s) { return (s || '').replace(/\D/g, ''); };
+            var sPhone = digits(form.sender_phone.value);
             if (sPhone.length < 10) { alert("Please enter a valid 10-digit WhatsApp number."); form.sender_phone.focus(); return; }
             if (isGift) {
-                const rPhone = digits(document.getElementById('receiverPhone').value);
-                if (rPhone.length < 10) { alert("Please enter a valid 10-digit number for the receiver."); document.getElementById('receiverPhone').focus(); return; }
+                var rPhone = digits($('receiverPhone').value);
+                if (rPhone.length < 10) { alert("Please enter a valid 10-digit number for the receiver."); $('receiverPhone').focus(); return; }
             }
 
-            const totalInCart = Object.values(cart).reduce((s, v) => s + v, 0);
-            if (totalInCart === 0) { alert("Your bag is empty."); return; }
-            if (totalInCart > stockRemaining) {
-                alert(`Only ${stockRemaining} Tiramisu available. Please reduce your quantity.`);
-                return;
-            }
+            var inCart = totalUnits();
+            if (inCart === 0) { alert("Your bag is empty."); return; }
+            if (inCart > stockRemaining) { alert("Only " + stockRemaining + " Tiramisu available. Please reduce your quantity."); return; }
 
-            const btn = form.querySelector('button[type="submit"]');
+            var btn = form.querySelector('button[type="submit"]');
             btn.innerText = "Processing...";
-            btn.disabled  = true;
+            btn.disabled = true;
 
-            const fd = new FormData(form);
-            const orderedItems = [];
-            if (cart.mango > 0) orderedItems.push(`Mango Fraisier x${cart.mango}`);
+            var fd = new FormData(form);
+            var orderedItems = [];
+            if (cart.mango > 0) orderedItems.push('Tiramisu x' + cart.mango);
 
-            const orderData = {
+            var isDel = $('methodSelect').value === 'delivery';
+
+            var orderData = {
                 sender_name:     fd.get('sender_name'),
                 sender_phone:    fd.get('sender_phone'),
                 is_gift:         isGift ? "Yes" : "No",
                 receiver_name:   isGift ? fd.get('receiver_name')  : "N/A",
                 receiver_phone:  isGift ? fd.get('receiver_phone') : "N/A",
-                surprise:        (isGift && document.getElementById('surpriseCheck').checked) ? "Yes" : "No",
+                surprise:        (isGift && $('surpriseCheck').checked) ? "Yes" : "No",
                 gift_message:    isGift ? (fd.get('gift_message') || "") : "",
-                method:          document.getElementById('methodSelect').value,
+                method:          $('methodSelect').value,
                 slot:            fd.get('slot'),
                 items_ordered:   orderedItems.join(', '),
                 mango_qty:       cart.mango,
-                delivery_zone:   document.getElementById('methodSelect').value === 'delivery'
-                                   ? document.getElementById('zoneSelect').value : "N/A",
+                delivery_zone:   isDel ? $('zoneSelect').value : "N/A",
+                delivery_fee:    isDel ? (DELIVERY_FEES[$('zoneSelect').value] || 0) : 0,
                 address:         fd.get('address') || "N/A",
                 notes:           fd.get('notes') || "",
                 heard_from:      fd.get('heard_from'),
-                referral_source: localStorage.getItem('order_ref') || "Direct",
-                total:           document.getElementById('finalT').innerText
+                referral_source: (function () { try { return localStorage.getItem('order_ref') || "Direct"; } catch (err) { return "Direct"; } })(),
+                total:           $('finalT').innerText
             };
 
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbzukTHWTfDz4M1vjgLTVfNEF2FI3Ou-Y-J7ZUMVXLO4rT3Ck7qxyR2ymSILYzIJ1dR3/exec';
+            var scriptURL = 'https://script.google.com/macros/s/AKfycbzukTHWTfDz4M1vjgLTVfNEF2FI3Ou-Y-J7ZUMVXLO4rT3Ck7qxyR2ymSILYzIJ1dR3/exec';
 
-            try {
-                await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(orderData) });
-                document.getElementById('checkoutModal').style.display = 'none';
-                document.getElementById('confirmModal').style.display  = 'flex';
-            } catch (err) {
-                alert("Couldn't reach the server: " + (err && err.message ? err.message : err) + "\nPlease check your connection or contact us on WhatsApp.");
-                console.error("Order submit failed:", err);
-                btn.innerText = "I've Paid — Confirm Preorder";
-                btn.disabled  = false;
-            }
-        };
+            fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(orderData) })
+                .then(function () {
+                    $('checkoutModal').style.display = 'none';
+                    $('confirmModal').style.display = 'flex';
+                })
+                .catch(function (err) {
+                    alert("Couldn't reach the server: " + (err && err.message ? err.message : err) + "\nPlease check your connection or contact us on WhatsApp.");
+                    console.error("Order submit failed:", err);
+                    btn.innerText = "I've Paid — Confirm Preorder";
+                    btn.disabled = false;
+                });
+        });
 
-        // ── Mango image slider ──────────────────────────────────
-        let mangoIdx = 0;
-        function mangoRender() {
-            const slides = document.querySelectorAll('#mangoGallery .mango-slide');
-            const dots   = document.querySelectorAll('#mangoGallery .g-dot');
-            slides.forEach((s, i) => s.classList.toggle('active', i === mangoIdx));
-            dots.forEach((d, i) => d.classList.toggle('active', i === mangoIdx));
-        }
-        function mangoGo(i) {
-            const n = document.querySelectorAll('#mangoGallery .mango-slide').length;
-            mangoIdx = (i + n) % n;
-            mangoRender();
-        }
-        function mangoNav(step) { mangoGo(mangoIdx + step); }
-        setInterval(() => mangoNav(1), 4500);
-
-        // Pull live stock on load
+        setInterval(function () { mangoNav(1); }, 4500);
         loadStock();
+    })();
     </script>
 </body>
 </html>
