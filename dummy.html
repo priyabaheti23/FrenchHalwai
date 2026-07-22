@@ -54,6 +54,19 @@
         .g-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.6); cursor: pointer; transition: background 0.2s; }
         .g-dot.active { background: #fff; }
 
+        /* Past-drop thumbnail box (used in the archive grid).
+           Was previously referenced in HTML as "gallery-fallback-box" with no
+           matching CSS rule, so the past-drop cards rendered as unstyled,
+           unbounded stacked text + image. Mirrors .gallery-wrap/.gallery-fallback
+           at a smaller scale so it fits the 4-column archive grid. */
+        .gallery-fallback-box { position: relative; height: 160px; overflow: hidden; background: #f4f1ea; display: flex; align-items: center; justify-content: center; }
+        .gallery-fallback-box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .gallery-fallback-box span { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px; color: #bbb; padding: 0 8px; text-align: center; }
+
+        /* "Past Drop" pill, used in the archive grid — also referenced in HTML
+           but previously undefined. Styled as a smaller sibling of .pill-badge. */
+        .past-badge { display: inline-block; background-color: #f4f1ea; color: #7a4900; padding: 4px 12px; border-radius: 999px; font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+
         /* Gift toggle */
         .toggle-pill { width: 42px; height: 24px; border-radius: 999px; background: #ddd; position: relative; transition: background 0.3s; flex-shrink: 0; cursor: pointer; }
         .toggle-pill.on { background: var(--gold); }
@@ -102,7 +115,7 @@
         <div class="grid md:grid-cols-1 gap-6">
             <!-- Mango Fraisier (active drop) -->
             <div class="bg-white border border-stone-100 shadow-sm p-0 overflow-hidden max-w-md mx-auto w-full">
-                <div class="gallery-wrap h-72" id="mangoGallery">
+                <div class="gallery-wrap" id="mangoGallery">
                     <span class="gallery-fallback">Forêt Noire Tart</span>
                     <img src="assets/Forêt_Noire_Tart.jpeg" alt="Forêt Noire Tart" class="mango-slide active" onerror="this.style.display='none'">
                     <img src="assets/Forêt_Noire_Tart2.jpeg" alt="Forêt Noire Tart" class="mango-slide" onerror="this.style.display='none'">
