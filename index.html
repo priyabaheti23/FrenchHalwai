@@ -396,7 +396,7 @@
         if (refFromURL) { try { localStorage.setItem('order_ref', refFromURL.toLowerCase()); } catch (e) {} }
 
         // ── Drop config ─────────────────────────────────────────
-        var MAX_TUBS = 5;                 // hard cap for this drop
+        var MAX_TUBS = 10;                 // hard cap for this drop
         var stockRemaining = MAX_TUBS;     // updated on load from STOCK_URL
         var cart = { mango: 0 };           // key kept as "mango" so your Sheet columns don't break
         var prices = { mango: 550 };
@@ -493,7 +493,7 @@
                 cardMsg.textContent = 'Sold out for this drop — message us on WhatsApp for a custom order.';
                 qtyBox.innerHTML = '<button type="button" class="btn-luxury" disabled>Sold Out</button>';
             } else {
-                banner.textContent = 'Preorders Open Now · Only ' + 10 + ' Tubs';
+                banner.textContent = 'Preorders Open Now · Only ' + stockRemaining + ' Tubs';
 
                 if (inCart >= stockRemaining) {
                     badge.textContent = '⚑ Fully Allocated';
@@ -658,7 +658,7 @@
                 method:          $('methodSelect').value,
                 slot:            fd.get('slot'),
                 items_ordered:   orderedItems.join(', '),
-                tiramisu_qty:    cart.mango,
+                mango_qty:       cart.mango,
                 delivery_zone:   isDel ? $('zoneSelect').value : "N/A",
                 delivery_fee:    isDel ? (DELIVERY_FEES[$('zoneSelect').value] || 0) : 0,
                 address:         fd.get('address') || "N/A",
@@ -668,7 +668,7 @@
                 total:           $('finalT').innerText
             };
 
-            var scriptURL = 'https://script.google.com/macros/s/AKfycby-FcX9uvZeOD8TYsVTSlGRZJ3hRISMscWk3p2k_WtAuWH2a7zdAGNhQc6f_Td6j5_T/exec';
+            var scriptURL = 'https://script.google.com/macros/s/AKfycbzukTHWTfDz4M1vjgLTVfNEF2FI3Ou-Y-J7ZUMVXLO4rT3Ck7qxyR2ymSILYzIJ1dR3/exec';
 
             fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(orderData) })
                 .then(function () {
