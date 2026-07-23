@@ -396,7 +396,7 @@
         if (refFromURL) { try { localStorage.setItem('order_ref', refFromURL.toLowerCase()); } catch (e) {} }
 
         // ── Drop config ─────────────────────────────────────────
-        var MAX_TUBS = 10;                 // hard cap for this drop
+        var MAX_TUBS = 5;                 // hard cap for this drop
         var stockRemaining = MAX_TUBS;     // updated on load from STOCK_URL
         var cart = { mango: 0 };           // key kept as "mango" so your Sheet columns don't break
         var prices = { mango: 550 };
@@ -493,7 +493,7 @@
                 cardMsg.textContent = 'Sold out for this drop — message us on WhatsApp for a custom order.';
                 qtyBox.innerHTML = '<button type="button" class="btn-luxury" disabled>Sold Out</button>';
             } else {
-                banner.textContent = 'Preorders Open Now · Only ' + stockRemaining + ' Tubs';
+                banner.textContent = 'Preorders Open Now · Only ' 8 ' Tubs';
 
                 if (inCart >= stockRemaining) {
                     badge.textContent = '⚑ Fully Allocated';
