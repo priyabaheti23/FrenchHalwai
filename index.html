@@ -538,15 +538,16 @@
             if ($('checkoutModal').style.display === 'block') renderModalItems();
         }
 
-        function refreshFulfilmentAndTotal() {
-            var isDel = $('methodSelect').value === 'delivery';
-            $('deliveryFields').classList.toggle('hidden', !isDel);
-            $('addrInput').required = isDel;
-
-            var sub = Object.keys(cart).reduce(function (s, k) { return s + (prices[k] || 0) * cart[k]; }, 0);
-            var fee = isDel ? (DELIVERY_FEES[$('zoneSelect').value] || 0) : 0;
-            $('finalT').innerText = '₹' + (sub + fee);
-        }
+            function refreshFulfilmentAndTotal() {
+                var isDel = $('methodSelect').value === 'delivery';
+                $('deliveryFields').classList.toggle('hidden', !isDel);
+                $('addrInput').required = isDel;
+                $('zoneSelect').required = isDel;   // ← add this line
+            
+                var sub = Object.keys(cart).reduce(function (s, k) { return s + (prices[k] || 0) * cart[k]; }, 0);
+                var fee = isDel ? (DELIVERY_FEES[$('zoneSelect').value] || 0) : 0;
+                $('finalT').innerText = '₹' + (sub + fee);
+            }
 
         function renderModalItems() {
             var items = '';
