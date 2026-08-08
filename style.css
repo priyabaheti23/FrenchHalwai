@@ -1,0 +1,71 @@
+:root { --gold: #7a4900; --cream: #fdfbf7; }
+body { font-family: 'Montserrat', sans-serif; background-color: var(--cream); color: #333; scroll-behavior: smooth; }
+.footer-logo { font-family: 'Birthstone', cursive !important; }
+.gold-text { color: var(--gold); }
+
+.btn-luxury { background: var(--gold); color: white; transition: all 0.3s ease; letter-spacing: 2px; font-weight: 600; padding: 12px 24px; text-transform: uppercase; font-size: 10px; }
+.btn-luxury:hover { background: #b38f4d; }
+.btn-luxury:disabled { background: #d6cdbd; cursor: not-allowed; }
+.btn-outline { border: 1px solid var(--gold); color: var(--gold); transition: all 0.3s ease; letter-spacing: 2px; font-weight: 600; padding: 10px 20px; text-transform: uppercase; font-size: 10px; background: transparent; }
+.btn-outline:hover { background: var(--gold); color: white; }
+
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100; overflow-y: auto; }
+
+.qty-control { display: flex; align-items: center; gap: 12px; border: 1px solid #ddd; padding: 4px 12px; background: white; }
+.qty-btn { font-weight: bold; font-size: 18px; color: var(--gold); cursor: pointer; user-select: none; }
+
+input, select, textarea { border: 1px solid #ddd !important; padding: 12px !important; border-radius: 2px !important; width: 100%; font-size: 14px; background: white; transition: all 0.2s; }
+input[type="checkbox"] { width: auto !important; padding: 0 !important; }
+input:focus:invalid { border-color: #ef4444 !important; outline: none; }
+input:focus:valid  { border-color: #10b981 !important; outline: none; }
+
+.delete-icon { cursor: pointer; color: #ccc; transition: color 0.2s; }
+.delete-icon:hover { color: #ef4444; }
+
+.fixed-cart { position: fixed; bottom: 30px; right: 30px; z-index: 90; display: none; }
+.field-label { display: block; font-size: 10px; font-weight: 600; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; margin-top: 12px; }
+
+.pill-badge { display: inline-block; background-color: #f6e7dc; color: #7a4900; padding: 8px 18px; border-radius: 999px; font-size: 11px; font-weight: 500; letter-spacing: 0.05em; }
+.stock-badge { display: inline-block; background-color: #fef3c7; color: #92400e; padding: 6px 14px; border-radius: 999px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+
+.copy-trigger { cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-size: 10px; background: #eee; padding: 4px 8px; border-radius: 3px; margin-left: 8px; vertical-align: middle; position: relative; }
+.copy-tooltip { position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 4px 8px; border-radius: 4px; font-size: 9px; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+.copy-tooltip.show { opacity: 1; }
+
+.gallery-wrap { position: relative; height: 340px; overflow: hidden; background: #f4f1ea; }
+.gallery-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.gallery-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 20px; color: #bbb; }
+.mango-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.5s ease; }
+.mango-slide.active { opacity: 1; }
+.g-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 999px; background: rgba(255,255,255,0.8); color: var(--gold); font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: background 0.2s; z-index: 2; }
+.g-nav:hover { background: #fff; }
+.g-prev { left: 10px; }
+.g-next { right: 10px; }
+.g-dots { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 2; }
+.g-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.6); cursor: pointer; transition: background 0.2s; }
+.g-dot.active { background: #fff; }
+
+/* Past-drop thumbnail box (used in the archive grid). */
+.gallery-fallback-box { position: relative; height: 160px; overflow: hidden; background: #f4f1ea; display: flex; align-items: center; justify-content: center; }
+.gallery-fallback-box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.gallery-fallback-box span { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px; color: #bbb; padding: 0 8px; text-align: center; }
+
+/* "Past Drop" pill, used in the archive grid. */
+.past-badge { display: inline-block; background-color: #f4f1ea; color: #7a4900; padding: 4px 12px; border-radius: 999px; font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* Gift toggle */
+.toggle-pill { width: 42px; height: 24px; border-radius: 999px; background: #ddd; position: relative; transition: background 0.3s; flex-shrink: 0; cursor: pointer; }
+.toggle-pill.on { background: var(--gold); }
+.toggle-knob { width: 18px; height: 18px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: left 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+.toggle-pill.on .toggle-knob { left: 21px; }
+
+/* Receiver section reveal */
+#receiverSection { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.4s ease, opacity 0.35s ease; }
+#receiverSection.open { max-height: 500px; opacity: 1; }
+
+/* Sold out state */
+.sold-out-banner { background: #1c1917; color: #fef3c7; text-align: center; padding: 10px; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 600; }
+
+/* Coupon code */
+#couponMsg.text-red-500 { color: #ef4444; }
+#couponMsg.text-green-600 { color: #059669; }
