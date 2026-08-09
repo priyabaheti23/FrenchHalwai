@@ -5,14 +5,13 @@
 
     // ═══════════════════════════════════════════════════════════════════════
     // EDIT ME — this is the only section you should need to touch to change
-    // the item being sold, its price/description, or the past drops archive.
+    // the item being sold, its price/description, the past drops archive,
+    // or the preorder cutoff.
     // ═══════════════════════════════════════════════════════════════════════
 
     // The item currently being sold. To launch a new drop, just change these
-    // values. If you rename the item, also update:
-    //   1. the field name in the "opera_qty" line further down in this file
-    //   2. QTY_COLUMN_HEADER in the Apps Script (apps-script-backend.gs)
-    //   3. add a matching column header in the Sheet1 orders tab
+    // values — no other file needs editing (the Sheet's "Qty" column and the
+    // Apps Script are generic now, not tied to any one item's name).
     var CURRENT_ITEM = {
         key: 'opera',
         name: 'Opera',
@@ -25,16 +24,21 @@
     };
 
     // Past drops shown in the archive grid. Add, remove, or reorder freely —
-    // the grid is built from this list, no HTML editing needed.
+    // the grid is built from this list, no HTML editing needed. `images` can
+    // have 1 or 2 photos — with 2, arrows appear so people can flip between them.
     var PAST_DROPS = [
-        { name: 'Tiramisu', image: 'assets/tiramisu_1.jpeg', description: 'Espresso-soaked sponge layered with airy mascarpone and bittersweet cocoa.' },
-        { name: 'Mango Fraisier', image: 'assets/mango_fraisier_3.jpeg', description: 'Vanilla mousseline and fresh mango over delicate almond sponge.' },
-        { name: 'Forêt Noire Tart', image: 'assets/Forêt_Noire_Tart.jpeg', description: 'Dark chocolate tart with black forest cherries and kirsch cream.' },
-        { name: 'Matcha Misu', image: 'assets/matcha_misu.jpeg', description: 'Ceremonial-grade matcha meets classic tiramisu.' },
-        { name: 'Madeleine', image: 'assets/madeline_box_of_4.jpeg', description: 'Buttery French madeleines, golden-edged, baked to order.' }
+        { name: 'Tiramisu', images: ['assets/tiramisu_1.jpeg', 'assets/tiramisu_2.jpeg'], description: 'Espresso-soaked sponge layered with airy mascarpone and bittersweet cocoa.' },
+        { name: 'Mango Fraisier', images: ['assets/mango_fraisier_3.jpeg', 'assets/mango_fraisier_2.jpeg'], description: 'Vanilla mousseline and fresh mango over delicate almond sponge.' },
+        { name: 'Forêt Noire Tart', images: ['assets/Forêt_Noire_Tart.jpeg', 'assets/Forêt_Noire_Tart2.jpeg'], description: 'Dark chocolate tart with black forest cherries and kirsch cream.' },
+        { name: 'Matcha Misu', images: ['assets/matcha_misu.jpeg'], description: 'Ceremonial-grade matcha meets classic tiramisu.' },
+        { name: 'Madeleine', images: ['assets/madeline_box_of_4.jpeg', 'assets/madeline_box_of_6.jpeg'], description: 'Buttery French madeleines, golden-edged, baked to order.' }
     ];
 
     var DEFAULT_MAX_STOCK = 2;   // fallback cap, used only if the server call below fails
+
+    // Preorders stop being accepted after this moment (IST). Update this for
+    // every new drop. Format: 'YYYY-MM-DDTHH:MM:SS+05:30'.
+    var PREORDER_CUTOFF = new Date('2026-08-21T19:00:00+05:30');
 
     // ═══════════════════════════════════════════════════════════════════════
     // Below this line is site logic — safe to leave alone.
@@ -49,7 +53,7 @@
     var stockRemaining = DEFAULT_MAX_STOCK;
     var cartQty = 0;              // there's only ever one item in the bag: CURRENT_ITEM
     var DELIVERY_FEES = { koramangala: 0, '7km': 100, '10km': 150 };
-    var isGift = false;
+    var preorderClosed = false;   // flips true once PREORDER_CUTOFF passes
 
     // Coupons — validated one at a time on the server, never listed publicly.
     var appliedCoupon = null;     // { code, type, value } once a valid code is applied
@@ -86,12 +90,23 @@
 
     function renderPastDrops() {
         var grid = $('pastDropsGrid');
-        grid.innerHTML = PAST_DROPS.map(function (drop) {
+        grid.innerHTML = PAST_DROPS.map(function (drop, di) {
+            var imgs = drop.images || [];
+            var slidesHtml = imgs.map(function (src, i) {
+                return '<img src="' + src + '" alt="' + drop.name + '" class="mango-slide' + (i === 0 ? ' active' : '') + '" data-gallery="' + di + '" data-index="' + i + '" onerror="this.style.display=\'none\'">';
+            }).join('');
+            var navHtml = '';
+            if (imgs.length > 1) {
+                navHtml =
+                    '<button type="button" class="g-nav g-prev" style="width:22px;height:22px;font-size:12px;" data-action="past-prev" data-gallery="' + di + '" aria-label="Previous photo">‹</button>' +
+                    '<button type="button" class="g-nav g-next" style="width:22px;height:22px;font-size:12px;" data-action="past-next" data-gallery="' + di + '" aria-label="Next photo">›</button>';
+            }
             return (
                 '<div class="bg-white border border-stone-100 shadow-sm overflow-hidden">' +
                     '<div class="gallery-fallback-box">' +
                         '<span>' + drop.name + '</span>' +
-                        '<img src="' + drop.image + '" alt="' + drop.name + '" onerror="this.style.display=\'none\'">' +
+                        slidesHtml +
+                        navHtml +
                     '</div>' +
                     '<div class="p-4 text-center">' +
                         '<p class="past-badge mb-2">Past Drop</p>' +
@@ -101,6 +116,21 @@
                 '</div>'
             );
         }).join('');
+    }
+
+    // ── Past-drop mini galleries (each tile navigates independently) ───────
+    function pastGalleryGo(dropIdx, slideIdx) {
+        var slides = document.querySelectorAll('#pastDropsGrid img[data-gallery="' + dropIdx + '"]');
+        if (!slides.length) return;
+        var n = slides.length;
+        var idx = ((slideIdx % n) + n) % n;
+        slides.forEach(function (s) { s.classList.toggle('active', Number(s.getAttribute('data-index')) === idx); });
+    }
+    function pastGalleryNav(dropIdx, step) {
+        var slides = document.querySelectorAll('#pastDropsGrid img[data-gallery="' + dropIdx + '"]');
+        var current = 0;
+        slides.forEach(function (s) { if (s.classList.contains('active')) current = Number(s.getAttribute('data-index')); });
+        pastGalleryGo(dropIdx, current + step);
     }
 
     // ── Stock ────────────────────────────────────────────────────────────────
@@ -126,17 +156,33 @@
         updateUI();
     }
 
-    // ── Gift toggle ─────────────────────────────────────────
-    function toggleGift() {
-        isGift = !isGift;
-        $('giftTogglePill').classList.toggle('on', isGift);
-        $('receiverSection').classList.toggle('open', isGift);
-        $('receiverName').required = isGift;
-        $('receiverPhone').required = isGift;
+    // ── Preorder countdown ──────────────────────────────────────────────────
+    function updateCountdown() {
+        var msLeft = PREORDER_CUTOFF.getTime() - Date.now();
+        var countdownEl = $('countdownText');
+
+        if (msLeft <= 0) {
+            var wasOpen = !preorderClosed;
+            preorderClosed = true;
+            countdownEl.textContent = '';
+            if (wasOpen) updateUI();
+            return;
+        }
+
+        var totalMinutes = Math.floor(msLeft / 60000);
+        var days = Math.floor(totalMinutes / 1440);
+        var hours = Math.floor((totalMinutes % 1440) / 60);
+        var minutes = totalMinutes % 60;
+        var parts = [];
+        if (days > 0) parts.push(days + 'd');
+        if (days > 0 || hours > 0) parts.push(hours + 'h');
+        parts.push(minutes + 'm');
+        countdownEl.textContent = 'Preorders close in ' + parts.join(' ') + ' — order before it sells out!';
     }
 
     // ── Cart ────────────────────────────────────────────────
     function addToCart() {
+        if (preorderClosed) { alert('Preorders have closed for this drop.'); return; }
         if (stockRemaining <= 0) { return; }
         if (cartQty >= stockRemaining) {
             alert("Only " + stockRemaining + " " + CURRENT_ITEM.name + " available for this drop. You've added the maximum.");
@@ -246,9 +292,17 @@
             cardMsg.textContent = '';
             qtyBox.innerHTML = '<button type="button" class="btn-luxury" disabled>Sold Out</button>';
             waitlistForm.style.display = 'block';
+        } else if (preorderClosed) {
+            banner.textContent = 'Preorders Closed';
+            badge.textContent = '⚑ Closed';
+            badge.style.background = '#e5e7eb';
+            badge.style.color = '#374151';
+            cardMsg.textContent = '';
+            qtyBox.innerHTML = '<button type="button" class="btn-luxury" disabled>Preorders Closed</button>';
+            waitlistForm.style.display = 'none';
         } else {
             waitlistForm.style.display = 'none';
-            banner.textContent = 'Preorders Open Now · Only ' + maxStock + ' ' + (maxStock === 1 ? 'Unit' : 'Units');
+            banner.textContent = 'Preorder is Live';
 
             if (cartQty >= stockRemaining) {
                 badge.textContent = '⚑ Fully Allocated';
@@ -391,13 +445,14 @@
         else if (action === 'clear')       { clearItem(); }
         else if (action === 'open-cart')   { openCart(); }
         else if (action === 'close-cart')  { closeCart(); }
-        else if (action === 'toggle-gift') { toggleGift(); }
         else if (action === 'copy-upi')    { copyUPI(); }
         else if (action === 'apply-coupon'){ applyCoupon(); }
         else if (action === 'join-waitlist'){ joinWaitlist(); }
         else if (action === 'gallery-prev'){ galleryNav(-1); }
         else if (action === 'gallery-next'){ galleryNav(1); }
         else if (action === 'gallery-go')  { galleryGo(Number(el.getAttribute('data-index')) || 0); }
+        else if (action === 'past-prev')   { pastGalleryNav(Number(el.getAttribute('data-gallery')), -1); }
+        else if (action === 'past-next')   { pastGalleryNav(Number(el.getAttribute('data-gallery')), 1); }
     });
 
     $('methodSelect').addEventListener('change', refreshFulfilmentAndTotal);
@@ -410,6 +465,8 @@
     $('orderForm').addEventListener('submit', function (e) {
         e.preventDefault();
         var form = e.target;
+
+        if (preorderClosed) { alert('Preorders have closed for this drop. Please check back for the next one!'); return; }
 
         // Note: we don't rely on form.reportValidity()'s native tooltip here —
         // inside this fixed/scrolling modal, Chrome often fails to render it,
@@ -427,10 +484,6 @@
 
         var sPhone = digits(form.sender_phone.value);
         if (sPhone.length < 10) { alert("Please enter a valid 10-digit WhatsApp number."); form.sender_phone.focus(); return; }
-        if (isGift) {
-            var rPhone = digits($('receiverPhone').value);
-            if (rPhone.length < 10) { alert("Please enter a valid 10-digit number for the receiver."); $('receiverPhone').focus(); return; }
-        }
 
         if (cartQty === 0) { alert("Your bag is empty."); return; }
         if (cartQty > stockRemaining) { alert("Only " + stockRemaining + " " + CURRENT_ITEM.name + " available. Please reduce your quantity."); return; }
@@ -445,15 +498,9 @@
         var orderData = {
             sender_name:     fd.get('sender_name'),
             sender_phone:    fd.get('sender_phone'),
-            is_gift:         isGift ? "Yes" : "No",
-            receiver_name:   isGift ? fd.get('receiver_name')  : "N/A",
-            receiver_phone:  isGift ? fd.get('receiver_phone') : "N/A",
-            surprise:        (isGift && $('surpriseCheck').checked) ? "Yes" : "No",
-            gift_message:    isGift ? (fd.get('gift_message') || "") : "",
             method:          $('methodSelect').value,
-            slot:            fd.get('slot'),
             items_ordered:   CURRENT_ITEM.name + ' x' + cartQty,
-            opera_qty:       cartQty,   // <-- rename this if CURRENT_ITEM changes (see note at top of file)
+            qty:             cartQty,
             delivery_zone:   isDel ? $('zoneSelect').value : "N/A",
             delivery_fee:    isDel ? (DELIVERY_FEES[$('zoneSelect').value] || 0) : 0,
             coupon_code:     appliedCoupon ? appliedCoupon.code : "None",
@@ -480,8 +527,10 @@
     });
 
     setInterval(function () { galleryNav(1); }, 4500);
+    setInterval(updateCountdown, 30000);
 
     renderProductInfo();
     renderPastDrops();
+    updateCountdown();
     loadStock();
 })();

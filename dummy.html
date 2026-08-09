@@ -11,7 +11,7 @@
 <body>
 
     <div class="bg-stone-800 text-white text-[10px] tracking-[0.4em] py-2 text-center uppercase" id="topBanner">
-        Preorders Open Now · Only 10 Tubs
+        Preorder is Live
     </div>
 
     <header class="border-b border-stone-200 bg-[#f4f1ea] sticky top-0 z-50">
@@ -35,6 +35,7 @@
             <div class="stock-badge" id="stockBadge">⚑ Loading availability…</div>
         </div>
         <p class="text-stone-500 font-light italic text-sm">Freshly made to order. Preorders open now.</p>
+        <p class="text-[11px] gold-text font-semibold mt-3 tracking-wide" id="countdownText"></p>
     </section>
 
     <!-- Product card — content filled in by script.js from the CURRENT_ITEM config -->
@@ -128,115 +129,69 @@
 
             <div id="modalItems" class="mb-10 space-y-4"></div>
 
-            <form id="orderForm" class="space-y-8">
+            <form id="orderForm" class="space-y-4">
 
-                <!-- Your Info -->
-                <div class="space-y-2">
-                    <p class="text-[10px] font-bold uppercase gold-text tracking-widest border-b border-stone-100 pb-2">Your Information</p>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="field-label">Your Name *</label>
-                            <input type="text" name="sender_name" placeholder="Your name" required minlength="2">
-                        </div>
-                        <div>
-                            <label class="field-label">Your WhatsApp Number *</label>
-                            <input type="tel" name="sender_phone" placeholder="10 digits" required inputmode="numeric">
-                        </div>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="field-label">Your Name *</label>
+                        <input type="text" name="sender_name" placeholder="Your name" required minlength="2">
+                    </div>
+                    <div>
+                        <label class="field-label">Your WhatsApp Number *</label>
+                        <input type="tel" name="sender_phone" placeholder="10 digits" required inputmode="numeric">
                     </div>
                 </div>
 
-                <!-- Gift -->
-                <div class="space-y-3">
-                    <p class="text-[10px] font-bold uppercase gold-text tracking-widest border-b border-stone-100 pb-2">Is This a Gift?</p>
-                    <div class="flex items-center gap-3 bg-stone-50 p-4 rounded cursor-pointer select-none" data-action="toggle-gift">
-                        <div id="giftTogglePill" class="toggle-pill">
-                            <div class="toggle-knob"></div>
-                        </div>
-                        <span class="text-xs font-semibold gold-text">I'm ordering this for someone else</span>
+                <div class="bg-stone-50 p-3 rounded text-xs text-stone-600">
+                    📅 Pickup / Delivery: <strong class="gold-text">22 August · 9am – 11am</strong>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="field-label">How would you like to receive it? *</label>
+                        <select id="methodSelect" required>
+                            <option value="" selected disabled>Select an option *</option>
+                            <option value="pickup">Pickup (Koramangala 4th Block)</option>
+                            <option value="delivery">Delivery (Bengaluru)</option>
+                        </select>
                     </div>
-                    <div id="receiverSection">
-                        <div class="grid md:grid-cols-2 gap-4 pt-2">
-                            <div>
-                                <label class="field-label">Receiver Name *</label>
-                                <input type="text" name="receiver_name" id="receiverName" placeholder="Their name">
-                            </div>
-                            <div>
-                                <label class="field-label">Receiver Phone *</label>
-                                <input type="tel" name="receiver_phone" id="receiverPhone" placeholder="10 digits" inputmode="numeric">
-                            </div>
-                        </div>
-                        <div class="flex items-start gap-3 bg-amber-50 border border-amber-200 p-3 rounded mt-3">
-                            <input type="checkbox" id="surpriseCheck" class="mt-0.5 accent-[#7a4900]">
-                            <label for="surpriseCheck" class="text-xs gold-text font-semibold cursor-pointer leading-relaxed">🤫 This is a surprise — please don't contact the receiver directly</label>
-                        </div>
-                        <div class="mt-3">
-                            <label class="field-label">Gift Message (optional)</label>
-                            <textarea name="gift_message" maxlength="200" placeholder="A little note to include... (max 200 chars)"></textarea>
-                        </div>
+                    <div>
+                        <label class="field-label">How Did You Hear About Us? *</label>
+                        <select name="heard_from" required>
+                            <option value="" selected disabled>Select an option *</option>
+                            <option value="Instagram">Instagram</option>
+                            <option value="Twitter">Twitter</option>
+                            <option value="WhatsApp">WhatsApp</option>
+                            <option value="Friend Referral">Friend Referral</option>
+                            <option value="Other">Other</option>
+                        </select>
                     </div>
                 </div>
 
-                <!-- Fulfillment -->
-                <div class="space-y-3">
-                    <p class="text-[10px] font-bold uppercase gold-text tracking-widest border-b border-stone-100 pb-2">Fulfillment Details</p>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="field-label">Method *</label>
-                            <select id="methodSelect" required>
-                                <option value="" selected disabled>Select Method *</option>
-                                <option value="pickup">Pickup (Koramangala 4th Block)</option>
-                                <option value="delivery">Delivery (Bengaluru)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="field-label">Time Slot *</label>
-                            <select name="slot" required>
-                                <option value="">Select Time Slot *</option>
-                                <option value="Saturday | 9am-11am">Saturday | 9am – 11am</option>
-                            </select>
-                        </div>
+                <div id="deliveryFields" class="hidden space-y-3">
+                    <div>
+                        <label class="field-label">Delivery Zone *</label>
+                        <select id="zoneSelect" required>
+                            <option value= ""> Select Zone </option>
+                            <option value="koramangala">Koramangala 4th Block — Free Zone</option>
+                            <option value="7km">Up to 7 km from Koramangala (+₹100)</option>
+                            <option value="10km">7 km – 12 km from Koramangala (+₹150)</option>
+                        </select>
+                        <p class="text-[10px] text-stone-400 mt-1 leading-relaxed">We deliver within 12 km of Koramangala 4th Block. Further out? <a href="https://wa.me/919527371656?text=Hi%2C%20I%27m%20outside%20your%20delivery%20zone%20%E2%80%94%20can%20you%20help%3F" target="_blank" rel="noopener" class="gold-text underline">Message us</a> and we'll work something out.</p>
                     </div>
-                    <div id="deliveryFields" class="hidden space-y-3">
-                        <div>
-                            <label class="field-label">Delivery Zone *</label>
-                            <select id="zoneSelect" required>
-                                <option value= ""> Select Zone </option>    
-                                <option value="koramangala">Koramangala 4th Block — Free Zone</option>
-                                <option value="7km">Up to 7 km from Koramangala (+₹100)</option>
-                                <option value="10km">7 km – 12 km from Koramangala (+₹150)</option>
-                            </select>
-                            <p class="text-[10px] text-stone-400 mt-1 leading-relaxed">We deliver within 12 km of Koramangala 4th Block. Further out? <a href="https://wa.me/919527371656?text=Hi%2C%20I%27m%20outside%20your%20delivery%20zone%20%E2%80%94%20can%20you%20help%3F" target="_blank" rel="noopener" class="gold-text underline">Message us</a> and we'll work something out.</p>
-                        </div>
-                        <div>
-                            <label class="field-label">Full Address *</label>
-                            <textarea name="address" id="addrInput" placeholder="Full address for delivery"></textarea>
-                        </div>
-                        <div>
-                            <label class="field-label">Google Maps Link (optional)</label>
-                            <input type="url" name="maps_link" placeholder="Paste a Google Maps pin link">
-                        </div>
+                    <div>
+                        <label class="field-label">Full Address *</label>
+                        <textarea name="address" id="addrInput" placeholder="Full address for delivery"></textarea>
+                    </div>
+                    <div>
+                        <label class="field-label">Google Maps Link (optional)</label>
+                        <input type="url" name="maps_link" placeholder="Paste a Google Maps pin link">
                     </div>
                 </div>
 
-                <!-- Notes -->
-                <div class="space-y-3">
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="field-label">How Did You Hear About Us? (optional)</label>
-                            <select name="heard_from">
-                                <option value="">Select an option</option>
-                                <option value="Instagram">Instagram</option>
-                                <option value="Twitter">Twitter</option>
-                                <option value="WhatsApp">WhatsApp</option>
-                                <option value="Friend Referral">Friend Referral</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="field-label">Notes (optional)</label>
-                            <textarea name="notes" maxlength="250" placeholder="Allergies, instructions, etc."></textarea>
-                        </div>
-                    </div>
+                <div>
+                    <label class="field-label">Notes (optional)</label>
+                    <textarea name="notes" maxlength="250" placeholder="Allergies, instructions, etc."></textarea>
                 </div>
 
                 <!-- Payment -->
@@ -246,7 +201,7 @@
                         <label class="field-label">Coupon Code</label>
                         <div class="flex gap-2">
                             <input type="text" id="couponInput" placeholder="Enter code" style="text-transform:uppercase;">
-                            <button type="button" data-action="apply-coupon" class="btn-outline" style="white-space:nowrap;">Apply</button>
+                            <button type="button" data-action="apply-coupon" class="btn-outline" style="white-space:nowrap;padding:8px 14px;font-size:9px;">Apply</button>
                         </div>
                         <p id="couponMsg" class="text-[11px] mt-2"></p>
                     </div>

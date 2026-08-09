@@ -8,8 +8,14 @@
  * this file and the live one in sync when you make changes.
  *
  * SHEET LAYOUT THIS EXPECTS:
- *   Tab "Sheet1"  — orders. Header row must include an "Opera Qty" column
- *                   (this is where units-per-order are counted from).
+ *   Tab "Bookings" — orders. Header row (in order):
+ *     Timestamp | Sender Name | Sender Phone | Method | Items Ordered | Qty |
+ *     Delivery Zone | Delivery Fee | Coupon Code | Discount Amount | Address |
+ *     Maps Link | How Did You Hear | Notes | Referral Source | Total
+ *     The "Qty" column is generic — it's where units-per-order are counted
+ *     from, no matter what item is currently being sold. Nothing needs
+ *     renaming here when you switch to a new drop.
+ *   Tab "Sheet1"  — old order log, kept as an archive. Not written to anymore.
  *   Tab "Config"  — A1: "MaxStock", B1: <number of units for this drop>.
  *   Tab "Coupons" — header row: Code | Type | Value | Active | Phone | ValidTill
  *       - Type: "percent" (Value = % off), "flat" (Value = ₹ off), or
@@ -22,59 +28,54 @@
  *       - Active: TRUE/FALSE — flip to FALSE to disable a code without
  *         deleting it.
  *
- * TO CHANGE THE CURRENT ITEM LATER: update QTY_COLUMN_HEADER below to match
- * a column header in Sheet1 (add a new column there if it's a brand new
- * item), then redeploy (see bottom of this file).
+ * TO CHANGE THE CURRENT ITEM LATER: just update script.js's CURRENT_ITEM.
+ * Nothing here needs to change — the Qty column and this backend are generic.
  * ────────────────────────────────────────────────────────────────────────── */
 
 function doPost(e) {
-  // Change 'Sheet1' below if your tab is named something else.
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Sheet1');
-  const data = JSON.parse(e.postData.contents);
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Bookings');
+  var data = JSON.parse(e.postData.contents);
 
-  let row;
+  var row;
 
   if (data.form_type === 'waitlist') {
-    // Columns: Timestamp | Sender Name | Sender Phone | Is Gift? | Receiver Name |
-    // Receiver Phone | Surprise? | Gift Message | How Did You Hear | Method | Slot |
-    // Items Ordered | Tiramisu Qty | Opera Qty | Address | Notes | Referral Source | Total | Maps Link
+    // Columns: Timestamp | Sender Name | Sender Phone | Method | Items Ordered |
+    // Qty | Delivery Zone | Delivery Fee | Coupon Code | Discount Amount |
+    // Address | Maps Link | How Did You Hear | Notes | Referral Source | Total
     row = [
       new Date(),                                              // Timestamp
       data.name || '',                                          // Sender Name
       data.phone || '',                                         // Sender Phone
-      '', '', '', '', '',                                       // Is Gift? / Receiver Name / Receiver Phone / Surprise? / Gift Message
-      '',                                                        // How Did You Hear
-      '', '',                                                   // Method / Slot
+      '',                                                        // Method
       'WAITLIST SIGNUP',                                        // Items Ordered
-      '', '',                                                   // Tiramisu Qty / Opera Qty
+      '',                                                        // Qty
+      '', '',                                                   // Delivery Zone / Delivery Fee
+      '', '',                                                   // Coupon Code / Discount Amount
       '',                                                        // Address
+      '',                                                        // Maps Link
+      '',                                                        // How Did You Hear
       'Waiting for ' + (data.next_drop_date || 'next drop'),    // Notes
       '',                                                        // Referral Source
-      '',                                                        // Total
-      ''                                                         // Maps Link
+      ''                                                         // Total
     ];
   } else {
-    // Existing order flow — same field mapping you already had.
     row = [
       new Date(),
       data.sender_name || '',
       data.sender_phone || '',
-      data.is_gift || '',
-      data.receiver_name || '',
-      data.receiver_phone || '',
-      data.surprise || '',
-      data.gift_message || '',
-      data.heard_from || '',
       data.method || '',
-      data.slot || '',
       data.items_ordered || '',
-      data.tiramisu_qty || '',
-      data.opera_qty || '',      // <-- was data.matcha_qty; now tracks the current item
+      data.qty || '',
+      data.delivery_zone || '',
+      data.delivery_fee || '',
+      data.coupon_code || '',
+      data.discount_amount || '',
       data.address || '',
+      data.maps_link || '',
+      data.heard_from || '',
       data.notes || '',
       data.referral_source || '',
-      data.total || '',
-      data.maps_link || ''       // new "Maps Link" column, added at the end
+      data.total || ''
     ];
   }
 
@@ -86,8 +87,8 @@ function doPost(e) {
 
 // ── Config for the site's checkout page (GET requests) ─────────────────────
 var SHEET_ID = '1B3suLNr2NZDOPfpsLndI-Y4DMVrlwqFfCz_6gRy3XHc';  // "FH Orders" sheet
-var ORDERS_SHEET_NAME = 'Sheet1';
-var QTY_COLUMN_HEADER = 'Opera Qty';   // change this when the current item changes again
+var ORDERS_SHEET_NAME = 'Bookings';
+var QTY_COLUMN_HEADER = 'Qty';         // generic now — no renaming needed between drops
 var CONFIG_SHEET_NAME = 'Config';
 var COUPONS_SHEET_NAME = 'Coupons';
 var MAX_TUBS_FALLBACK = 2;             // used only if the Config tab is missing/blank
