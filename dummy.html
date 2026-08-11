@@ -142,6 +142,25 @@
                     </div>
                 </div>
 
+                <div class="flex items-center gap-3 bg-stone-50 p-4 rounded cursor-pointer select-none" data-action="toggle-gift">
+                    <div id="giftTogglePill" class="toggle-pill">
+                        <div class="toggle-knob"></div>
+                    </div>
+                    <span class="text-xs font-semibold gold-text">Sending to someone else?</span>
+                </div>
+                <div id="receiverSection">
+                    <div class="grid md:grid-cols-2 gap-4 pt-2">
+                        <div>
+                            <label class="field-label">Receiver Name *</label>
+                            <input type="text" name="receiver_name" id="receiverName" placeholder="Their name">
+                        </div>
+                        <div>
+                            <label class="field-label">Receiver Phone *</label>
+                            <input type="tel" name="receiver_phone" id="receiverPhone" placeholder="10 digits" inputmode="numeric">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="bg-stone-50 p-3 rounded text-xs text-stone-600">
                     📅 Pickup / Delivery: <strong class="gold-text">22 August · 9am – 11am</strong>
                 </div>

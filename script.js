@@ -55,6 +55,8 @@
     var DELIVERY_FEES = { koramangala: 0, '7km': 100, '10km': 150 };
     var preorderClosed = false;   // flips true once PREORDER_CUTOFF passes
 
+    var isGift = false;           // true once "Sending to someone else?" is toggled on
+
     // Coupons — validated one at a time on the server, never listed publicly.
     var appliedCoupon = null;     // { code, type, value } once a valid code is applied
     var lastDiscount = 0;         // last computed discount amount, sent along with the order
@@ -178,6 +180,15 @@
         if (days > 0 || hours > 0) parts.push(hours + 'h');
         parts.push(minutes + 'm');
         countdownEl.textContent = 'Preorders close in ' + parts.join(' ') + ' — order before it sells out!';
+    }
+
+    // ── "Sending to someone else?" toggle ────────────────────
+    function toggleGift() {
+        isGift = !isGift;
+        $('giftTogglePill').classList.toggle('on', isGift);
+        $('receiverSection').classList.toggle('open', isGift);
+        $('receiverName').required = isGift;
+        $('receiverPhone').required = isGift;
     }
 
     // ── Cart ────────────────────────────────────────────────
@@ -445,6 +456,7 @@
         else if (action === 'clear')       { clearItem(); }
         else if (action === 'open-cart')   { openCart(); }
         else if (action === 'close-cart')  { closeCart(); }
+        else if (action === 'toggle-gift') { toggleGift(); }
         else if (action === 'copy-upi')    { copyUPI(); }
         else if (action === 'apply-coupon'){ applyCoupon(); }
         else if (action === 'join-waitlist'){ joinWaitlist(); }
@@ -484,6 +496,10 @@
 
         var sPhone = digits(form.sender_phone.value);
         if (sPhone.length < 10) { alert("Please enter a valid 10-digit WhatsApp number."); form.sender_phone.focus(); return; }
+        if (isGift) {
+            var rPhone = digits($('receiverPhone').value);
+            if (rPhone.length < 10) { alert("Please enter a valid 10-digit number for the receiver."); $('receiverPhone').focus(); return; }
+        }
 
         if (cartQty === 0) { alert("Your bag is empty."); return; }
         if (cartQty > stockRemaining) { alert("Only " + stockRemaining + " " + CURRENT_ITEM.name + " available. Please reduce your quantity."); return; }
@@ -498,6 +514,9 @@
         var orderData = {
             sender_name:     fd.get('sender_name'),
             sender_phone:    fd.get('sender_phone'),
+            is_gift:         isGift ? "Yes" : "No",
+            receiver_name:   isGift ? fd.get('receiver_name')  : "N/A",
+            receiver_phone:  isGift ? fd.get('receiver_phone') : "N/A",
             method:          $('methodSelect').value,
             items_ordered:   CURRENT_ITEM.name + ' x' + cartQty,
             qty:             cartQty,

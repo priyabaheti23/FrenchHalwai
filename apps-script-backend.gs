@@ -9,9 +9,10 @@
  *
  * SHEET LAYOUT THIS EXPECTS:
  *   Tab "Bookings" — orders. Header row (in order):
- *     Timestamp | Sender Name | Sender Phone | Method | Items Ordered | Qty |
- *     Delivery Zone | Delivery Fee | Coupon Code | Discount Amount | Address |
- *     Maps Link | How Did You Hear | Notes | Referral Source | Total
+ *     Timestamp | Sender Name | Sender Phone | Is Gift? | Receiver Name |
+ *     Receiver Phone | Method | Items Ordered | Qty | Delivery Zone |
+ *     Delivery Fee | Coupon Code | Discount Amount | Address | Maps Link |
+ *     How Did You Hear | Notes | Referral Source | Total
  *     The "Qty" column is generic — it's where units-per-order are counted
  *     from, no matter what item is currently being sold. Nothing needs
  *     renaming here when you switch to a new drop.
@@ -39,13 +40,15 @@ function doPost(e) {
   var row;
 
   if (data.form_type === 'waitlist') {
-    // Columns: Timestamp | Sender Name | Sender Phone | Method | Items Ordered |
-    // Qty | Delivery Zone | Delivery Fee | Coupon Code | Discount Amount |
-    // Address | Maps Link | How Did You Hear | Notes | Referral Source | Total
+    // Columns: Timestamp | Sender Name | Sender Phone | Is Gift? | Receiver Name |
+    // Receiver Phone | Method | Items Ordered | Qty | Delivery Zone | Delivery Fee |
+    // Coupon Code | Discount Amount | Address | Maps Link | How Did You Hear |
+    // Notes | Referral Source | Total
     row = [
       new Date(),                                              // Timestamp
       data.name || '',                                          // Sender Name
       data.phone || '',                                         // Sender Phone
+      '', '', '',                                               // Is Gift? / Receiver Name / Receiver Phone
       '',                                                        // Method
       'WAITLIST SIGNUP',                                        // Items Ordered
       '',                                                        // Qty
@@ -63,6 +66,9 @@ function doPost(e) {
       new Date(),
       data.sender_name || '',
       data.sender_phone || '',
+      data.is_gift || '',
+      data.receiver_name || '',
+      data.receiver_phone || '',
       data.method || '',
       data.items_ordered || '',
       data.qty || '',
