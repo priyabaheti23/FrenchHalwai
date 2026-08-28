@@ -3,6 +3,19 @@
 
     var $ = function (id) { return document.getElementById(id); };
 
+    // ── First-paint loading overlay ─────────────────────────────────────────
+    // Hidden the first time `known` (see updateUI) is true — i.e. as soon as
+    // we've heard from the Sheet, given up trying, or are previewing.
+    var loadingOverlayHidden = false;
+    function hideLoadingOverlay() {
+        if (loadingOverlayHidden) return;
+        loadingOverlayHidden = true;
+        var el = $('loadingOverlay');
+        if (!el) return;
+        el.classList.add('is-hidden');
+        setTimeout(function () { if (el && el.parentNode) el.parentNode.removeChild(el); }, 600);
+    }
+
     // ═══════════════════════════════════════════════════════════════════════
     // EDIT ME — this is the only section you should need to touch to change
     // the item being sold, its price/description, the past drops archive,
@@ -664,7 +677,14 @@
         // The dessert is never painted before the Sheet has answered — on a
         // waitlist page, flashing the item for a second is the one thing
         // hiding it was supposed to prevent.
-        var showProduct  = canBuy && (stockLoaded || stockUnknown || !!PREVIEW);
+        // True once we've actually heard from the Sheet (or are unreachable, or
+        // previewing) — false during the gap right after page load while the
+        // fetch to Apps Script is still in flight. Nothing that reveals the
+        // item name, price, or a guessed stock count should render before this
+        // flips true, even outside the (already-hidden) product card.
+        var known = stockLoaded || stockUnknown || !!PREVIEW;
+        if (known) hideLoadingOverlay();
+        var showProduct  = canBuy && known;
         var showWaitlist = !!copy && !stockUnknown;
 
         var productSection  = $('productSection');
@@ -673,15 +693,24 @@
         if (waitlistSection) waitlistSection.style.display = showWaitlist ? '' : 'none';
 
         var heading = $('itemName');
-        if (heading) heading.textContent = copy ? copy.heading : CURRENT_ITEM.name;
+        if (heading) heading.textContent = !known ? '' : (copy ? copy.heading : CURRENT_ITEM.name);
 
         var waitlistHeading = $('waitlistHeading');
         if (waitlistHeading) waitlistHeading.textContent = copy ? copy.waitlist : 'Join the Waitlist for our next dessert drop';
 
         var tagline = $('heroTagline');
-        if (tagline) tagline.textContent = copy ? copy.tagline : 'Freshly made to order. Preorders open now.';
+        if (tagline) tagline.textContent = !known ? '' : (copy ? copy.tagline : 'Freshly made to order. Preorders open now.');
 
-        if (stockUnknown) {
+        if (!known) {
+            // First paint, before the Sheet has answered at all. Show the same
+            // neutral "checking" look as the unreachable-backend case below —
+            // just without the WhatsApp fallback, since we haven't given up yet.
+            banner.textContent = 'Checking Availability';
+            badge.textContent = '⚑ Checking availability';
+            badge.style.background = '#f1f1ef';
+            badge.style.color = '#78716c';
+            cardMsg.textContent = '';
+        } else if (stockUnknown) {
             // Ordering is disabled rather than guessed at — taking an order we
             // can't check against the Sheet is how a drop gets oversold.
             banner.textContent = 'Checking Availability';

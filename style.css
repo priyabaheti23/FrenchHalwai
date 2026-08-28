@@ -94,3 +94,71 @@ input:focus:valid  { border-color: #10b981 !important; outline: none; }
   margin-bottom: 14px;
   text-align: left;
 }
+
+/* ── First-paint loading overlay ─────────────────────────────────────────
+   Covers the page from first paint until script.js has heard back from the
+   Sheet (the `known` flag in updateUI()), then fades once. Replaces staring
+   at "Checking Availability" text with something that actually feels like
+   part of the site. */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  background: var(--cream);
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+.loading-overlay.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.loading-overlay__mark {
+  font-family: 'Birthstone', cursive;
+  font-size: 42px;
+  color: var(--gold);
+  letter-spacing: 0.02em;
+  /* Invisible until <html> has "fh-font-ready" (set in dummy.html once the
+     real Birthstone font is loaded) — so it never paints in the browser's
+     fallback cursive font first and then visibly swaps to the real one. */
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+html.fh-font-ready .loading-overlay__mark {
+  opacity: 1;
+  animation: fh-pulse 1.8s ease-in-out infinite;
+}
+.loading-overlay__eiffel {
+  width: 56px;
+  height: auto;
+  overflow: visible;
+}
+.loading-overlay__eiffel .eiffel-part {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 100;
+  animation: fh-eiffel-draw 3.2s ease-in-out infinite;
+}
+/* Draws in (dashoffset 100 -> 0), holds fully lit for a moment, then
+   un-draws and starts again — each segment offset via its own
+   animation-delay in the markup, so the tower assembles bottom-up rather
+   than every line appearing at once. */
+@keyframes fh-eiffel-draw {
+  0%   { stroke-dashoffset: 100; opacity: 0.35; }
+  45%  { stroke-dashoffset: 0;   opacity: 1; }
+  70%  { stroke-dashoffset: 0;   opacity: 1; }
+  100% { stroke-dashoffset: 100; opacity: 0.35; }
+}
+@keyframes fh-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-overlay__mark,
+  .eiffel-part { animation: none; }
+}

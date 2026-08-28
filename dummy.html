@@ -7,8 +7,60 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Birthstone&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script>
+        // The loading-screen wordmark is set in Birthstone, same as the real
+        // header logo. Google Fonts' &display=swap means the browser paints
+        // it in a generic fallback cursive font first and swaps to Birthstone
+        // once it's downloaded — which, on the loading screen, looked like
+        // two different logos in two different fonts. style.css hides the
+        // wordmark (opacity:0) until <html> gets the "fh-font-ready" class
+        // below, so it only ever appears already in the right font.
+        (function () {
+            var reveal = function () { document.documentElement.classList.add('fh-font-ready'); };
+            if (document.fonts && document.fonts.load) {
+                document.fonts.load('42px Birthstone').then(reveal).catch(reveal);
+            } else {
+                reveal();
+            }
+            // Never leave the wordmark invisible for more than 1.5s, even if
+            // the Font Loading API hangs or the font fails to load at all.
+            setTimeout(reveal, 1500);
+        })();
+    </script>
 </head>
 <body>
+
+    <!-- Shown from first paint until script.js hears back from the Sheet (see
+         the `known` flag in updateUI()). Covers the whole page so nobody
+         watches the hero heading / banner / badge settle into their real
+         state — one clean fade once everything is actually ready instead. -->
+    <div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
+        <!-- A small line-art Eiffel Tower that draws itself in, section by
+             section (base legs, cross-bracing, first platform, upper legs,
+             second platform, spire), then fades and redraws — an ambient
+             "still building the page" animation instead of a spinner.
+             pathLength="100" on every segment makes stroke-dasharray/offset
+             percentages regardless of each segment's actual pixel length. -->
+        <svg class="loading-overlay__eiffel" viewBox="0 0 120 200" aria-hidden="true">
+            <path pathLength="100" class="eiffel-part" style="animation-delay:0s"    d="M10,193 Q 28,150 45,131" />
+            <path pathLength="100" class="eiffel-part" style="animation-delay:0s"    d="M110,193 Q 92,150 75,131" />
+            <path pathLength="100" class="eiffel-part" style="animation-delay:0s"    d="M20,175 L82,175" />
+            <path pathLength="100" class="eiffel-part" style="animation-delay:0s"    d="M10,193 L75,131" />
+            <path pathLength="100" class="eiffel-part" style="animation-delay:0s"    d="M110,193 L45,131" />
+            <path pathLength="100" class="eiffel-part" style="animation-delay:0.2s"  d="M40,131 L80,131 L76,123 L44,123 Z" />
+            <path pathLength="100" class="eiffel-part" style="animation-delay:0.35s" d="M44,123 Q 50,105 51,90" />
+            <path pathLength="100" class="eiffel-part" style="animation-delay:0.35s" d="M76,123 Q 70,105 69,90" />
+            <path pathLength="100" class="eiffel-part" style="animation-delay:0.35s" d="M44,123 L69,90" />
+            <path pathLength="100" class="eiffel-part" style="animation-delay:0.35s" d="M76,123 L51,90" />
+            <path pathLength="100" class="eiffel-part" style="animation-delay:0.5s"  d="M48,90 L72,90 L69,83 L51,83 Z" />
+            <path pathLength="100" class="eiffel-part" style="animation-delay:0.65s" d="M51,83 Q 55,60 58,32" />
+            <path pathLength="100" class="eiffel-part" style="animation-delay:0.65s" d="M69,83 Q 65,60 62,32" />
+            <path pathLength="100" class="eiffel-part" style="animation-delay:0.78s" d="M58,32 L60,10" />
+            <path pathLength="100" class="eiffel-part" style="animation-delay:0.78s" d="M62,32 L60,10" />
+            <path pathLength="100" class="eiffel-part" style="animation-delay:0.9s"  d="M60,10 L60,2" />
+        </svg>
+        <div class="loading-overlay__mark">French Halwai</div>
+    </div>
 
     <div class="bg-stone-800 text-white text-[10px] tracking-[0.4em] py-2 text-center uppercase" id="topBanner">
         Preorder is Live
@@ -66,7 +118,7 @@
     <!-- Waitlist — its own section now, so it can be shown before the drop
          opens (when the product is hidden) AND again once it sells out
          (when the product is shown). Those two used to be the same block. -->
-    <section class="max-w-md mx-auto px-6 pb-4" id="waitlistSection" style="display:none;">
+    <section class="max-w-md mx-auto px-6 py-16" id="waitlistSection" style="display:none;">
         <div class="bg-white border border-stone-100 shadow-sm p-8 rounded-sm">
             <div id="waitlistForm" class="text-left">
                 <p class="text-sm font-serif italic gold-text mb-3 text-center" id="waitlistHeading">Join the Waitlist for our next dessert drop</p>
@@ -274,7 +326,7 @@
         </div>
     </div>
 
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
 <script src="script.js"></script>
 </body>
 </html>
