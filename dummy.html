@@ -41,7 +41,7 @@
              "still building the page" animation instead of a spinner.
              pathLength="100" on every segment makes stroke-dasharray/offset
              percentages regardless of each segment's actual pixel length. -->
-        <svg class="loading-overlay__eiffel" viewBox="0 0 120 200" aria-hidden="true">
+        <svg class="eiffel-icon" viewBox="0 0 120 200" aria-hidden="true">
             <path pathLength="100" class="eiffel-part" style="animation-delay:0s"    d="M10,193 Q 28,150 45,131" />
             <path pathLength="100" class="eiffel-part" style="animation-delay:0s"    d="M110,193 Q 92,150 75,131" />
             <path pathLength="100" class="eiffel-part" style="animation-delay:0s"    d="M20,175 L82,175" />
@@ -183,6 +183,7 @@
     <!-- Checkout modal -->
     <div id="checkoutModal" class="modal-overlay">
         <div class="max-w-2xl mx-auto bg-white my-8 p-8 md:p-12 shadow-2xl relative rounded-sm">
+            <div id="checkoutFormArea">
             <button type="button" data-action="close-cart" class="absolute top-6 right-6 text-stone-400 hover:text-black text-xl leading-none">✕</button>
             <h3 class="text-3xl font-serif italic gold-text mb-8">Your Order Summary</h3>
 
@@ -311,6 +312,35 @@
                     <p class="text-[10px] text-stone-400 mt-4">*Pickup location shared over WhatsApp after confirmation.</p>
                 </div>
             </form>
+            </div>
+
+            <!-- Shown from the moment Razorpay confirms payment client-side
+                 until the backend has verified and recorded the order. Same
+                 drawing tower as the first-paint loading screen, for one
+                 consistent "please wait" moment across the whole site
+                 instead of just a disabled button saying "Confirming...". -->
+            <div id="confirmingState" class="confirming-state" style="display:none;">
+                <svg class="eiffel-icon" viewBox="0 0 120 200" aria-hidden="true">
+                    <path pathLength="100" class="eiffel-part" style="animation-delay:0s"    d="M10,193 Q 28,150 45,131" />
+                    <path pathLength="100" class="eiffel-part" style="animation-delay:0s"    d="M110,193 Q 92,150 75,131" />
+                    <path pathLength="100" class="eiffel-part" style="animation-delay:0s"    d="M20,175 L82,175" />
+                    <path pathLength="100" class="eiffel-part" style="animation-delay:0s"    d="M10,193 L75,131" />
+                    <path pathLength="100" class="eiffel-part" style="animation-delay:0s"    d="M110,193 L45,131" />
+                    <path pathLength="100" class="eiffel-part" style="animation-delay:0.2s"  d="M40,131 L80,131 L76,123 L44,123 Z" />
+                    <path pathLength="100" class="eiffel-part" style="animation-delay:0.35s" d="M44,123 Q 50,105 51,90" />
+                    <path pathLength="100" class="eiffel-part" style="animation-delay:0.35s" d="M76,123 Q 70,105 69,90" />
+                    <path pathLength="100" class="eiffel-part" style="animation-delay:0.35s" d="M44,123 L69,90" />
+                    <path pathLength="100" class="eiffel-part" style="animation-delay:0.35s" d="M76,123 L51,90" />
+                    <path pathLength="100" class="eiffel-part" style="animation-delay:0.5s"  d="M48,90 L72,90 L69,83 L51,83 Z" />
+                    <path pathLength="100" class="eiffel-part" style="animation-delay:0.65s" d="M51,83 Q 55,60 58,32" />
+                    <path pathLength="100" class="eiffel-part" style="animation-delay:0.65s" d="M69,83 Q 65,60 62,32" />
+                    <path pathLength="100" class="eiffel-part" style="animation-delay:0.78s" d="M58,32 L60,10" />
+                    <path pathLength="100" class="eiffel-part" style="animation-delay:0.78s" d="M62,32 L60,10" />
+                    <path pathLength="100" class="eiffel-part" style="animation-delay:0.9s"  d="M60,10 L60,2" />
+                </svg>
+                <p class="confirming-state__text">Confirming your order&hellip;</p>
+                <p class="confirming-state__subtext">Please don&rsquo;t close this window &mdash; this only takes a moment.</p>
+            </div>
         </div>
     </div>
 

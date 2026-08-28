@@ -16,6 +16,23 @@
         setTimeout(function () { if (el && el.parentNode) el.parentNode.removeChild(el); }, 600);
     }
 
+    // ── Payment-confirmation state ──────────────────────────────────────────
+    // Swaps the checkout form out for the same drawing-tower animation used
+    // on first paint, from the moment Razorpay hands back a successful
+    // payment until the backend has verified it and the order is recorded.
+    function showConfirmingState() {
+        var area = $('checkoutFormArea');
+        var state = $('confirmingState');
+        if (area) area.style.display = 'none';
+        if (state) state.style.display = 'flex';
+    }
+    function hideConfirmingState() {
+        var area = $('checkoutFormArea');
+        var state = $('confirmingState');
+        if (state) state.style.display = 'none';
+        if (area) area.style.display = '';
+    }
+
     // ═══════════════════════════════════════════════════════════════════════
     // EDIT ME — this is the only section you should need to touch to change
     // the item being sold, its price/description, the past drops archive,
@@ -210,6 +227,7 @@
                 modal: { ondismiss: restore },
                 handler: function (response) {
                     btn.innerText = 'Confirming...';
+                    showConfirmingState();
 
                     var payload = {};
                     for (var key in orderData) {
@@ -231,11 +249,13 @@
                             } else {
                                 // Money may have left their account. Never tell
                                 // them to just try again.
+                                hideConfirmingState();
                                 fail("We couldn't verify your payment. If you were charged, quote payment ID " +
                                      response.razorpay_payment_id + " and we'll sort it out.");
                             }
                         })
                         .catch(function () {
+                            hideConfirmingState();
                             fail("Your payment went through, but we couldn't confirm it here. Please DON'T pay again — quote payment ID " +
                                  response.razorpay_payment_id + ".");
                         });
@@ -870,6 +890,7 @@
 
     function openCart() {
         if (cartQty === 0) { alert("Bag is empty"); return; }
+        hideConfirmingState();
         $('checkoutModal').style.display = 'block';
         document.body.style.overflow = 'hidden';
         updateUI();

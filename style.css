@@ -132,12 +132,15 @@ html.fh-font-ready .loading-overlay__mark {
   opacity: 1;
   animation: fh-pulse 1.8s ease-in-out infinite;
 }
-.loading-overlay__eiffel {
+/* Shared by the first-paint loading screen AND the payment-confirmation
+   state in the checkout modal -- one consistent "please wait" visual
+   instead of two different ones. */
+.eiffel-icon {
   width: 56px;
   height: auto;
   overflow: visible;
 }
-.loading-overlay__eiffel .eiffel-part {
+.eiffel-icon .eiffel-part {
   fill: none;
   stroke: var(--gold);
   stroke-width: 2.5;
@@ -161,4 +164,29 @@ html.fh-font-ready .loading-overlay__mark {
 @media (prefers-reduced-motion: reduce) {
   .loading-overlay__mark,
   .eiffel-part { animation: none; }
+}
+
+/* ── Payment confirmation state ───────────────────────────────────────────
+   Replaces the checkout form (see #checkoutFormArea in dummy.html) the
+   moment Razorpay hands back a successful payment, until the backend has
+   verified it and the order is actually recorded. */
+.confirming-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 50px 10px 30px;
+  text-align: center;
+}
+.confirming-state__text {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 22px;
+  color: var(--gold);
+}
+.confirming-state__subtext {
+  font-size: 11px;
+  color: #78716c;
+  letter-spacing: 0.03em;
 }
