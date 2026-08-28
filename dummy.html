@@ -28,18 +28,18 @@
     </header>
 
     <!-- Hero -->
-    <section class="py-16 text-center bg-white">
+    <section class="py-16 px-4 text-center bg-white">
         <h2 class="text-5xl md:text-7xl font-serif italic mb-3 gold-text" id="itemName"></h2>
         <div class="flex justify-center gap-3 mb-4 flex-wrap">
             <div class="pill-badge">Bangalore</div>
             <div class="stock-badge" id="stockBadge">⚑ Loading availability…</div>
         </div>
-        <p class="text-stone-500 font-light italic text-sm">Freshly made to order. Preorders open now.</p>
-        <p class="text-[11px] gold-text font-semibold mt-3 tracking-wide" id="countdownText"></p>
+        <p class="text-stone-500 font-light italic text-sm" id="heroTagline">Freshly made to order.</p>
     </section>
 
-    <!-- Product card — content filled in by script.js from the CURRENT_ITEM config -->
-    <section class="max-w-3xl mx-auto px-6 py-12">
+    <!-- Product card — hidden entirely until booking opens, so the drop
+         isn't revealed early. script.js fills it from CURRENT_ITEM. -->
+    <section class="max-w-3xl mx-auto px-6 py-12" id="productSection" style="display:none;">
         <div class="grid md:grid-cols-1 gap-6">
             <div class="bg-white border border-stone-100 shadow-sm p-0 overflow-hidden max-w-md mx-auto w-full">
                 <div class="gallery-wrap" id="itemGallery"></div>
@@ -53,22 +53,29 @@
                     <div id="cardStockMsg" class="text-[10px] text-amber-700 font-semibold mb-4 tracking-wide"></div>
                     <div class="flex justify-between items-center border-t pt-4">
                         <span class="text-xl font-light gold-text" id="itemPrice"></span>
-                        <div id="main-qty-mango">
+                        <div id="main-qty">
                             <button type="button" data-action="add" class="btn-luxury">Add to Bag</button>
                         </div>
                     </div>
 
-                    <!-- Waitlist — shown automatically once sold out -->
-                    <div id="waitlistForm" class="text-left mt-6 pt-6 border-t" style="display:none;">
-                        <p class="text-sm font-serif italic gold-text mb-3 text-center">Join the Waitlist for our next dessert drop</p>
-                        <label class="field-label">Your Name *</label>
-                        <input type="text" id="waitlistName" placeholder="Your name">
-                        <label class="field-label">Your WhatsApp Number *</label>
-                        <input type="tel" id="waitlistPhone" placeholder="10 digits" inputmode="numeric">
-                        <button type="button" id="waitlistBtn" data-action="join-waitlist" class="btn-luxury w-full mt-3">Join Waitlist</button>
-                        <p id="waitlistMsg" class="text-[11px] mt-2"></p>
-                    </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Waitlist — its own section now, so it can be shown before the drop
+         opens (when the product is hidden) AND again once it sells out
+         (when the product is shown). Those two used to be the same block. -->
+    <section class="max-w-md mx-auto px-6 pb-4" id="waitlistSection" style="display:none;">
+        <div class="bg-white border border-stone-100 shadow-sm p-8 rounded-sm">
+            <div id="waitlistForm" class="text-left">
+                <p class="text-sm font-serif italic gold-text mb-3 text-center" id="waitlistHeading">Join the Waitlist for our next dessert drop</p>
+                <label class="field-label">Your Name *</label>
+                <input type="text" id="waitlistName" placeholder="Your name">
+                <label class="field-label">Your WhatsApp Number *</label>
+                <input type="tel" id="waitlistPhone" placeholder="10 digits" inputmode="numeric">
+                <button type="button" id="waitlistBtn" data-action="join-waitlist" class="btn-luxury w-full mt-3">Join Waitlist</button>
+                <p id="waitlistMsg" class="text-[11px] mt-2"></p>
             </div>
         </div>
     </section>
@@ -78,7 +85,7 @@
         <h3 class="text-3xl font-serif italic gold-text text-center mb-2">Past Drops</h3>
         <p class="text-stone-400 text-xs text-center mb-10 uppercase tracking-widest">A look back at what's already sold out</p>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="pastDropsGrid"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6" id="pastDropsGrid"></div>
 
         <p class="text-center text-xs text-stone-500 italic mt-10">
             Craving one of these before the next drop? Reach out to us on
@@ -162,9 +169,8 @@
                 </div>
 
                 <div class="bg-stone-50 p-3 rounded text-xs text-stone-600">
-                    📅 Pickup / Delivery: <strong class="gold-text">22 August · 9am – 11am</strong>
+                    📅 Pickup / Delivery: <strong class="gold-text" id="deliverySlotText">5 September · 9am – 11am</strong>
                 </div>
-
                 <div class="grid md:grid-cols-2 gap-4">
                     <div>
                         <label class="field-label">How would you like to receive it? *</label>
@@ -225,6 +231,16 @@
                         <p id="couponMsg" class="text-[11px] mt-2"></p>
                     </div>
 
+                    <div class="flex justify-between text-sm mb-1 text-stone-600">
+                        <span>Subtotal:</span>
+                        <span id="subtotalAmt">₹0</span>
+                    </div>
+
+                    <div id="deliveryRow" class="flex justify-between text-sm mb-1 text-stone-600" style="display:none;">
+                        <span>Delivery<span id="deliveryZoneLabel"></span>:</span>
+                        <span id="deliveryAmt">₹0</span>
+                    </div>
+
                     <div id="discountRow" class="flex justify-between text-sm mb-3" style="display:none;">
                         <span>Discount<span id="discountCodeLabel"></span>:</span>
                         <span id="discountAmt" class="font-semibold text-emerald-600">−₹0</span>
@@ -234,16 +250,12 @@
                         <span>Total Payable:</span>
                         <span id="finalT" class="gold-text">₹0</span>
                     </div>
-                    <img src="assets/payment-qr.jpeg" alt="Payment QR" class="mx-auto mb-4 border p-1 bg-white w-40 h-40 object-contain">
-                    <p class="text-xs font-mono mb-6">
-                        UPI ID: 9527371656@yescred
-                        <span class="copy-trigger" data-action="copy-upi">
-                            <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                            Copy
-                            <span id="copyTooltip" class="copy-tooltip">Copied!</span>
-                        </span>
-                    </p>
-                    <button type="submit" class="btn-luxury w-full py-4 text-sm">I've Paid — Confirm Preorder</button>
+                    <div id="payError" class="notice-error" style="display:none;"></div>
+
+                    <button type="submit" id="payBtn" data-label="Pay Securely"
+                            class="btn-luxury w-full py-4 text-sm">Pay Securely</button>
+
+                    <p class="text-[10px] text-stone-400 mt-3">Payments handled by Razorpay. We never see your card details.</p>
                     <p class="text-[10px] text-stone-400 mt-4">*Pickup location shared over WhatsApp after confirmation.</p>
                 </div>
             </form>
@@ -257,11 +269,12 @@
                 <svg class="w-8 h-8 gold-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
             </div>
             <h3 class="text-3xl font-serif italic gold-text mb-4">Merci Beaucoup!</h3>
-            <p class="text-stone-500 text-sm mb-8 leading-relaxed">Merci — your preorder is received. We'll confirm payment and message you on WhatsApp with pickup or delivery details.</p>
+            <p id="confirmBody" class="text-stone-500 text-sm mb-8 leading-relaxed">Merci — your preorder is received. We'll confirm payment and message you on WhatsApp with pickup or delivery details.</p>
             <button type="button" onclick="location.reload()" class="btn-luxury w-full">Close & Return</button>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

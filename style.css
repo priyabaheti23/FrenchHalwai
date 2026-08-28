@@ -32,11 +32,15 @@ input:focus:valid  { border-color: #10b981 !important; outline: none; }
 .copy-tooltip { position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 4px 8px; border-radius: 4px; font-size: 9px; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
 .copy-tooltip.show { opacity: 1; }
 
-.gallery-wrap { position: relative; height: 340px; overflow: hidden; background: #f4f1ea; }
+/* Image boxes size themselves from their WIDTH, not a fixed pixel height.
+   A fixed height letterboxes the photo the moment the container changes
+   width — which is exactly what happened to the past-drop tiles when they
+   went to one-per-row on mobile: same 160px height, twice the width. */
+.gallery-wrap { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: #f4f1ea; }
 .gallery-wrap img { width: 100%; height: 100%; object-fit: cover; }
 .gallery-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 20px; color: #bbb; }
-.mango-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.5s ease; }
-.mango-slide.active { opacity: 1; }
+.gallery-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.5s ease; }
+.gallery-slide.active { opacity: 1; }
 .g-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 999px; background: rgba(255,255,255,0.8); color: var(--gold); font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: background 0.2s; z-index: 2; }
 .g-nav:hover { background: #fff; }
 .g-prev { left: 10px; }
@@ -46,7 +50,14 @@ input:focus:valid  { border-color: #10b981 !important; outline: none; }
 .g-dot.active { background: #fff; }
 
 /* Past-drop thumbnail box (used in the archive grid). */
-.gallery-fallback-box { position: relative; height: 160px; overflow: hidden; background: #f4f1ea; display: flex; align-items: center; justify-content: center; }
+.gallery-fallback-box { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: #f4f1ea; display: flex; align-items: center; justify-content: center; }
+
+/* Older browsers that don't know aspect-ratio keep the previous behaviour
+   rather than collapsing to zero height. */
+@supports not (aspect-ratio: 1 / 1) {
+  .gallery-wrap { height: 340px; }
+  .gallery-fallback-box { height: 160px; }
+}
 .gallery-fallback-box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .gallery-fallback-box span { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px; color: #bbb; padding: 0 8px; text-align: center; }
 
@@ -69,3 +80,17 @@ input:focus:valid  { border-color: #10b981 !important; outline: none; }
 /* Coupon code */
 #couponMsg.text-red-500 { color: #ef4444; }
 #couponMsg.text-green-600 { color: #059669; }
+
+/* Payment errors — shown inline in the checkout rather than as an alert box,
+   so the customer keeps their filled-in form while they read it. */
+.notice-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 10px 12px;
+  border-radius: 2px;
+  margin-bottom: 14px;
+  text-align: left;
+}

@@ -15,7 +15,7 @@
     var CURRENT_ITEM = {
         key: 'opera',
         name: 'Opera',
-        price: 550,
+        price: 915,
         servesText: 'Limited Edition · Serves 1',
         description: 'Almond joconde, coffee buttercream, and dark chocolate ganache — seven delicate layers.',
         allergens: 'Dairy, Gluten, Eggs, Almonds',
@@ -34,11 +34,25 @@
         { name: 'Madeleine', images: ['assets/madeline_box_of_4.jpeg', 'assets/madeline_box_of_6.jpeg'], description: 'Buttery French madeleines, golden-edged, baked to order.' }
     ];
 
-    var DEFAULT_MAX_STOCK = 2;   // fallback cap, used only if the server call below fails
+    // Stock ALWAYS comes from the "MaxStock" cell in the Sheet's Config tab.
+    // The number below is used only if that call fails outright. It is NOT a
+    // second source of truth — and since the backend re-checks stock on every
+    // order, a stale value here can no longer oversell the drop.
+    var STOCK_FALLBACK_IF_OFFLINE = 2;
 
-    // Preorders stop being accepted after this moment (IST). Update this for
-    // every new drop. Format: 'YYYY-MM-DDTHH:MM:SS+05:30'.
-    var PREORDER_CUTOFF = new Date('2026-08-21T19:00:00+05:30');
+    // ── Drop schedule (IST) ────────────────────────────────────────────────
+    // These three lines run the entire drop. To schedule the next one, change
+    // them and nothing else.
+    //   BOOKING_OPENS   — before this the page counts down and takes waitlist
+    //                     signups; ordering is closed
+    //   PREORDER_CUTOFF — after this ordering closes again
+    //   DELIVERY_SLOT   — the pickup/delivery line shown on the page
+    var BOOKING_OPENS   = new Date('2026-08-01T00:00:00+05:30');  // already passed — booking is OPEN
+    var PREORDER_CUTOFF = new Date('2026-09-04T21:00:00+05:30');
+    var DELIVERY_SLOT   = '5 September · 9am – 11am';
+
+    // Where people are sent once this drop sells out.
+    var NEXT_DROP_DATE  = new Date('2026-09-19T11:00:00+05:30');
 
     // ═══════════════════════════════════════════════════════════════════════
     // Below this line is site logic — safe to leave alone.
@@ -47,23 +61,206 @@
     // QR tracking
     var params = new URLSearchParams(window.location.search);
     var refFromURL = params.get('ref');
+
+    // ── Preview mode ───────────────────────────────────────────────────────
+    // Add ?preview=preopen | live | soldout | closed to the URL to see that
+    // phase of the drop immediately, without touching dates or stock.
+    // Ordering is disabled while previewing, so this can't be used to sneak
+    // an order in before the drop opens.
+    var PREVIEW = (params.get('preview') || '').trim().toLowerCase();
+    if (['preopen', 'live', 'soldout', 'closed', 'betweendrops'].indexOf(PREVIEW) === -1) PREVIEW = '';
     if (refFromURL) { try { localStorage.setItem('order_ref', refFromURL.toLowerCase()); } catch (e) {} }
 
-    var maxStock = DEFAULT_MAX_STOCK;
-    var stockRemaining = DEFAULT_MAX_STOCK;
+    var maxStock = STOCK_FALLBACK_IF_OFFLINE;
+    var stockRemaining = STOCK_FALLBACK_IF_OFFLINE;
     var cartQty = 0;              // there's only ever one item in the bag: CURRENT_ITEM
     var DELIVERY_FEES = { koramangala: 0, '7km': 100, '10km': 150 };
+    var dropInactive = false;     // true when the Sheet's MaxStock is 0 — no drop is running
+    var stockLoaded = false;      // false until the Sheet has answered once
     var preorderClosed = false;   // flips true once PREORDER_CUTOFF passes
+    var bookingOpen = false;      // flips true once BOOKING_OPENS passes
 
     var isGift = false;           // true once "Sending to someone else?" is toggled on
 
     // Coupons — validated one at a time on the server, never listed publicly.
+    var SHEET_CONFIG = {};        // whatever the Config tab supplied, kept for copy lookups
+    var stockUnknown = false;     // true when we couldn't reach the Sheet at all
     var appliedCoupon = null;     // { code, type, value } once a valid code is applied
     var lastDiscount = 0;         // last computed discount amount, sent along with the order
 
     var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby-FcX9uvZeOD8TYsVTSlGRZJ3hRISMscWk3p2k_WtAuWH2a7zdAGNhQc6f_Td6j5_T/exec';
 
     function digits(s) { return (s || '').replace(/\D/g, ''); }
+
+    // ── Payment ─────────────────────────────────────────────────────────────
+    // The browser never decides what anything costs. We ask the backend to
+    // create a Razorpay order — it recalculates the amount from the Sheet and
+    // the Coupons tab — open checkout with what it hands back, then send the
+    // signed result to be verified. Only a payment whose signature verifies
+    // server-side is written to the Sheet, so an abandoned or faked checkout
+    // leaves no order behind.
+    function postJson(payload) {
+        return fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        }).then(function (res) { return res.json(); });
+    }
+
+    function showPayError(message) {
+        var box = $('payError');
+        var waText = 'Reach out to us on WhatsApp';
+
+        if (!box) { alert(message + '\n\n' + waText + '.'); return; }
+
+        // Built as DOM nodes rather than innerHTML — some of these messages
+        // carry a payment ID from the gateway, and that should never be able
+        // to inject markup into the page.
+        box.innerHTML = '';
+
+        var line = document.createElement('div');
+        line.textContent = message;
+        box.appendChild(line);
+
+        var wrap = document.createElement('div');
+        wrap.style.marginTop = '6px';
+
+        var link = document.createElement('a');
+        link.href = whatsappOrderLink();
+        link.target = '_blank';
+        link.rel = 'noopener';
+        link.className = 'gold-text underline font-semibold';
+        link.textContent = waText;
+        wrap.appendChild(link);
+
+        box.appendChild(wrap);
+        box.style.display = 'block';
+    }
+
+    function hidePayError() {
+        var box = $('payError');
+        if (box) box.style.display = 'none';
+    }
+
+    function payWithRazorpay(orderData, btn) {
+        var label = btn.getAttribute('data-label') || 'Pay Securely';
+        function restore() { btn.disabled = false; btn.innerText = label; }
+        function fail(message) { showPayError(message); restore(); }
+
+        hidePayError();
+
+        if (typeof Razorpay === 'undefined') {
+            return fail("The payment window couldn't load. Check your connection and try again.");
+        }
+
+        postJson({
+            action: 'createOrder',
+            qty: orderData.qty,
+            method: orderData.method,
+            delivery_zone: orderData.delivery_zone,
+            coupon_code: orderData.coupon_code,
+            sender_phone: orderData.sender_phone,
+            items_ordered: orderData.items_ordered
+        })
+        .then(function (order) {
+            if (!order || order.error) {
+                if (order && typeof order.remaining === 'number') applyStock(order.remaining);
+                return fail((order && order.error) || "We couldn't start the payment.");
+            }
+
+            // The backend is the only thing that decides the amount. If what
+            // it worked out differs from what the page was showing — a coupon
+            // that expired between Apply and Pay, a price changed in the Sheet
+            // mid-session — correct the figure here rather than letting the
+            // Razorpay window be the first place they see a different number.
+            if (typeof order.total === 'number') {
+                var shown = Number(String($('finalT').innerText).replace(/[^0-9.]/g, ''));
+                if (shown && Math.round(order.total) !== Math.round(shown)) {
+                    $('finalT').innerText = '₹' + order.total;
+                    showPayError('The amount has been updated to ₹' + order.total +
+                                 ' — that is what you will be charged.');
+                }
+            }
+
+            var rzp = new Razorpay({
+                key:         order.keyId,
+                amount:      order.amount,
+                currency:    order.currency,
+                name:        'French Halwai',
+                description: orderData.items_ordered,
+                order_id:    order.orderId,
+                prefill: {
+                    name:    orderData.sender_name,
+                    contact: orderData.sender_phone ? '+91' + orderData.sender_phone : ''
+                },
+                theme: { color: '#7a4900' },
+                modal: { ondismiss: restore },
+                handler: function (response) {
+                    btn.innerText = 'Confirming...';
+
+                    var payload = {};
+                    for (var key in orderData) {
+                        if (Object.prototype.hasOwnProperty.call(orderData, key)) payload[key] = orderData[key];
+                    }
+                    payload.action = 'verifyOrder';
+                    payload.razorpay_order_id   = response.razorpay_order_id;
+                    payload.razorpay_payment_id = response.razorpay_payment_id;
+                    payload.razorpay_signature  = response.razorpay_signature;
+
+                    postJson(payload)
+                        .then(function (result) {
+                            if (result && result.verified) {
+                                var body = $('confirmBody');
+                                if (body && result.oversold && result.message) body.textContent = result.message;
+                                $('checkoutModal').style.display = 'none';
+                                $('confirmModal').style.display = 'flex';
+                                loadStock();
+                            } else {
+                                // Money may have left their account. Never tell
+                                // them to just try again.
+                                fail("We couldn't verify your payment. If you were charged, quote payment ID " +
+                                     response.razorpay_payment_id + " and we'll sort it out.");
+                            }
+                        })
+                        .catch(function () {
+                            fail("Your payment went through, but we couldn't confirm it here. Please DON'T pay again — quote payment ID " +
+                                 response.razorpay_payment_id + ".");
+                        });
+                }
+            });
+
+            rzp.on('payment.failed', function (resp) {
+                fail('Payment failed: ' + ((resp && resp.error && resp.error.description) || 'please try again.'));
+            });
+
+            rzp.open();
+        })
+        .catch(function () {
+            fail("We couldn't reach the payment server. Please try again.");
+        });
+    }
+
+    function whatsappOrderLink() {
+        var number = String(SHEET_CONFIG.whatsappnumber || '919527371656').replace(/\D/g, '');
+        return 'https://wa.me/' + number +
+               '?text=' + encodeURIComponent("Hi, I'd like to order the " + CURRENT_ITEM.name + '.');
+    }
+
+    // Indian mobile numbers are exactly 10 digits and start 6, 7, 8 or 9.
+    // The old check was `length < 10`, which happily accepted a 15-digit
+    // number or a landline — and those orders can't be reached on WhatsApp.
+    function isIndianMobile(value) { return /^[6-9]\d{9}$/.test(digits(value)); }
+
+    // "3rd September" — used in banners so the date is never typed twice.
+    function formatDropDate(date) {
+        var months = ['January','February','March','April','May','June',
+                      'July','August','September','October','November','December'];
+        var ist = new Date(date.getTime() + (5.5 * 3600 * 1000));
+        var d = ist.getUTCDate();
+        var suffix = (d % 100 >= 11 && d % 100 <= 13) ? 'th'
+                   : ['th','st','nd','rd'][d % 10] || 'th';
+        return d + suffix + ' ' + months[ist.getUTCMonth()];
+    }
 
     // ── Render product info + past drops from the config above ─────────────
     function renderProductInfo() {
@@ -74,10 +271,14 @@
         $('itemAllergens').textContent = CURRENT_ITEM.allergens;
         $('itemPrice').textContent = '₹' + CURRENT_ITEM.price;
 
+        var slotEl = $('deliverySlotText');
+        if (slotEl) slotEl.textContent = DELIVERY_SLOT;
+
+
         var gallery = $('itemGallery');
         var slidesHtml = '<span class="gallery-fallback">' + CURRENT_ITEM.name + '</span>';
         CURRENT_ITEM.images.forEach(function (src, i) {
-            slidesHtml += '<img src="' + src + '" alt="' + CURRENT_ITEM.name + '" class="mango-slide' + (i === 0 ? ' active' : '') + '" onerror="this.style.display=\'none\'">';
+            slidesHtml += '<img src="' + src + '" alt="' + CURRENT_ITEM.name + '" class="gallery-slide' + (i === 0 ? ' active' : '') + '" onerror="this.style.display=\'none\'">';
         });
         slidesHtml +=
             '<button type="button" class="g-nav g-prev" data-action="gallery-prev" aria-label="Previous photo">‹</button>' +
@@ -95,7 +296,7 @@
         grid.innerHTML = PAST_DROPS.map(function (drop, di) {
             var imgs = drop.images || [];
             var slidesHtml = imgs.map(function (src, i) {
-                return '<img src="' + src + '" alt="' + drop.name + '" class="mango-slide' + (i === 0 ? ' active' : '') + '" data-gallery="' + di + '" data-index="' + i + '" onerror="this.style.display=\'none\'">';
+                return '<img src="' + src + '" alt="' + drop.name + '" class="gallery-slide' + (i === 0 ? ' active' : '') + '" data-gallery="' + di + '" data-index="' + i + '" onerror="this.style.display=\'none\'">';
             }).join('');
             var navHtml = '';
             if (imgs.length > 1) {
@@ -136,50 +337,134 @@
     }
 
     // ── Stock ────────────────────────────────────────────────────────────────
+    // Reads a date cell from the Sheet. Accepts an ISO string (a real date
+    // cell) or plain text like "2026-09-03 11:00", which is read as IST — not
+    // as the visitor's local time, so someone opening the page from abroad
+    // doesn't see the drop open hours early.
+    function parseSheetDate(value) {
+        if (!value) return null;
+        var text = String(value).trim();
+        if (!text) return null;
+
+        if (/(Z|[+-]\d{2}:?\d{2})$/.test(text)) {
+            var iso = new Date(text);
+            return isNaN(iso.getTime()) ? null : iso;
+        }
+        var m = text.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{1,2}):(\d{2}))?/);
+        if (m) {
+            var pad = function (v) { return String(v).length < 2 ? '0' + v : String(v); };
+            var built = new Date(m[1] + '-' + m[2] + '-' + m[3] + 'T' +
+                                 pad(m[4] || '00') + ':' + pad(m[5] || '00') + ':00+05:30');
+            return isNaN(built.getTime()) ? null : built;
+        }
+        var loose = new Date(text);
+        return isNaN(loose.getTime()) ? null : loose;
+    }
+
+    // Overlays whatever the Sheet supplies on top of the defaults above.
+    // Anything the Sheet doesn't mention keeps its built-in value, so a blank
+    // or half-filled Config tab degrades quietly instead of blanking the page.
+    function applySheetConfig(cfg) {
+        if (!cfg) return;
+        SHEET_CONFIG = cfg;
+
+        if (cfg.itemname)        CURRENT_ITEM.name        = String(cfg.itemname);
+        if (cfg.itemdescription) CURRENT_ITEM.description = String(cfg.itemdescription);
+        if (cfg.itemserves)      CURRENT_ITEM.servesText  = String(cfg.itemserves);
+        if (cfg.itemallergens)   CURRENT_ITEM.allergens   = String(cfg.itemallergens);
+
+        var price = Number(cfg.itemprice);
+        if (Number.isFinite(price) && price > 0) CURRENT_ITEM.price = price;
+
+        if (cfg.itemimages) {
+            var imgs = String(cfg.itemimages).split(',')
+                .map(function (x) { return x.trim(); })
+                .filter(function (x) { return x.length; });
+            if (imgs.length) CURRENT_ITEM.images = imgs;
+        }
+
+        var opens  = parseSheetDate(cfg.bookingopens);
+        var cutoff = parseSheetDate(cfg.preordercutoff);
+        if (opens)  BOOKING_OPENS   = opens;
+        if (cutoff) PREORDER_CUTOFF = cutoff;
+
+        if (cfg.deliveryslot) DELIVERY_SLOT = String(cfg.deliveryslot);
+
+        var nextDrop = parseSheetDate(cfg.nextdropdate);
+        if (nextDrop) NEXT_DROP_DATE = nextDrop;
+    }
+
     function loadStock() {
         fetch(SCRIPT_URL, { method: 'GET' })
             .then(function (res) { return res.json(); })
             .then(function (data) {
-                var m = Number(data.maxStock);
-                if (Number.isFinite(m) && m > 0) maxStock = m;
+                applySheetConfig(data.config);
 
+                if (Array.isArray(data.pastDrops) && data.pastDrops.length) {
+                    PAST_DROPS = data.pastDrops;
+                }
+
+                // The item, dates and archive may all have just changed.
+                renderProductInfo();
+                renderPastDrops();
+                refreshDropPhase();
+
+                // MaxStock comes from the Config tab and always wins. The
+                // number in this file is only ever a last resort.
+                // ">= 0", not "> 0". MaxStock 0 in the Config tab is an
+                // instruction — "there is no drop on" — and treating it as
+                // missing is what used to leave a finished drop on sale.
+                var m = Number(data.maxStock);
+                if (Number.isFinite(m) && m >= 0) maxStock = m;
+                dropInactive = maxStock <= 0;
+
+                stockUnknown = false;
+                stockLoaded = true;
                 var remaining = Number(data.remaining);
                 applyStock(Number.isFinite(remaining) ? remaining : maxStock);
             })
             .catch(function (err) {
-                console.warn('Stock fetch failed — falling back to defaults.', err);
-                applyStock(maxStock);
+                // We could NOT read the Sheet. Previously this quietly carried
+                // on with the number baked into this file — so a drop of 7
+                // would advertise 2, and a sold-out drop would still take
+                // orders. Say we don't know instead of inventing a figure.
+                console.warn('Could not reach the Sheet — availability is unknown.', err);
+                stockUnknown = true;
+                updateUI();
             });
     }
 
     function applyStock(remaining) {
-        stockRemaining = Math.max(0, Math.min(maxStock, remaining));
+        stockRemaining = dropInactive ? 0 : Math.max(0, Math.min(maxStock, remaining));
         if (cartQty > stockRemaining) cartQty = stockRemaining;
         updateUI();
     }
 
-    // ── Preorder countdown ──────────────────────────────────────────────────
-    function updateCountdown() {
-        var msLeft = PREORDER_CUTOFF.getTime() - Date.now();
-        var countdownEl = $('countdownText');
+    // ── Which phase is the drop in? ─────────────────────────────────────────
+    // Works out whether booking is open or closed. Deliberately displays
+    // NOTHING — there is no countdown on this site. The dates still govern
+    // when ordering opens and closes; they just do it silently.
+    function refreshDropPhase() {
+        var now = Date.now();
 
-        if (msLeft <= 0) {
-            var wasOpen = !preorderClosed;
-            preorderClosed = true;
-            countdownEl.textContent = '';
-            if (wasOpen) updateUI();
+        if (PREVIEW) { updateUI(); return; }
+
+        // A manual BookingMode in the Sheet beats the clock.
+        var forced = String(SHEET_CONFIG.bookingmode || 'auto').trim().toLowerCase();
+        if (forced !== 'auto' && forced !== '') {
+            bookingOpen = (forced !== 'waitlist');
+            preorderClosed = (forced === 'closed');
+            updateUI();
             return;
         }
 
-        var totalMinutes = Math.floor(msLeft / 60000);
-        var days = Math.floor(totalMinutes / 1440);
-        var hours = Math.floor((totalMinutes % 1440) / 60);
-        var minutes = totalMinutes % 60;
-        var parts = [];
-        if (days > 0) parts.push(days + 'd');
-        if (days > 0 || hours > 0) parts.push(hours + 'h');
-        parts.push(minutes + 'm');
-        countdownEl.textContent = 'Preorders close in ' + parts.join(' ') + ' — order before it sells out!';
+        var wasOpen = bookingOpen;
+        var wasClosed = preorderClosed;
+
+        bookingOpen = now >= BOOKING_OPENS.getTime();
+        preorderClosed = bookingOpen && (now >= PREORDER_CUTOFF.getTime());
+
+        if (bookingOpen !== wasOpen || preorderClosed !== wasClosed) updateUI();
     }
 
     // ── "Sending to someone else?" toggle ────────────────────
@@ -193,6 +478,8 @@
 
     // ── Cart ────────────────────────────────────────────────
     function addToCart() {
+        if (dropInactive) { alert('There is no drop running right now. Join the waitlist and we\u2019ll message you when the next one opens.'); return; }
+        if (!bookingOpen) { alert('Booking opens ' + formatDropDate(BOOKING_OPENS) + ' at 11am. Join the waitlist and we\'ll message you.'); return; }
         if (preorderClosed) { alert('Preorders have closed for this drop.'); return; }
         if (stockRemaining <= 0) { return; }
         if (cartQty >= stockRemaining) {
@@ -206,14 +493,6 @@
     function removeFromCart() { if (cartQty > 0) { cartQty--; updateUI(); } }
     function clearItem() { cartQty = 0; updateUI(); }
 
-    function copyUPI() {
-        var tip = $('copyTooltip');
-        var show = function () { tip.classList.add('show'); setTimeout(function () { tip.classList.remove('show'); }, 2000); };
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText("9527371656@yescred").then(show).catch(show);
-        } else { show(); }
-    }
-
     // ── Coupons — always validated on the server, one code at a time ───────
     function applyCoupon() {
         var input = $('couponInput');
@@ -226,7 +505,7 @@
             msg.className = 'text-[11px] mt-2 text-red-500';
             return;
         }
-        if (phone.length < 10) {
+        if (!isIndianMobile(phone)) {
             msg.textContent = 'Enter your WhatsApp number above first, then apply the code.';
             msg.className = 'text-[11px] mt-2 text-red-500';
             return;
@@ -265,7 +544,7 @@
         var msg = $('waitlistMsg');
 
         if (name.length < 2) { msg.textContent = 'Enter your name.'; msg.className = 'text-[11px] mt-2 text-red-500'; return; }
-        if (phone.length < 10) { msg.textContent = 'Enter a valid 10-digit WhatsApp number.'; msg.className = 'text-[11px] mt-2 text-red-500'; return; }
+        if (!isIndianMobile(phone)) { msg.textContent = 'Enter a valid 10-digit WhatsApp number.'; msg.className = 'text-[11px] mt-2 text-red-500'; return; }
 
         var btn = $('waitlistBtn');
         btn.disabled = true;
@@ -292,27 +571,133 @@
         var banner = $('topBanner');
         var badge = $('stockBadge');
         var cardMsg = $('cardStockMsg');
-        var qtyBox = $('main-qty-mango');
-        var waitlistForm = $('waitlistForm');
+        var qtyBox = $('main-qty');
 
-        if (stockRemaining <= 0) {
-            banner.textContent = 'This Drop Is Sold Out · Join the Waitlist Below';
-            badge.textContent = '⚑ Sold Out';
-            badge.style.background = '#fee2e2';
-            badge.style.color = '#991b1b';
+        // ── The switch in your Sheet ───────────────────────────────────────
+        // Config tab, "BookingMode". Leave it as auto and the two dates run
+        // the drop by themselves. Set anything else and it overrides them —
+        // useful for opening early, or shutting the drop mid-flight without
+        // having to invent a date.
+        //
+        //   auto      follow BookingOpens / PreorderCutoff  (normal)
+        //   waitlist  force the pre-launch page (product hidden)
+        //   open      force ordering open, ignoring the dates
+        //   closed    force preorders closed
+        //   soldout   show the product as sold out + waitlist
+        var sheetMode = String(SHEET_CONFIG.bookingmode || 'auto').trim().toLowerCase();
+        if (!PREVIEW) {
+            if (sheetMode === 'open')          { bookingOpen = true;  preorderClosed = false; }
+            else if (sheetMode === 'closed')   { bookingOpen = true;  preorderClosed = true; }
+            else if (sheetMode === 'waitlist') { bookingOpen = false; preorderClosed = false; }
+            else if (sheetMode === 'soldout')  { bookingOpen = true;  preorderClosed = false;
+                                                 stockRemaining = 0; }
+        }
+
+        // Preview forces a phase. Real visitors never hit this branch.
+        if (PREVIEW === 'preopen')      { bookingOpen = false; preorderClosed = false; }
+        else if (PREVIEW === 'live')    { bookingOpen = true;  preorderClosed = false;
+                                          if (stockRemaining <= 0) stockRemaining = maxStock || 1; }
+        else if (PREVIEW === 'soldout') { bookingOpen = true;  preorderClosed = false; stockRemaining = 0; }
+        else if (PREVIEW === 'closed')  { bookingOpen = true;  preorderClosed = true; }
+        else if (PREVIEW === 'betweendrops') { dropInactive = true; }
+
+        // ── Two states. Only ever two. ─────────────────────────────────────
+        // Either the dessert is on sale, or it isn't and the page is the
+        // waitlist — the same page index.html shows between drops. Four things
+        // can put us in that second state (no drop configured, sold out, not
+        // open yet, past the cutoff) but they are NOT four pages. Same layout
+        // every time; one line of copy says which one it is.
+        if (dropInactive) stockRemaining = 0;
+
+        var soldOut = stockRemaining <= 0;
+        var canBuy  = !dropInactive && bookingOpen && !preorderClosed && !soldOut;
+
+        var reason = dropInactive     ? 'nodrop'
+                   : soldOut          ? 'soldout'
+                   : !bookingOpen     ? 'notyet'
+                   : preorderClosed   ? 'closed'
+                   :                    '';
+
+        var nextDrop = formatDropDate(NEXT_DROP_DATE);
+
+        // COPY[reason] — every word the waitlist page changes, in one place.
+        var COPY = {
+            nodrop: {
+                banner:   'Next Drop · ' + nextDrop + ' · Join The Waitlist',
+                badge:    '⚑ Between Drops',
+                bg: '#f1f1ef', fg: '#78716c',
+                heading:  SHEET_CONFIG.prelaunchheadline || 'Something\u2019s Coming',
+                tagline:  'We\u2019re between dessert drops right now. Pop your name down below and ' +
+                          'we\u2019ll message you the moment the next one opens.',
+                waitlist: 'Be first to know when the ' + nextDrop + ' drop opens'
+            },
+            soldout: {
+                banner:   'Sold Out For This Drop · Join The Waitlist',
+                badge:    '⚑ Sold Out',
+                bg: '#fee2e2', fg: '#991b1b',
+                heading:  'Sold Out',
+                tagline:  'We\u2019re sold out for this drop. Pop your name down below and we\u2019ll ' +
+                          'message you the moment the next one opens.',
+                waitlist: 'Sold out \u2014 join the waitlist for our next drop on ' + nextDrop
+            },
+            notyet: {
+                banner:   'Next Drop · ' + formatDropDate(BOOKING_OPENS) + ' · Join The Waitlist',
+                badge:    '⚑ Opening Soon',
+                bg: '#fef3c7', fg: '#92400e',
+                heading:  SHEET_CONFIG.prelaunchheadline || 'Something\u2019s Coming',
+                tagline:  'Our next drop opens ' + formatDropDate(BOOKING_OPENS) +
+                          '. Pop your name down below and we\u2019ll message you.',
+                waitlist: 'Be first to know when this drop opens'
+            },
+            closed: {
+                banner:   'Preorders Closed · Join The Waitlist',
+                badge:    '⚑ Closed',
+                bg: '#e5e7eb', fg: '#374151',
+                heading:  'Preorders Closed',
+                tagline:  'Preorders have closed for this drop. Pop your name down below and we\u2019ll ' +
+                          'message you the moment the next one opens.',
+                waitlist: 'Join the waitlist for our next drop on ' + nextDrop
+            }
+        };
+        var copy = COPY[reason] || null;
+
+        // The dessert is never painted before the Sheet has answered — on a
+        // waitlist page, flashing the item for a second is the one thing
+        // hiding it was supposed to prevent.
+        var showProduct  = canBuy && (stockLoaded || stockUnknown || !!PREVIEW);
+        var showWaitlist = !!copy && !stockUnknown;
+
+        var productSection  = $('productSection');
+        var waitlistSection = $('waitlistSection');
+        if (productSection)  productSection.style.display  = showProduct  ? '' : 'none';
+        if (waitlistSection) waitlistSection.style.display = showWaitlist ? '' : 'none';
+
+        var heading = $('itemName');
+        if (heading) heading.textContent = copy ? copy.heading : CURRENT_ITEM.name;
+
+        var waitlistHeading = $('waitlistHeading');
+        if (waitlistHeading) waitlistHeading.textContent = copy ? copy.waitlist : 'Join the Waitlist for our next dessert drop';
+
+        var tagline = $('heroTagline');
+        if (tagline) tagline.textContent = copy ? copy.tagline : 'Freshly made to order. Preorders open now.';
+
+        if (stockUnknown) {
+            // Ordering is disabled rather than guessed at — taking an order we
+            // can't check against the Sheet is how a drop gets oversold.
+            banner.textContent = 'Checking Availability';
+            badge.textContent = '⚑ Checking availability';
+            badge.style.background = '#f1f1ef';
+            badge.style.color = '#78716c';
+            cardMsg.textContent = "We couldn't load availability just now.";
+            qtyBox.innerHTML = '<a href="' + whatsappOrderLink() +
+                '" target="_blank" rel="noopener" class="btn-luxury inline-block">Order on WhatsApp</a>';
+        } else if (copy) {
+            banner.textContent = copy.banner;
+            badge.textContent = copy.badge;
+            badge.style.background = copy.bg;
+            badge.style.color = copy.fg;
             cardMsg.textContent = '';
-            qtyBox.innerHTML = '<button type="button" class="btn-luxury" disabled>Sold Out</button>';
-            waitlistForm.style.display = 'block';
-        } else if (preorderClosed) {
-            banner.textContent = 'Preorders Closed';
-            badge.textContent = '⚑ Closed';
-            badge.style.background = '#e5e7eb';
-            badge.style.color = '#374151';
-            cardMsg.textContent = '';
-            qtyBox.innerHTML = '<button type="button" class="btn-luxury" disabled>Preorders Closed</button>';
-            waitlistForm.style.display = 'none';
         } else {
-            waitlistForm.style.display = 'none';
             banner.textContent = 'Preorder is Live';
 
             if (cartQty >= stockRemaining) {
@@ -364,6 +749,17 @@
         $('addrInput').required = isDel;
         $('zoneSelect').required = isDel;
 
+        // Switching to pickup empties the delivery fields rather than just
+        // hiding them. Otherwise a half-filled address stays in the form and
+        // rides along to the Sheet on a pickup order, which reads as a
+        // delivery request nobody placed.
+        if (!isDel) {
+            $('addrInput').value = '';
+            $('zoneSelect').value = '';
+            var mapsField = document.querySelector('[name="maps_link"]');
+            if (mapsField) mapsField.value = '';
+        }
+
         var sub = CURRENT_ITEM.price * cartQty;
         var fee = isDel ? (DELIVERY_FEES[$('zoneSelect').value] || 0) : 0;
 
@@ -384,6 +780,24 @@
         }
         lastDiscount = discount;
 
+        var subEl = $('subtotalAmt');
+        if (subEl) subEl.textContent = '₹' + sub;
+
+        // Delivery is now shown as its own line rather than folded silently
+        // into the total. People were watching the figure jump when they
+        // picked a zone with nothing on the page explaining why.
+        var delRow = $('deliveryRow');
+        if (delRow) {
+            if (isDel) {
+                delRow.style.display = 'flex';
+                $('deliveryAmt').textContent = fee > 0 ? '₹' + fee : 'Free';
+                var zoneLabels = { koramangala: ' (Koramangala 4th Block)', '7km': ' (up to 7 km)', '10km': ' (7–12 km)' };
+                $('deliveryZoneLabel').textContent = zoneLabels[$('zoneSelect').value] || '';
+            } else {
+                delRow.style.display = 'none';
+            }
+        }
+
         var discountRow = $('discountRow');
         if (discount > 0) {
             discountRow.style.display = 'flex';
@@ -393,7 +807,15 @@
             discountRow.style.display = 'none';
         }
 
-        $('finalT').innerText = '₹' + Math.max(0, sub + fee - discount);
+        var payable = Math.max(0, sub + fee - discount);
+        $('finalT').innerText = '₹' + payable;
+
+        var payBtn = $('payBtn');
+        if (payBtn && !payBtn.disabled) {
+            var payLabel = payable > 0 ? 'Pay ₹' + payable + ' Securely' : 'Pay Securely';
+            payBtn.setAttribute('data-label', payLabel);
+            payBtn.innerText = payLabel;
+        }
     }
 
     function renderModalItems() {
@@ -432,13 +854,13 @@
     // ── Gallery ─────────────────────────────────────────────
     var galleryIdx = 0;
     function galleryRender() {
-        var slides = document.querySelectorAll('#itemGallery .mango-slide');
+        var slides = document.querySelectorAll('#itemGallery .gallery-slide');
         var dots = document.querySelectorAll('#itemGallery .g-dot');
         slides.forEach(function (s, i) { s.classList.toggle('active', i === galleryIdx); });
         dots.forEach(function (d, i) { d.classList.toggle('active', i === galleryIdx); });
     }
     function galleryGo(i) {
-        var n = document.querySelectorAll('#itemGallery .mango-slide').length;
+        var n = document.querySelectorAll('#itemGallery .gallery-slide').length;
         if (!n) return;
         galleryIdx = ((i % n) + n) % n;
         galleryRender();
@@ -457,7 +879,6 @@
         else if (action === 'open-cart')   { openCart(); }
         else if (action === 'close-cart')  { closeCart(); }
         else if (action === 'toggle-gift') { toggleGift(); }
-        else if (action === 'copy-upi')    { copyUPI(); }
         else if (action === 'apply-coupon'){ applyCoupon(); }
         else if (action === 'join-waitlist'){ joinWaitlist(); }
         else if (action === 'gallery-prev'){ galleryNav(-1); }
@@ -495,7 +916,11 @@
         }
 
         var sPhone = digits(form.sender_phone.value);
-        if (sPhone.length < 10) { alert("Please enter a valid 10-digit WhatsApp number."); form.sender_phone.focus(); return; }
+        if (!isIndianMobile(sPhone)) { alert("Please enter a valid 10-digit Indian mobile number (starting 6, 7, 8 or 9)."); form.sender_phone.focus(); return; }
+        if (isGift && !isIndianMobile(form.receiver_phone.value)) {
+            alert("Please enter a valid 10-digit mobile number for the person receiving this.");
+            form.receiver_phone.focus(); return;
+        }
         if (isGift) {
             var rPhone = digits($('receiverPhone').value);
             if (rPhone.length < 10) { alert("Please enter a valid 10-digit number for the receiver."); $('receiverPhone').focus(); return; }
@@ -507,6 +932,13 @@
         var btn = form.querySelector('button[type="submit"]');
         btn.innerText = "Processing...";
         btn.disabled = true;
+
+        if (PREVIEW) {
+            alert('Preview mode — this order was not submitted. Remove ?preview= from the URL to order for real.');
+            btn.disabled = false;
+            btn.innerText = btn.getAttribute('data-label') || 'Pay Securely';
+            return;
+        }
 
         var fd = new FormData(form);
         var isDel = $('methodSelect').value === 'delivery';
@@ -532,24 +964,14 @@
             total:           $('finalT').innerText
         };
 
-        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(orderData) })
-            .then(function () {
-                $('checkoutModal').style.display = 'none';
-                $('confirmModal').style.display = 'flex';
-            })
-            .catch(function (err) {
-                alert("Couldn't reach the server: " + (err && err.message ? err.message : err) + "\nPlease check your connection or contact us on WhatsApp.");
-                console.error("Order submit failed:", err);
-                btn.innerText = "I've Paid — Confirm Preorder";
-                btn.disabled = false;
-            });
+        payWithRazorpay(orderData, btn);
     });
 
     setInterval(function () { galleryNav(1); }, 4500);
-    setInterval(updateCountdown, 30000);
+    setInterval(refreshDropPhase, 30000);
 
     renderProductInfo();
     renderPastDrops();
-    updateCountdown();
+    refreshDropPhase();
     loadStock();
 })();
