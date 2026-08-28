@@ -17,20 +17,22 @@
     }
 
     // ── Payment-confirmation state ──────────────────────────────────────────
-    // Swaps the checkout form out for the same drawing-tower animation used
-    // on first paint, from the moment Razorpay hands back a successful
-    // payment until the backend has verified it and the order is recorded.
+    // Covers the WHOLE page with the same full-page tower animation used on
+    // first paint (#confirmingState shares the .loading-overlay class in
+    // dummy.html/style.css), from the moment Razorpay hands back a
+    // successful payment until the backend has verified it and the order is
+    // recorded. Unlike the first-paint overlay this one can show more than
+    // once per page load, so it's never removed from the DOM -- just
+    // toggled -- and it deliberately does NOT touch the checkout form
+    // underneath, so the form is exactly as the customer left it if
+    // verification fails and this hides again.
     function showConfirmingState() {
-        var area = $('checkoutFormArea');
         var state = $('confirmingState');
-        if (area) area.style.display = 'none';
-        if (state) state.style.display = 'flex';
+        if (state) state.classList.remove('is-hidden');
     }
     function hideConfirmingState() {
-        var area = $('checkoutFormArea');
         var state = $('confirmingState');
-        if (state) state.style.display = 'none';
-        if (area) area.style.display = '';
+        if (state) state.classList.add('is-hidden');
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -241,6 +243,15 @@
                     postJson(payload)
                         .then(function (result) {
                             if (result && result.verified) {
+                                // #confirmingState used to live INSIDE #checkoutModal, so
+                                // hiding the modal below also hid this for free. Now that
+                                // it's a page-level overlay (so it can cover the whole
+                                // screen, not just the card) closing the modal no longer
+                                // touches it -- forgetting this line is exactly why the
+                                // tower kept spinning forever on a successful payment,
+                                // sitting on top of the "Merci Beaucoup" confirmation
+                                // underneath instead of getting out of its way.
+                                hideConfirmingState();
                                 var body = $('confirmBody');
                                 if (body && result.oversold && result.message) body.textContent = result.message;
                                 $('checkoutModal').style.display = 'none';

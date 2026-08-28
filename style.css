@@ -167,18 +167,12 @@ html.fh-font-ready .loading-overlay__mark {
 }
 
 /* ── Payment confirmation state ───────────────────────────────────────────
-   Replaces the checkout form (see #checkoutFormArea in dummy.html) the
-   moment Razorpay hands back a successful payment, until the backend has
-   verified it and the order is actually recorded. */
-.confirming-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  padding: 50px 10px 30px;
-  text-align: center;
-}
+   #confirmingState in dummy.html reuses the .loading-overlay class itself
+   (same fixed full-page treatment, same tower, already above the checkout
+   modal's z-index) rather than a layout of its own -- confirming an order
+   should read as the same site-wide moment as the first-paint loading
+   screen, not a small block inside the checkout card. Only the text styling
+   below is specific to it. */
 .confirming-state__text {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
