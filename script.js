@@ -218,7 +218,12 @@
                 key:         order.keyId,
                 amount:      order.amount,
                 currency:    order.currency,
-                name:        'French Halwai',
+                // Both names, deliberately. The money lands in the Not Just
+                // Dinner account, so that is the name on the customer's card
+                // or UPI statement. Showing only "French Halwai" here would
+                // make that statement line a surprise; showing both makes it
+                // a recognition.
+                name:        'French Halwai by Not Just Dinner',
                 description: orderData.items_ordered,
                 order_id:    order.orderId,
                 prefill: {
