@@ -142,12 +142,41 @@
     // signed result to be verified. Only a payment whose signature verifies
     // server-side is written to the Sheet, so an abandoned or faked checkout
     // leaves no order behind.
-    function postJson(payload) {
-        return fetch(SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(payload)
-        }).then(function (res) { return res.json(); });
+    // A request with no time limit is not a slow request — it is a request
+    // that never answers. The confirmation call used to be exactly that: if
+    // it hung, neither .then nor .catch ever ran, so the spinner sat on a
+    // paying customer's screen for minutes with no way out. Every call now
+    // gives up after `timeoutMs` and lands in .catch like any other failure.
+    //
+    // `retries` is opt-in and only safe where the backend is idempotent.
+    // verifyOrder is (it answers `duplicate: true` to a payment it has
+    // already recorded) — createOrder is NOT, since a second call would open
+    // a second Razorpay order. So this defaults to no retry.
+    function postJson(payload, opts) {
+        opts = opts || {};
+        var timeoutMs = opts.timeoutMs || 25000;
+        var attemptsLeft = (opts.retries || 0) + 1;
+
+        function attempt() {
+            var controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+            var timer = setTimeout(function () { if (controller) controller.abort(); }, timeoutMs);
+
+            return fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload),
+                signal: controller ? controller.signal : undefined
+            })
+                .then(function (res) { clearTimeout(timer); return res.json(); })
+                .catch(function (err) {
+                    clearTimeout(timer);
+                    attemptsLeft--;
+                    if (attemptsLeft > 0) return attempt();
+                    throw err;
+                });
+        }
+
+        return attempt();
     }
 
     function showPayError(message) {
@@ -256,7 +285,10 @@
                     payload.razorpay_payment_id = response.razorpay_payment_id;
                     payload.razorpay_signature  = response.razorpay_signature;
 
-                    postJson(payload)
+                    // Two shots at confirming, because the backend can genuinely
+                    // take a while here: the Razorpay webhook and this call
+                    // contend for the same script lock, and the loser waits.
+                    postJson(payload, { timeoutMs: 25000, retries: 1 })
                         .then(function (result) {
                             if (result && result.verified) {
                                 // #confirmingState used to live INSIDE #checkoutModal, so
