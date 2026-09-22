@@ -45,22 +45,32 @@
     // values — no other file needs editing (the Sheet's "Qty" column and the
     // Apps Script are generic now, not tied to any one item's name).
     var CURRENT_ITEM = {
-        key: 'opera',
-        name: 'Opera',
-        price: 915,
+        key: 'millefeuille',
+        name: 'Mille-Feuille',
+        price: 11,
         servesText: 'Limited Edition · Serves 1',
-        description: 'Almond joconde, coffee buttercream, and dark chocolate ganache — seven delicate layers.',
-        allergens: 'Dairy, Gluten, Eggs, Almonds',
+        description: 'Hand-laminated puff pastry, caramelised to a glass-thin crackle, layered with Tahitian vanilla crème pâtissière.',
+        allergens: 'Dairy, Gluten, Eggs',
         // Add your own photos to /assets with these exact filenames (or change the paths here).
-        images: ['assets/opera_1.jpeg', 'assets/opera_2.jpeg']
+        images: ['assets/mile_1.jpeg', 'assets/mile_2.jpeg', 'assets/mile_3.jpeg']
     };
+
+    // ── TEST PAGE ONLY ─────────────────────────────────────────────────────
+    // dummy.html is the staging page. The live Sheet's Config tab still
+    // describes the Opera drop, and it normally overrides everything above.
+    // With this false, the item name/price/description and the drop dates
+    // come from THIS FILE instead, so the test page shows Mille-Feuille while
+    // index.html carries on showing whatever the Sheet says. Stock, coupons
+    // and orders still go through the Sheet exactly as they do live.
+    // Set this back to true (or just copy script.js over) at cutover.
+    var USE_SHEET_ITEM_CONFIG = true;
 
     // Past drops shown in the archive grid. Add, remove, or reorder freely —
     // the grid is built from this list, no HTML editing needed. `images` can
     // have 1 or 2 photos — with 2, arrows appear so people can flip between them.
     var PAST_DROPS = [
         { name: 'Tiramisu', images: ['assets/tiramisu_1.jpeg', 'assets/tiramisu_2.jpeg'], description: 'Espresso-soaked sponge layered with airy mascarpone and bittersweet cocoa.' },
-        { name: 'Opera', images: ['assets/opera_1.jpeg', 'assets/opera_2.jpeg'], description: 'French Opera with 7 layers' },
+        { name: 'Opera', images: ['assets/opera_1.jpeg', 'assets/opera_2.jpeg'], description: 'Seven layers of coffee-soaked almond joconde, silken coffee buttercream and dark chocolate ganache.' },
         { name: 'Mango Fraisier', images: ['assets/mango_fraisier_3.jpeg', 'assets/mango_fraisier_2.jpeg'], description: 'Vanilla mousseline and fresh mango over delicate almond sponge.' },
         { name: 'Forêt Noire Tart', images: ['assets/Forêt_Noire_Tart.jpeg', 'assets/Forêt_Noire_Tart2.jpeg'], description: 'Dark chocolate tart with black forest cherries and kirsch cream.' },
         { name: 'Matcha Misu', images: ['assets/matcha_misu.jpeg'], description: 'Ceremonial-grade matcha meets classic tiramisu.' },
@@ -80,12 +90,12 @@
     //                     signups; ordering is closed
     //   PREORDER_CUTOFF — after this ordering closes again
     //   DELIVERY_SLOT   — the pickup/delivery line shown on the page
-    var BOOKING_OPENS   = new Date('2026-08-01T00:00:00+05:30');  // already passed — booking is OPEN
-    var PREORDER_CUTOFF = new Date('2026-09-04T21:00:00+05:30');
-    var DELIVERY_SLOT   = '5 September · 9am – 11am';
+    var BOOKING_OPENS   = new Date('2026-09-19T00:00:00+05:30');  // already passed — booking is OPEN
+    var PREORDER_CUTOFF = new Date('2026-09-25T21:00:00+05:30');
+    var DELIVERY_SLOT   = '26 September · 9am – 11am';
 
     // Where people are sent once this drop sells out.
-    var NEXT_DROP_DATE  = new Date('2026-09-19T11:00:00+05:30');
+    var NEXT_DROP_DATE  = new Date('2026-10-17T11:00:00+05:30');
 
     // ═══════════════════════════════════════════════════════════════════════
     // Below this line is site logic — safe to leave alone.
@@ -417,6 +427,8 @@
     function applySheetConfig(cfg) {
         if (!cfg) return;
         SHEET_CONFIG = cfg;
+
+        if (!USE_SHEET_ITEM_CONFIG) return;   // test page: keep the file's item + dates
 
         if (cfg.itemname)        CURRENT_ITEM.name        = String(cfg.itemname);
         if (cfg.itemdescription) CURRENT_ITEM.description = String(cfg.itemdescription);
