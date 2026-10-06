@@ -44,31 +44,34 @@
     // The item currently being sold. To launch a new drop, just change these
     // values — no other file needs editing (the Sheet's "Qty" column and the
     // Apps Script are generic now, not tied to any one item's name).
+    // NOTE: the Sheet's Config tab overrides every one of these on page load
+    // (ItemName, ItemPrice, ItemDescription, ItemImages…). These are only the
+    // fallback if the Config tab is blank.
     var CURRENT_ITEM = {
-        key: 'millefeuille',
-        name: 'Mille-Feuille',
-        price: 11,
+        key: 'tiramisu',
+        name: 'Tiramisu',
+        price: 550,
         servesText: 'Limited Edition · Serves 1',
-        description: 'Hand-laminated puff pastry, caramelised to a glass-thin crackle, layered with Tahitian vanilla crème pâtissière.',
+        description: 'Espresso-soaked sponge layered with airy mascarpone and bittersweet cocoa.',
         allergens: 'Dairy, Gluten, Eggs',
-        // Add your own photos to /assets with these exact filenames (or change the paths here).
-        images: ['assets/mile_1.jpeg', 'assets/mile_2.jpeg', 'assets/mile_3.jpeg']
+        images: ['assets/tiramisu_1.jpeg', 'assets/tiramisu_2.jpeg']
     };
 
-    // ── TEST PAGE ONLY ─────────────────────────────────────────────────────
-    // dummy.html is the staging page. The live Sheet's Config tab still
-    // describes the Opera drop, and it normally overrides everything above.
-    // With this false, the item name/price/description and the drop dates
-    // come from THIS FILE instead, so the test page shows Mille-Feuille while
-    // index.html carries on showing whatever the Sheet says. Stock, coupons
-    // and orders still go through the Sheet exactly as they do live.
-    // Set this back to true (or just copy script.js over) at cutover.
-    var USE_SHEET_ITEM_CONFIG = true;
+    // ── Where the dessert details come from ─────────────────────────────
+    // false = dessert name/price/description/photos and the drop dates come
+    //         from THIS FILE (CURRENT_ITEM and the dates below).
+    // true  = the Sheet's Config tab overrides them (ItemName, ItemPrice…).
+    // Stock (MaxStock), coupons, BookingMode and orders always come from the
+    // Sheet either way.
+    var USE_SHEET_ITEM_CONFIG = false;
 
     // Past drops shown in the archive grid. Add, remove, or reorder freely —
     // the grid is built from this list, no HTML editing needed. `images` can
     // have 1 or 2 photos — with 2, arrows appear so people can flip between them.
+    // A tile whose name matches the dessert currently ON SALE is hidden
+    // automatically while it's on sale, so Tiramisu can stay in this list.
     var PAST_DROPS = [
+        { name: 'Mille-Feuille', images: ['assets/mile_1.jpeg', 'assets/mile_2.jpeg', 'assets/mile_3.jpeg'], description: 'Hand-laminated puff pastry, caramelised to a glass-thin crackle, layered with salted caramel and Madagascar vanilla crème pâtissière.' },
         { name: 'Tiramisu', images: ['assets/tiramisu_1.jpeg', 'assets/tiramisu_2.jpeg'], description: 'Espresso-soaked sponge layered with airy mascarpone and bittersweet cocoa.' },
         { name: 'Opera', images: ['assets/opera_1.jpeg', 'assets/opera_2.jpeg'], description: 'Seven layers of coffee-soaked almond joconde, silken coffee buttercream and dark chocolate ganache.' },
         { name: 'Mango Fraisier', images: ['assets/mango_fraisier_3.jpeg', 'assets/mango_fraisier_2.jpeg'], description: 'Vanilla mousseline and fresh mango over delicate almond sponge.' },
@@ -77,11 +80,12 @@
         { name: 'Madeleine', images: ['assets/madeline_box_of_4.jpeg', 'assets/madeline_box_of_6.jpeg'], description: 'Buttery French madeleines, golden-edged, baked to order.' }
     ];
 
-    // Stock ALWAYS comes from the "MaxStock" cell in the Sheet's Config tab.
-    // The number below is used only if that call fails outright. It is NOT a
-    // second source of truth — and since the backend re-checks stock on every
-    // order, a stale value here can no longer oversell the drop.
-    var STOCK_FALLBACK_IF_OFFLINE = 2;
+    // Boxes in this drop. The page shows and sells against THIS number the
+    // instant it loads — it never waits for the Sheet. The backend still
+    // re-checks real stock (Config tab MaxStock minus orders) before taking
+    // any payment, and once it answers, the page quietly updates to the true
+    // "Only N left". Keep MaxStock in the Config tab equal to this.
+    var DROP_STOCK = 15;
 
     // ── Drop schedule (IST) ────────────────────────────────────────────────
     // These three lines run the entire drop. To schedule the next one, change
@@ -90,9 +94,9 @@
     //                     signups; ordering is closed
     //   PREORDER_CUTOFF — after this ordering closes again
     //   DELIVERY_SLOT   — the pickup/delivery line shown on the page
-    var BOOKING_OPENS   = new Date('2026-09-19T00:00:00+05:30');  // already passed — booking is OPEN
-    var PREORDER_CUTOFF = new Date('2026-09-25T21:00:00+05:30');
-    var DELIVERY_SLOT   = '26 September · 9am – 11am';
+    var BOOKING_OPENS   = new Date('2026-10-01T00:00:00+05:30');   // already passed — Tiramisu is OPEN
+    var PREORDER_CUTOFF = new Date('2026-10-09T21:00:00+05:30');
+    var DELIVERY_SLOT   = '10 October · 9am – 11am';
 
     // Where people are sent once this drop sells out.
     var NEXT_DROP_DATE  = new Date('2026-10-17T11:00:00+05:30');
@@ -114,8 +118,8 @@
     if (['preopen', 'live', 'soldout', 'closed', 'betweendrops'].indexOf(PREVIEW) === -1) PREVIEW = '';
     if (refFromURL) { try { localStorage.setItem('order_ref', refFromURL.toLowerCase()); } catch (e) {} }
 
-    var maxStock = STOCK_FALLBACK_IF_OFFLINE;
-    var stockRemaining = STOCK_FALLBACK_IF_OFFLINE;
+    var maxStock = DROP_STOCK;
+    var stockRemaining = DROP_STOCK;
     var cartQty = 0;              // there's only ever one item in the bag: CURRENT_ITEM
     var DELIVERY_FEES = { koramangala: 0, '7km': 100, '10km': 150 };
     var dropInactive = false;     // true when the Sheet's MaxStock is 0 — no drop is running
@@ -130,8 +134,28 @@
     var stockUnknown = false;     // true when we couldn't reach the Sheet at all
     var appliedCoupon = null;     // { code, type, value } once a valid code is applied
     var lastDiscount = 0;         // last computed discount amount, sent along with the order
+    var lastPayable = 0;          // last computed total, what the page is showing
 
-    var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby-FcX9uvZeOD8TYsVTSlGRZJ3hRISMscWk3p2k_WtAuWH2a7zdAGNhQc6f_Td6j5_T/exec';
+    // ── LIVE vs UAT backend ─────────────────────────────────────────────
+    // The SAME files work in both places — nothing to edit when you copy
+    // them to the live site:
+    //   on frenchhalwai.com          → LIVE backend (FH Orders, real money)
+    //   anywhere else (the uat folder opened on your computer, a preview…)
+    //                                → UAT backend (FH Orders UAT, Razorpay
+    //                                  TEST keys, no real money)
+    // ?env=live / ?env=uat in the address forces one or the other.
+    var BACKENDS = {
+        live: 'https://script.google.com/macros/s/AKfycby-FcX9uvZeOD8TYsVTSlGRZJ3hRISMscWk3p2k_WtAuWH2a7zdAGNhQc6f_Td6j5_T/exec',
+        uat:  'https://script.google.com/macros/s/AKfycbz9aqyNRNb_nGJWU2_RIQiLMuTaQe2rQh_P-Y8lwR58fG9igy5VHBZ0K88T6c0f9gqp/exec'   // "FH Orders UAT" sheet, Razorpay TEST keys
+    };
+    var ENV = (function () {
+        var asked = (new URLSearchParams(window.location.search).get('env') || '').toLowerCase();
+        if (asked === 'uat' || asked === 'live') return asked;
+        var host = String(window.location.hostname || '').toLowerCase();
+        var onLiveSite = /(^|\.)frenchhalwai\.com$/.test(host) && !/^\/uat(\/|$)/i.test(window.location.pathname);
+        return onLiveSite ? 'live' : 'uat';
+    })();
+    var SCRIPT_URL = BACKENDS[ENV];
 
     function digits(s) { return (s || '').replace(/\D/g, ''); }
 
@@ -246,9 +270,9 @@
             // mid-session — correct the figure here rather than letting the
             // Razorpay window be the first place they see a different number.
             if (typeof order.total === 'number') {
-                var shown = Number(String($('finalT').innerText).replace(/[^0-9.]/g, ''));
+                var shown = lastPayable;
                 if (shown && Math.round(order.total) !== Math.round(shown)) {
-                    $('finalT').innerText = '₹' + order.total;
+                    $('finalT').textContent = '₹' + order.total;
                     showPayError('The amount has been updated to ₹' + order.total +
                                  ' — that is what you will be charged.');
                 }
@@ -370,7 +394,7 @@
         var gallery = $('itemGallery');
         var slidesHtml = '<span class="gallery-fallback">' + CURRENT_ITEM.name + '</span>';
         CURRENT_ITEM.images.forEach(function (src, i) {
-            slidesHtml += '<img src="' + src + '" alt="' + CURRENT_ITEM.name + '" class="gallery-slide' + (i === 0 ? ' active' : '') + '" onerror="this.style.display=\'none\'">';
+            slidesHtml += '<img src="' + src + '" alt="' + CURRENT_ITEM.name + '" class="gallery-slide' + (i === 0 ? ' active' : '') + '"' + (i === 0 ? ' fetchpriority="high"' : ' loading="lazy"') + ' decoding="async" onerror="this.style.display=\'none\'">';
         });
         slidesHtml +=
             '<button type="button" class="g-nav g-prev" data-action="gallery-prev" aria-label="Previous photo">‹</button>' +
@@ -383,12 +407,14 @@
         gallery.innerHTML = slidesHtml;
     }
 
+
     function renderPastDrops() {
         var grid = $('pastDropsGrid');
-        grid.innerHTML = PAST_DROPS.map(function (drop, di) {
+        var drops = PAST_DROPS;   // every past drop is shown, including one that's back on sale
+        grid.innerHTML = drops.map(function (drop, di) {
             var imgs = drop.images || [];
             var slidesHtml = imgs.map(function (src, i) {
-                return '<img src="' + src + '" alt="' + drop.name + '" class="gallery-slide' + (i === 0 ? ' active' : '') + '" data-gallery="' + di + '" data-index="' + i + '" onerror="this.style.display=\'none\'">';
+                return '<img src="' + src + '" alt="' + drop.name + '" class="gallery-slide' + (i === 0 ? ' active' : '') + '" data-gallery="' + di + '" data-index="' + i + '" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">';
             }).join('');
             var navHtml = '';
             if (imgs.length > 1) {
@@ -488,34 +514,66 @@
         if (nextDrop) NEXT_DROP_DATE = nextDrop;
     }
 
+    // ── Speed: show the last-known state instantly, then refresh ──────────
+    // The Apps Script backend can take many seconds to answer (Google spins
+    // it up on demand). The page used to sit behind the full-screen tower
+    // for that whole time on every single visit. Now the last answer is kept
+    // in this browser and painted immediately; the live answer replaces it
+    // the moment it lands. Nothing is trusted from the cache for money or
+    // stock — createOrder re-checks both on the server before charging.
+    var CACHE_KEY = 'fh_backend_' + ENV + '_v1';
+    var CACHE_MAX_AGE_MS = 6 * 60 * 60 * 1000;   // ignore anything older than 6h
+
+    function readCachedBackend() {
+        try {
+            var raw = localStorage.getItem(CACHE_KEY);
+            if (!raw) return null;
+            var saved = JSON.parse(raw);
+            if (!saved || !saved.data || (Date.now() - saved.at) > CACHE_MAX_AGE_MS) return null;
+            return saved.data;
+        } catch (e) { return null; }
+    }
+    function writeCachedBackend(data) {
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), data: data })); } catch (e) {}
+    }
+
+    function applyBackendData(data) {
+        applySheetConfig(data.config);
+
+        OFFERS = Array.isArray(data.coupons) ? data.coupons : [];
+        renderOffers();
+
+        if (Array.isArray(data.pastDrops) && data.pastDrops.length) {
+            PAST_DROPS = data.pastDrops;
+        }
+
+        // The item, dates and archive may all have just changed.
+        renderProductInfo();
+        refreshDropPhase();
+
+        // MaxStock comes from the Config tab and always wins. The
+        // number in this file is only ever a last resort.
+        // ">= 0", not "> 0". MaxStock 0 in the Config tab is an
+        // instruction — "there is no drop on" — and treating it as
+        // missing is what used to leave a finished drop on sale.
+        var m = Number(data.maxStock);
+        if (Number.isFinite(m) && m >= 0) maxStock = m;   // the Sheet's MaxStock is what the server enforces
+        dropInactive = maxStock <= 0;
+
+        stockUnknown = false;
+        stockLoaded = true;
+        var remaining = Number(data.remaining);
+        applyStock(Number.isFinite(remaining) ? remaining : maxStock);
+        renderPastDrops();   // after the phase is known, so the on-sale item can be hidden from the archive
+    }
+
     function loadStock() {
         fetch(SCRIPT_URL, { method: 'GET' })
             .then(function (res) { return res.json(); })
             .then(function (data) {
-                applySheetConfig(data.config);
-
-                if (Array.isArray(data.pastDrops) && data.pastDrops.length) {
-                    PAST_DROPS = data.pastDrops;
-                }
-
-                // The item, dates and archive may all have just changed.
-                renderProductInfo();
-                renderPastDrops();
-                refreshDropPhase();
-
-                // MaxStock comes from the Config tab and always wins. The
-                // number in this file is only ever a last resort.
-                // ">= 0", not "> 0". MaxStock 0 in the Config tab is an
-                // instruction — "there is no drop on" — and treating it as
-                // missing is what used to leave a finished drop on sale.
-                var m = Number(data.maxStock);
-                if (Number.isFinite(m) && m >= 0) maxStock = m;
-                dropInactive = maxStock <= 0;
-
-                stockUnknown = false;
-                stockLoaded = true;
-                var remaining = Number(data.remaining);
-                applyStock(Number.isFinite(remaining) ? remaining : maxStock);
+                if (!data || data.error) throw new Error((data && data.error) || 'Empty reply');
+                writeCachedBackend(data);
+                applyBackendData(data);
             })
             .catch(function (err) {
                 // We could NOT read the Sheet. Previously this quietly carried
@@ -582,9 +640,23 @@
         }
         cartQty++;
         updateUI();
+        recheckCoupon();
     }
 
-    function removeFromCart() { if (cartQty > 0) { cartQty--; updateUI(); } }
+    function removeFromCart() { if (cartQty > 0) { cartQty--; updateUI(); recheckCoupon(); } }
+
+    // A code like BDAY20 only covers a set number of boxes, so changing the
+    // quantity re-asks the server whether the code still fits.
+    var recheckTimer = null;
+    function recheckCoupon() {
+        if (!appliedCoupon) return;
+        clearTimeout(recheckTimer);
+        recheckTimer = setTimeout(function () {
+            if (!appliedCoupon || !cartQty) return;
+            $('couponInput').value = appliedCoupon.code;
+            applyCoupon();
+        }, 400);
+    }
     function clearItem() { cartQty = 0; updateUI(); }
 
     // ── Coupons — always validated on the server, one code at a time ───────
@@ -594,9 +666,11 @@
         var code = (input.value || '').trim().toUpperCase();
         var phone = digits(document.querySelector('[name="sender_phone"]').value);
 
+        // Same as Not Just Dinner: an empty box + Apply removes the coupon.
         if (!code) {
-            msg.textContent = 'Enter a code first.';
-            msg.className = 'text-[11px] mt-2 text-red-500';
+            appliedCoupon = null;
+            msg.textContent = '';
+            refreshFulfilmentAndTotal();
             return;
         }
         if (!isIndianMobile(phone)) {
@@ -608,13 +682,14 @@
         msg.textContent = 'Checking…';
         msg.className = 'text-[11px] mt-2 text-stone-400';
 
-        var url = SCRIPT_URL + '?action=checkCoupon&code=' + encodeURIComponent(code) + '&phone=' + encodeURIComponent(phone);
+        var url = SCRIPT_URL + '?action=checkCoupon&code=' + encodeURIComponent(code) +
+                  '&phone=' + encodeURIComponent(phone) + '&qty=' + encodeURIComponent(cartQty || 1);
         fetch(url, { method: 'GET' })
             .then(function (res) { return res.json(); })
             .then(function (data) {
                 if (data.ok) {
-                    appliedCoupon = { code: code, type: data.type, value: data.value };
-                    msg.textContent = 'Applied "' + code + '"!';
+                    appliedCoupon = { code: code, type: data.type, value: Number(data.value) || 0 };
+                    msg.textContent = '"' + code + '" applied \u2014 ' + couponBenefitText(appliedCoupon) + '.';
                     msg.className = 'text-[11px] mt-2 text-green-600 font-semibold';
                 } else {
                     appliedCoupon = null;
@@ -629,6 +704,46 @@
                 msg.className = 'text-[11px] mt-2 text-red-500';
                 refreshFulfilmentAndTotal();
             });
+    }
+
+    // ── Offers (like the NJD "View offers" list) ───────────────────────────
+    // Comes from the Coupons tab: only rows with Active = Yes and
+    // Show on Site = Yes are sent to the browser. Secret codes still work
+    // when typed; they're just never listed.
+    var OFFERS = [];
+    function escapeHtml(t) {
+        return String(t == null ? '' : t).replace(/[&<>"']/g, function (ch) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+        });
+    }
+    function renderOffers() {
+        var live = OFFERS.filter(function (o) { return o.available !== false; });
+
+        var box = $('offersBox'), list = $('offersList');
+        if (!box || !list) return;
+        if (!OFFERS.length) { box.style.display = 'none'; return; }
+        list.innerHTML = OFFERS.map(function (o) {
+            var full = o.available === false;
+            var left = (!full && typeof o.remaining === 'number' && o.remaining <= 5)
+                ? '<span class="offer-row__left">Only ' + o.remaining + ' left</span>' : '';
+            return '<button type="button" class="offer-row' + (full ? ' is-full' : '') + '"' +
+                   (full ? ' disabled' : ' data-action="pick-offer" data-code="' + escapeHtml(o.code) + '"') + '>' +
+                     '<span class="offer-row__code">' + escapeHtml(o.code) + '</span>' +
+                     '<span class="offer-row__body"><strong>' + escapeHtml(couponBenefitText(o)) + '</strong>' +
+                       (o.notes ? ' &middot; ' + escapeHtml(o.notes) : '') + left + '</span>' +
+                     '<span class="offer-row__cta">' + (full ? 'Fully claimed' : 'Apply') + '</span>' +
+                   '</button>';
+        }).join('');
+        box.style.display = '';
+    }
+
+    // "20% off" / "₹100 off" / "free delivery" — one wording everywhere.
+    function couponBenefitText(c) {
+        if (!c) return '';
+        if (c.type === 'percent') return c.value + '% off';
+        if (c.type === 'flat') return '\u20b9' + c.value + ' off';
+        if (c.type === 'free_delivery') return 'free delivery';
+        return 'discount';
     }
 
     // ── Waitlist (shown automatically once sold out) ────────────────────────
@@ -763,10 +878,14 @@
         // fetch to Apps Script is still in flight. Nothing that reveals the
         // item name, price, or a guessed stock count should render before this
         // flips true, even outside the (already-hidden) product card.
-        var known = stockLoaded || stockUnknown || !!PREVIEW;
-        if (known) hideLoadingOverlay();
+        // SPEED: the page never waits for the backend any more. Everything a
+        // visitor sees comes from this file (and the last answer cached in
+        // their browser); the backend's reply only refines the stock count
+        // and the offers when it arrives.
+        var known = true;
+        hideLoadingOverlay();
         var showProduct  = canBuy && known;
-        var showWaitlist = !!copy && !stockUnknown;
+        var showWaitlist = !!copy;
 
         var productSection  = $('productSection');
         var waitlistSection = $('waitlistSection');
@@ -791,16 +910,6 @@
             badge.style.background = '#f1f1ef';
             badge.style.color = '#78716c';
             cardMsg.textContent = '';
-        } else if (stockUnknown) {
-            // Ordering is disabled rather than guessed at — taking an order we
-            // can't check against the Sheet is how a drop gets oversold.
-            banner.textContent = 'Checking Availability';
-            badge.textContent = '⚑ Checking availability';
-            badge.style.background = '#f1f1ef';
-            badge.style.color = '#78716c';
-            cardMsg.textContent = "We couldn't load availability just now.";
-            qtyBox.innerHTML = '<a href="' + whatsappOrderLink() +
-                '" target="_blank" rel="noopener" class="btn-luxury inline-block">Order on WhatsApp</a>';
         } else if (copy) {
             banner.textContent = copy.banner;
             badge.textContent = copy.badge;
@@ -810,16 +919,23 @@
         } else {
             banner.textContent = 'Preorder is Live';
 
-            if (cartQty >= stockRemaining) {
+            if (cartQty >= stockRemaining && stockLoaded) {
                 badge.textContent = '⚑ Fully Allocated';
                 badge.style.background = '#fee2e2';
                 badge.style.color = '#991b1b';
                 cardMsg.textContent = '⚠ You have reserved all available units.';
-            } else if (left <= 3) {
+            } else if (stockLoaded && left <= 3) {
                 badge.textContent = '⚑ Only ' + left + ' left!';
                 badge.style.background = '#fef3c7';
                 badge.style.color = '#92400e';
                 cardMsg.textContent = 'Only ' + left + ' left — grab yours now.';
+            } else if (!stockLoaded) {
+                // Backend hasn't answered yet (or is down). Don't guess a count
+                // — the server still checks real stock before any payment.
+                badge.textContent = '⚑ Limited batch \u00b7 Preorders open';
+                badge.style.background = '#fef3c7';
+                badge.style.color = '#92400e';
+                cardMsg.textContent = '';
             } else {
                 badge.textContent = '⚑ Only ' + stockRemaining + ' Left';
                 badge.style.background = '#fef3c7';
@@ -918,7 +1034,42 @@
         }
 
         var payable = Math.max(0, sub + fee - discount);
-        $('finalT').innerText = '₹' + payable;
+        lastPayable = payable;
+
+        // Like Not Just Dinner: once a code is on, the original amount is shown
+        // struck through beside the new one, with "20% off applied" under it.
+        var finalEl = $('finalT');
+        finalEl.innerHTML = '';
+        if (discount > 0) {
+            var orig = document.createElement('span');
+            orig.className = 'price-orig';
+            orig.textContent = '\u20b9' + (sub + fee);
+            finalEl.appendChild(orig);
+        }
+        finalEl.appendChild(document.createTextNode('\u20b9' + payable));
+
+        var appliedNote = $('couponAppliedNote');
+        if (appliedNote) {
+            appliedNote.textContent = (discount > 0 && appliedCoupon)
+                ? couponBenefitText(appliedCoupon) + ' applied with ' + appliedCoupon.code
+                : '';
+            appliedNote.style.display = appliedNote.textContent ? 'block' : 'none';
+        }
+
+        // The same on the product card, so the saving is visible there too.
+        var cardPrice = $('itemPrice');
+        if (cardPrice) {
+            cardPrice.innerHTML = '';
+            if (appliedCoupon && appliedCoupon.type === 'percent' && appliedCoupon.value > 0) {
+                var o = document.createElement('span');
+                o.className = 'price-orig';
+                o.textContent = '\u20b9' + CURRENT_ITEM.price;
+                cardPrice.appendChild(o);
+                cardPrice.appendChild(document.createTextNode('\u20b9' + Math.round(CURRENT_ITEM.price * (1 - appliedCoupon.value / 100))));
+            } else {
+                cardPrice.appendChild(document.createTextNode('\u20b9' + CURRENT_ITEM.price));
+            }
+        }
 
         var payBtn = $('payBtn');
         if (payBtn && !payBtn.disabled) {
@@ -991,6 +1142,7 @@
         else if (action === 'close-cart')  { closeCart(); }
         else if (action === 'toggle-gift') { toggleGift(); }
         else if (action === 'apply-coupon'){ applyCoupon(); }
+        else if (action === 'pick-offer')  { $('couponInput').value = el.getAttribute('data-code') || ''; applyCoupon(); }
         else if (action === 'join-waitlist'){ joinWaitlist(); }
         else if (action === 'gallery-prev'){ galleryNav(-1); }
         else if (action === 'gallery-next'){ galleryNav(1); }
@@ -1072,7 +1224,7 @@
             notes:           fd.get('notes') || "",
             heard_from:      fd.get('heard_from') || "",
             referral_source: (function () { try { return localStorage.getItem('order_ref') || "Direct"; } catch (err) { return "Direct"; } })(),
-            total:           $('finalT').innerText
+            total:           '₹' + lastPayable
         };
 
         payWithRazorpay(orderData, btn);
@@ -1081,8 +1233,15 @@
     setInterval(function () { galleryNav(1); }, 4500);
     setInterval(refreshDropPhase, 30000);
 
+
     renderProductInfo();
     renderPastDrops();
     refreshDropPhase();
+
+    // Paint from the last-known answer straight away (returning visitors see
+    // the real page in well under a second), then fetch the live one.
+    var cached = readCachedBackend();
+    if (cached) applyBackendData(cached);
     loadStock();
+
 })();

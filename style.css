@@ -184,3 +184,23 @@ html.fh-font-ready .loading-overlay__mark {
   color: #78716c;
   letter-spacing: 0.03em;
 }
+
+/* ── Coupons (Not Just Dinner style) ──────────────────────────────────────
+   Once a code is applied the old amount is struck through beside the new
+   one, with "20% off applied with CODE" underneath. */
+.price-orig { text-decoration: line-through; color: #a8a29e; font-weight: 400; font-size: 0.75em; margin-right: 8px; }
+.coupon-applied-note { margin: -16px 0 18px; text-align: right; font-size: 11px; font-weight: 600; color: #059669; letter-spacing: 0.03em; }
+
+
+
+/* ── Offers (from the Coupons tab, "Show on Site" = Yes) ─────────────── */
+.offers-box { margin-top: 12px; }
+.offers-box__title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #78716c; margin-bottom: 6px; }
+.offer-row { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: #fff; border: 1px solid #eee5d8; padding: 10px 12px; margin-bottom: 6px; border-radius: 2px; cursor: pointer; transition: border-color 0.2s; }
+.offer-row:hover { border-color: var(--gold); }
+.offer-row__code { font-weight: 700; font-size: 11px; letter-spacing: 0.08em; color: var(--gold); border: 1px dashed var(--gold); padding: 3px 7px; border-radius: 3px; white-space: nowrap; }
+.offer-row__body { flex: 1; font-size: 11px; color: #57534e; line-height: 1.4; }
+.offer-row__left { display: block; color: #b45309; font-weight: 600; font-size: 10px; }
+.offer-row__cta { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); }
+.offer-row.is-full { opacity: 0.5; cursor: not-allowed; }
+.offer-row.is-full .offer-row__cta { color: #78716c; }
