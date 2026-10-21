@@ -99,7 +99,7 @@
     var DELIVERY_SLOT   = '10 October · 9am – 11am';
 
     // Where people are sent once this drop sells out.
-    var NEXT_DROP_DATE  = new Date('2026-10-17T11:00:00+05:30');
+    var NEXT_DROP_DATE  = new Date('2026-11-14T11:00:00+05:30');
 
     // ═══════════════════════════════════════════════════════════════════════
     // Below this line is site logic — safe to leave alone.
