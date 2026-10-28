@@ -72,10 +72,10 @@
     // automatically while it's on sale, so Tiramisu can stay in this list.
     var PAST_DROPS = [
         { name: 'Mille-Feuille', images: ['assets/mile_1.jpeg', 'assets/mile_2.jpeg', 'assets/mile_3.jpeg'], description: 'Hand-laminated puff pastry, caramelised to a glass-thin crackle, layered with salted caramel and Madagascar vanilla crème pâtissière.' },
-        { name: 'Tiramisu', images: ['assets/tiramisu_1.jpeg', 'assets/tiramisu_2.jpeg'], description: 'Espresso-soaked sponge layered with airy mascarpone and bittersweet cocoa.' },
-        { name: 'Opera', images: ['assets/opera_1.jpeg', 'assets/opera_2.jpeg'], description: 'Seven layers of coffee-soaked almond joconde, silken coffee buttercream and dark chocolate ganache.' },
         { name: 'Mango Fraisier', images: ['assets/mango_fraisier_3.jpeg', 'assets/mango_fraisier_2.jpeg'], description: 'Vanilla mousseline and fresh mango over delicate almond sponge.' },
         { name: 'Forêt Noire Tart', images: ['assets/Forêt_Noire_Tart.jpeg', 'assets/Forêt_Noire_Tart2.jpeg'], description: 'Dark chocolate tart with black forest cherries and kirsch cream.' },
+        { name: 'Opera', images: ['assets/opera_1.jpeg', 'assets/opera_2.jpeg'], description: 'Seven layers of coffee-soaked almond joconde, silken coffee buttercream and dark chocolate ganache.' },
+        { name: 'Tiramisu', images: ['assets/tiramisu_1.jpeg', 'assets/tiramisu_2.jpeg'], description: 'Espresso-soaked sponge layered with airy mascarpone and bittersweet cocoa.' },
         { name: 'Matcha Misu', images: ['assets/matcha_misu.jpeg'], description: 'Ceremonial-grade matcha meets classic tiramisu.' },
         { name: 'Madeleine', images: ['assets/madeline_box_of_4.jpeg', 'assets/madeline_box_of_6.jpeg'], description: 'Buttery French madeleines, golden-edged, baked to order.' }
     ];
